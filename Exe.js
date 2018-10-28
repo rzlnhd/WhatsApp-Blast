@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WhatsApp Blast
-// @version      2.0.2
+// @version      2.1.0
 // @date         2018-10-28
 // @description  Made by Rizal Nurhidayat
 // @author       Rizal Nurhidayat
@@ -26,14 +26,19 @@ function general(){
         element.style.height = 'auto';
         element.innerHTML =
             "<style>textarea{-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;width: 100%;}</style>"
-            +"<div style='margin-top:5px;'><textarea rows='7' id='dencoder' class='copyable-text selectable-text'></textarea></div>"
-            +"<div style='height:2px;width:100%;display:block;background:#888;margin:10px 0;cursor:pointer;'></div>"
-            +"<div style='margin-top: 10px;'><input type='checkbox' name='automatic' id='auto' value='Auto' title='Blast Automatic?' style='width:1.5em;height:1.5em;position:relative;float:left;display:block;top:1px;margin-right:2px;'> "
+            +"<div style='margin-top:5px;'><textarea rows='7' id='message' class='copyable-text selectable-text'></textarea></div>"
+            +"<div style='margin-top:2px;display:none;padding:10px 5px;background:rgb(0, 0, 0, 0.1);' id='c_bc'>"
+            +"<input type='checkbox' id='s_bc' name='s_bc' value='s_bc' title='Super BC?' style='width:1.5em;height:1.5em;position:relative;float:left;display:block;top:1px;margin-right:2px;'>"
+            +"<span>Atur Target untuk Super BC? : </span><input type='number' id='t_bp' name='t_bp' min='150' max='250' step='5' value='150' style='width:50px;' disabled><span> BP</span></div>"
+            +"<div style='height:2px;width:100%;display:block;background:#888;margin:5px 0;'></div>"
+            +"<div style='margin-top: 5px;'><input type='checkbox' name='automatic' id='auto' value='Auto' title='Blast Automatic?' style='width:1.5em;height:1.5em;position:relative;float:left;display:block;top:1px;margin-right:2px;'> "
             +"<input type='file' id='getFile' name='files' style='width:180px;cursor:pointer;'>"
             +"<div id='spam' data-icon=\"send\" class=\"img icon icon-send\" title='BLAST!' style='float:right;cursor:pointer;'>"
             +"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path opacity=\".4\" d=\"M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z\"></path></svg></div></div>";
         panel.insertBefore(element, panel.childNodes[1]);
         document.getElementById("spam").addEventListener("click", spam);
+        document.getElementById("s_bc").addEventListener("click", superBC);
+        document.getElementById("message").addEventListener("input", superBC);
         console.log("WhatsApp Blast v2.0.2 - Blast Your Follow Up NOW!");
         clearInterval(timer);
     } else{
@@ -53,10 +58,12 @@ function dispatch(input, message) {
 
 var mesej = function (nama, phone, bp){
     var abs_link = 'https://api.whatsapp.com/send?phone=',
-        _bp=parseInt(bp),bp_,obj = document.getElementById('dencoder').value,
+        _bp=parseInt(bp),bp_,obj = document.getElementById('message').value,
+        c_bc = document.getElementById('s_bc').checked,
+        s_bp=document.getElementById('t_bp').value,
         msg = obj.replace(/F_NAMA/g,set_name(nama,1)).replace(/NAMA/g,set_name(nama,0)),
         t_bp = 100;
-    if(obj.includes("BC")){t_bp=200;}
+    if(obj.includes("BC")){if(c_bc){t_bp=s_bp;}else{t_bp=150;}}
     if(bp!=null){
         bp_=t_bp-_bp;
         msg = msg.replace(/P_BP/g,_bp+" BP").replace(/K_BP/g,bp_+" BP");
@@ -103,7 +110,7 @@ var setPhone = function(phone){
 
 function spam(){
     var files = document.getElementById('getFile').files,
-        obj = document.getElementById('dencoder').value,
+        obj = document.getElementById('message').value,
         input = document.getElementsByClassName("_2S1VP")[0],
         auto = document.getElementById("auto").checked,
         file = files[0],a_gagal=[],a_error=[],
@@ -281,4 +288,18 @@ function eventFire (element, eventType) {
         event = document.createEvent("MouseEvents");
     event.initMouseEvent(eventType, true, true, window,0, 0, 0, 0, 0, false, false, false, false, 0, null);
     elm.dispatchEvent(event);
+}
+
+function superBC (e){
+    console.log(e.keyCode, e.which)
+    var obj = document.getElementById('message').value,
+        men = document.getElementById('c_bc'),
+        s_bp = document.getElementById('s_bc').checked,
+        form = document.getElementById('t_bp');
+    if(obj.includes("BC")){
+        men.style.display='block';
+    } else {
+        men.style.display='none';
+    }
+    form.disabled=!s_bp;
 }
