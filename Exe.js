@@ -9,8 +9,8 @@
 // @grant        none
 // @icon         https://k60.kn3.net/58A8A056B.png
 // @icon64       https://k60.kn3.net/58A8A056B.png
-// @updateURL    https://github.com/rzlnhd/WhatsApp-Blast/raw/master/WhatsApp%20Blast.js
-// @downloadURL  https://github.com/rzlnhd/WhatsApp-Blast/raw/master/WhatsApp%20Blast.js
+// @updateURL    https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/Exe.js
+// @downloadURL  https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/Exe.js
 // ==/UserScript==
 
 var timer = setInterval(general,1000);
@@ -34,10 +34,10 @@ function general(){
             +"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path opacity=\".4\" d=\"M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z\"></path></svg></div></div>";
         panel.insertBefore(element, panel.childNodes[1]);
         document.getElementById("spam").addEventListener("click", spam);
-        console.log("WhatsApp Blast v2.0.1 - Blast Your Follow Up NOW!");
+        console.log("WhatsApp Blast v2.0.2 - Blast Your Follow Up NOW!");
         clearInterval(timer);
     } else{
-        console.log("WhatsApp Blast v2.0.1 - Waiting for WhatsApp to load...");
+        console.log("WhatsApp Blast v2.0.2 - Waiting for WhatsApp to load...");
     }
 }
 
