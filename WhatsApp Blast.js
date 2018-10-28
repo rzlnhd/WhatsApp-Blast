@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         WhatsApp Blast 2.0.2
+// @name         WhatsApp Blast
 // @version      2.0.2
 // @date         2018-10-28
 // @description  Made by Rizal Nurhidayat
