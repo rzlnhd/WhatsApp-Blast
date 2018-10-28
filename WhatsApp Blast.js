@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         WhatsApp Blast 2.0.1
-// @version      2.0.1
-// @date         2018-09-24
+// @name         WhatsApp Blast 2.0.2
+// @version      2.0.2
+// @date         2018-10-28
 // @description  Made by Rizal Nurhidayat
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
@@ -9,8 +9,8 @@
 // @grant        none
 // @icon         https://k60.kn3.net/58A8A056B.png
 // @icon64       https://k60.kn3.net/58A8A056B.png
-// @updateURL    https://pastebin.com/dl/D6RBD0f4
-// @downloadURL  https://pastebin.com/dl/D6RBD0f4
+// @updateURL    https://github.com/rzlnhd/WhatsApp-Blast/raw/master/WhatsApp%20Blast.js
+// @downloadURL  https://github.com/rzlnhd/WhatsApp-Blast/raw/master/WhatsApp%20Blast.js
 // ==/UserScript==
 
 var timer = setInterval(general,1000);
@@ -56,7 +56,7 @@ var mesej = function (nama, phone, bp){
         _bp=parseInt(bp),bp_,obj = document.getElementById('dencoder').value,
         msg = obj.replace(/F_NAMA/g,set_name(nama,1)).replace(/NAMA/g,set_name(nama,0)),
         t_bp = 100;
-    if(obj.includes("BC")){t_bp=150;}
+    if(obj.includes("BC")){t_bp=200;}
     if(bp!=null){
         bp_=t_bp-_bp;
         msg = msg.replace(/P_BP/g,_bp+" BP").replace(/K_BP/g,bp_+" BP");
