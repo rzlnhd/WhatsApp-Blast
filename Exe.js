@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WhatsApp Blast
-// @version      2.2
+// @version      2.2.1
 // @date         2018-10-30
 // @description  Made by Rizal Nurhidayat
 // @author       Rizal Nurhidayat
@@ -48,10 +48,7 @@ function general(){
 
 function dispatch(input, message) {
     InputEvent = Event || InputEvent;
-    var evt = new InputEvent('input', {
-        bubbles: true,
-        composer: true
-    });
+    var evt = new InputEvent('input', {bubbles: true, composer: true});
     input.innerHTML = message;
     input.dispatchEvent(evt);
 }
@@ -64,15 +61,11 @@ var mesej = function (nama, phone, bp, date){
         msg = obj.replace(/F_NAMA/g,set_name(nama,1)).replace(/NAMA/g,set_name(nama,0)),
         t_bp = 100;
     if(obj.includes("BC")){if(c_bc){t_bp=s_bp;}else{t_bp=150;}}
-    if(bp!=null && bp.length<=3){
-        bp_=t_bp-_bp;
-        msg = msg.replace(/P_BP/g,_bp+" BP").replace(/K_BP/g,bp_+" BP");
-    } else if(bp!=null && bp.length>3){
-        msg = msg.replace(/L_DAY/g,getLastDay(bp));
+    if(bp!=null){
+        if(bp.length<=3){bp_=t_bp-_bp;msg = msg.replace(/P_BP/g,_bp+" BP").replace(/K_BP/g,bp_+" BP");}
+        else{msg = msg.replace(/L_DAY/g,getLastDay(bp));}
     }
-    if(date!=null){
-        msg = msg.replace(/L_DAY/g,getLastDay(date));
-    }
+    if(date!=null){msg = msg.replace(/L_DAY/g,getLastDay(date));}
     var en_msg = encodeURIComponent(msg).replace(/'/g,"%27").replace(/"/g,"%22");
     return abs_link+setPhone(phone)+'&text='+en_msg;
 }
@@ -80,19 +73,11 @@ var mesej = function (nama, phone, bp, date){
 var set_name = function(nama,opt){
     var fname=nama.split(' '),count=fname.length;
     if(opt==0){
-        if(count>1){
-            return titleCase(fname[0]);
-        } else {
-            return titleCase(nama);
-        }
-    } else {
+        if(count>1){return titleCase(fname[0]);}else{return titleCase(nama);}
+    }else{
         var new_name="";
         for(var i=0;i<count;i++){
-            if(i==0){
-                new_name+=titleCase(fname[i]);
-            } else{
-                new_name+=" "+titleCase(fname[i]);
-            }
+            if(i==0){new_name+=titleCase(fname[i]);}else{new_name+=" "+titleCase(fname[i]);}
         }
         return new_name;
     }
@@ -104,13 +89,9 @@ function titleCase(str) {
 }
 
 var setPhone = function(phone){
-    if(phone==null || phone.charAt(0)==="6"){
-        return phone;
-    } else if(phone.charAt(0)==="0"){
-        return "62"+phone.substr(1);
-    } else {
-        return "62"+phone;
-    }
+    if(phone==null || phone.charAt(0)==="6"){return phone;}
+    else if(phone.charAt(0)==="0"){return "62"+phone.substr(1);}
+    else{return "62"+phone;}
 }
 var getLastDay = function(date){
     var d = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],
@@ -128,28 +109,16 @@ function spam(){
         auto = document.getElementById("auto").checked,
         file = files[0],a_gagal=[],a_error=[],
         code=getCode(),index=getIndex(code),
-        sukses=0, gagal=0, error=0,
-        reader = new FileReader(),
-        pinned;
-    if (obj=='') {
-        alert('Silahkan Masukkan Text terlebih dahulu...');
-        return;
-    } else if (!files.length) {
-        alert('Silahkan Masukkan File Penerima Pesan...');
-        return;
-    } else if (input == null){
-        alert('Silahkan Pilih Chatroom Terlebih dahulu');
-        return;
-    } else if (auto){
-        if(code==null){
-            alert('Chatroom Tidak Memiliki Foto Profil!');
-            return;
-        } else {
+        sukses=0, gagal=0, error=0,pinned,
+        reader = new FileReader();
+    if(obj==''){alert('Silahkan Masukkan Text terlebih dahulu...');return;}
+    else if(!files.length){alert('Silahkan Masukkan File Penerima Pesan...');return;}
+    else if(input == null){alert('Silahkan Pilih Chatroom Terlebih dahulu');return;}
+    else if(auto){
+        if(code==null){alert('Chatroom Tidak Memiliki Foto Profil!');return;}
+        else{
             pinned = getPinned(index[1]);
-            if(!pinned){
-                alert('Chatroom Belum di PIN!');
-                return;
-            }
+            if(!pinned){alert('Chatroom Belum di PIN!');return;}
         }
     }
     document.getElementsByClassName("_1vDUw _1NrpZ")[0].style.overflowY="hidden";
