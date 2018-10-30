@@ -39,10 +39,10 @@ function general(){
         document.getElementById("spam").addEventListener("click", spam);
         document.getElementById("s_bc").addEventListener("click", superBC);
         document.getElementById("message").addEventListener("input", superBC);
-        console.log("WhatsApp Blast v2.2 - Blast Your Follow Up NOW!");
+        console.log("WhatsApp Blast v2.2.1 - Blast Your Follow Up NOW!");
         clearInterval(timer);
     } else{
-        console.log("WhatsApp Blast v2.2 - Waiting for WhatsApp to load...");
+        console.log("WhatsApp Blast v2.2.1 - Waiting for WhatsApp to load...");
     }
 }
 
