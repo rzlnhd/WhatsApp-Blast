@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Blast
-// @version      2.1.0
-// @date         2018-10-28
+// @version      2.2
+// @date         2018-10-30
 // @description  Made by Rizal Nurhidayat
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
@@ -39,10 +39,10 @@ function general(){
         document.getElementById("spam").addEventListener("click", spam);
         document.getElementById("s_bc").addEventListener("click", superBC);
         document.getElementById("message").addEventListener("input", superBC);
-        console.log("WhatsApp Blast v2.0.2 - Blast Your Follow Up NOW!");
+        console.log("WhatsApp Blast v2.2 - Blast Your Follow Up NOW!");
         clearInterval(timer);
     } else{
-        console.log("WhatsApp Blast v2.0.2 - Waiting for WhatsApp to load...");
+        console.log("WhatsApp Blast v2.2 - Waiting for WhatsApp to load...");
     }
 }
 
@@ -56,7 +56,7 @@ function dispatch(input, message) {
     input.dispatchEvent(evt);
 }
 
-var mesej = function (nama, phone, bp){
+var mesej = function (nama, phone, bp, date){
     var abs_link = 'https://api.whatsapp.com/send?phone=',
         _bp=parseInt(bp),bp_,obj = document.getElementById('message').value,
         c_bc = document.getElementById('s_bc').checked,
@@ -64,9 +64,14 @@ var mesej = function (nama, phone, bp){
         msg = obj.replace(/F_NAMA/g,set_name(nama,1)).replace(/NAMA/g,set_name(nama,0)),
         t_bp = 100;
     if(obj.includes("BC")){if(c_bc){t_bp=s_bp;}else{t_bp=150;}}
-    if(bp!=null){
+    if(bp!=null && bp.length<=3){
         bp_=t_bp-_bp;
         msg = msg.replace(/P_BP/g,_bp+" BP").replace(/K_BP/g,bp_+" BP");
+    } else if(bp!=null && bp.length>3){
+        msg = msg.replace(/L_DAY/g,getLastDay(bp));
+    }
+    if(date!=null){
+        msg = msg.replace(/L_DAY/g,getLastDay(date));
     }
     var en_msg = encodeURIComponent(msg).replace(/'/g,"%27").replace(/"/g,"%22");
     return abs_link+setPhone(phone)+'&text='+en_msg;
@@ -106,6 +111,14 @@ var setPhone = function(phone){
     } else {
         return "62"+phone;
     }
+}
+var getLastDay = function(date){
+    var d = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],
+        m = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"],
+        pattern = /(\d{2})\/(\d{2})\/(\d{4})/,
+        _date = new Date(date.replace(pattern,'$3-$2-$1'));
+    _date.setDate(_date.getDate() + 30);
+    return d[_date.getDay()]+", "+_date.getDate()+" "+m[_date.getMonth()]+" "+_date.getFullYear();
 }
 
 function spam(){
@@ -149,7 +162,7 @@ function spam(){
             if(lines[l]!=''){
                 var column=lines[l].split(/,|;/);
                 input = document.getElementsByClassName("_2S1VP")[0];
-                dispatch(input, ((l+1)+"). "+mesej(column[0],column[1],column[2])));
+                dispatch(input, ((l+1)+"). "+mesej(column[0],column[1],column[2],column[3])));
                 btn = document.getElementsByClassName("_35EW6");
                 btn[0].click();
                 if(auto){
