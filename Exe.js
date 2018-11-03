@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Blast
-// @version      2.2.1
-// @date         2018-10-30
+// @version      2.2.2
+// @date         2018-11-3
 // @description  Made by Rizal Nurhidayat
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
@@ -39,10 +39,10 @@ function general(){
         document.getElementById("spam").addEventListener("click", spam);
         document.getElementById("s_bc").addEventListener("click", superBC);
         document.getElementById("message").addEventListener("input", superBC);
-        console.log("WhatsApp Blast v2.2.1 - Blast Your Follow Up NOW!");
+        console.log("WhatsApp Blast v2.2.2 - Blast Your Follow Up NOW!");
         clearInterval(timer);
     } else{
-        console.log("WhatsApp Blast v2.2.1 - Waiting for WhatsApp to load...");
+        console.log("WhatsApp Blast v2.2.2 - Waiting for WhatsApp to load...");
     }
 }
 
@@ -93,11 +93,13 @@ var setPhone = function(phone){
     else if(phone.charAt(0)==="0"){return "62"+phone.substr(1);}
     else{return "62"+phone;}
 }
-var getLastDay = function(date){
+
+var getLastDay = function(dateString){
     var d = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],
         m = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"],
-        pattern = /(\d{2})\/(\d{2})\/(\d{4})/,
-        _date = new Date(date.replace(pattern,'$3-$2-$1'));
+        date = dateString.split('/');
+    date.forEach(function(item,index){date[index]=parseInt(item);});
+    var _date = new Date(date[2], date[1]-1, date[0]);
     _date.setDate(_date.getDate() + 30);
     return d[_date.getDay()]+", "+_date.getDate()+" "+m[_date.getMonth()]+" "+_date.getFullYear();
 }
