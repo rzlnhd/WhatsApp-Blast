@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Blast
-// @version      2.2.2
-// @date         2018-11-3
+// @version      2.2.3
+// @date         2018-11-4
 // @description  Made by Rizal Nurhidayat
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
@@ -32,7 +32,7 @@ function general(){
             +"<span>Atur Target untuk Super BC? : </span><input type='number' id='t_bp' name='t_bp' min='150' max='250' step='5' value='150' style='width:50px;' disabled><span> BP</span></div>"
             +"<div style='height:2px;width:100%;display:block;background:#888;margin:5px 0;'></div>"
             +"<div style='margin-top: 5px;'><input type='checkbox' name='automatic' id='auto' value='Auto' title='Blast Automatic?' style='width:1.5em;height:1.5em;position:relative;float:left;display:block;top:1px;margin-right:2px;'> "
-            +"<input type='file' id='getFile' name='files' style='width:180px;cursor:pointer;'>"
+            +"<input type='file' accept='.csv,.txt' id='getFile' name='files' style='width:180px;cursor:pointer;'>"
             +"<div id='spam' data-icon=\"send\" class=\"img icon icon-send\" title='BLAST!' style='float:right;cursor:pointer;'>"
             +"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path opacity=\".4\" d=\"M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z\"></path></svg></div></div>";
         panel.insertBefore(element, panel.childNodes[1]);
