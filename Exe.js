@@ -1,17 +1,24 @@
 // ==UserScript==
 // @name         WhatsApp Blast
-// @version      2.2.3
-// @date         2018-11-4
-// @description  Made by Rizal Nurhidayat
+// @description  Tools yang digunakan untuk membuat link API WhatsApp secara otomatis, serta memungkinkan untuk mengeksekusi link tersebut secara otomatis.
+// @copyright    2018, rzlnhd (https://openuserjs.org//users/rzlnhd)
+// @license      GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
+// @icon         https://k60.kn3.net/58A8A056B.png
+// @homepageURL  https://openuserjs.org//users/rzlnhd
+// @supportURL   https://openuserjs.org//users/rzlnhd
+// @version      2.2.4
+// @date         2018-11-9
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
-// @match        https://web.whatsapp.com/send
 // @grant        none
-// @icon         https://k60.kn3.net/58A8A056B.png
-// @icon64       https://k60.kn3.net/58A8A056B.png
 // @updateURL    https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/Exe.js
 // @downloadURL  https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/Exe.js
 // ==/UserScript==
+
+// ==OpenUserJS==
+// @author rzlnhd
+// @collaborator username
+// ==/OpenUserJS==
 
 var timer = setInterval(general,1000);
 function general(){
@@ -275,7 +282,6 @@ function eventFire (element, eventType) {
 }
 
 function superBC (e){
-    console.log(e.keyCode, e.which)
     var obj = document.getElementById('message').value,
         men = document.getElementById('c_bc'),
         s_bp = document.getElementById('s_bc').checked,
