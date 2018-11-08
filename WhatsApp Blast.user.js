@@ -1,22 +1,23 @@
 // ==UserScript==
-// @name	WhatsApp Blast
-// @description	Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
-// @copyright	2018, rzlnhd (https://openuserjs.org//users/rzlnhd)
-// @license	GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
-// @icon	https://i.imgur.com/wrgYqWE.png
-// @homepageURL	https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
-// @supportURL	https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
-// @version	3.0
-// @date	2018-11-8
-// @author	Rizal Nurhidayat
-// @match	https://web.whatsapp.com/
-// @grant	none
-// @updateURL	https://openuserjs.org/meta/rzlnhd/WhatsApp-Blast.meta.js
-// @downloadURL	https://openuserjs.org/install/rzlnhd/WhatsApp-Blast.user.js
+// @name	 WhatsApp Blast
+// @description	 Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
+// @copyright	 2018, rzlnhd (https://openuserjs.org//users/rzlnhd)
+// @license	 GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
+// @icon	 https://i.imgur.com/wrgYqWE.png
+// @icon64	 https://i.imgur.com/wrgYqWE.png
+// @homepageURL	 https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
+// @supportURL	 https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
+// @version	 3.0
+// @date	 2018-11-8
+// @author	 Rizal Nurhidayat
+// @match	 https://web.whatsapp.com/
+// @grant	 none
+// @updateURL	 https://openuserjs.org/meta/rzlnhd/WhatsApp-Blast.meta.js
+// @downloadURL	 https://openuserjs.org/install/rzlnhd/WhatsApp-Blast.user.js
 // ==/UserScript==
 
 // ==OpenUserJS==
-// @author	rzlnhd
+// @author	 rzlnhd
 // ==/OpenUserJS==
 
 /* Global Variables */
