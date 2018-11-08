@@ -5,14 +5,14 @@
 // @license      GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
-// @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
+// @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
 // @version      3.0
 // @date         2018-11-8
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
-// @updateURL    https://openuserjs.org/meta/rzlnhd/WhatsApp-Blast.meta.js
-// @downloadURL  https://openuserjs.org/install/rzlnhd/WhatsApp-Blast.user.js
+// @updateURL    https://openuserjs.org/meta/rzlnhd/WhatsApp_Blast.meta.js
+// @downloadURL  https://openuserjs.org/install/rzlnhd/WhatsApp_Blast.user.js
 // ==/UserScript==
 
 // ==OpenUserJS==
