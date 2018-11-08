@@ -1,20 +1,20 @@
 // ==UserScript==
-// @name		WhatsApp Blast
-// @description	Tools yang digunakan untuk membuat link API WhatsApp secara otomatis, serta memungkinkan untuk mengeksekusi link tersebut secara otomatis.
+// @name	WhatsApp Blast
+// @description	Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
 // @copyright	2018, rzlnhd (https://openuserjs.org//users/rzlnhd)
-// @license		GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
-// @icon		https://k60.kn3.net/58A8A056B.png
-// @version		3.0
-// @date		2018-11-8
-// @author		Rizal Nurhidayat
-// @match		https://web.whatsapp.com/
-// @grant		none
+// @license	GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
+// @icon	https://k60.kn3.net/58A8A056B.png
+// @version	3.0
+// @date	2018-11-8
+// @author	Rizal Nurhidayat
+// @match	https://web.whatsapp.com/
+// @grant	none
 // @updateURL	https://openuserjs.org/meta/rzlnhd/WhatsApp-Blast.meta.js
 // @downloadURL	https://openuserjs.org/install/rzlnhd/WhatsApp-Blast.user.js
 // ==/UserScript==
 
 // ==OpenUserJS==
-// @author rzlnhd
+// @author	rzlnhd
 // ==/OpenUserJS==
 
 /* Global Variables */
