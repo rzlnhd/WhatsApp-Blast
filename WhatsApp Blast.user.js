@@ -6,7 +6,7 @@
 // @icon	 https://i.imgur.com/H5XHdYV.png
 // @homepageURL	 https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL	 https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
-// @version	 3.0.1
+// @version	 3.0
 // @date	 2018-11-8
 // @author	 Rizal Nurhidayat
 // @match	 https://web.whatsapp.com/
