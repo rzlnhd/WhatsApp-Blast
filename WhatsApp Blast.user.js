@@ -3,8 +3,7 @@
 // @description	 Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
 // @copyright	 2018, rzlnhd (https://openuserjs.org//users/rzlnhd)
 // @license	 GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
-// @icon	 https://i.imgur.com/wrgYqWE.png
-// @icon64	 https://i.imgur.com/wrgYqWE.png
+// @icon	 https://i.imgur.com/H5XHdYV.png
 // @homepageURL	 https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL	 https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @version	 3.0.1
