@@ -1,17 +1,23 @@
 // ==UserScript==
 // @name         WhatsApp Blast
-// @version      2.2.3
-// @date         2018-11-4
-// @description  Made by Rizal Nurhidayat
+// @description  Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
+// @copyright    2018, rzlnhd (https://openuserjs.org//users/rzlnhd)
+// @license      GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
+// @icon         https://i.imgur.com/H5XHdYV.png
+// @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
+// @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
+// @version      2.2.4
+// @date         2018-11-9
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
-// @match        https://web.whatsapp.com/send
 // @grant        none
-// @icon         https://k60.kn3.net/58A8A056B.png
-// @icon64       https://k60.kn3.net/58A8A056B.png
-// @updateURL    https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/Exe.js
-// @downloadURL  https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/Exe.js
+// @updateURL    https://openuserjs.org/meta/rzlnhd/WhatsApp_Blast.meta.js
+// @downloadURL  https://openuserjs.org/install/rzlnhd/WhatsApp_Blast.user.js
 // ==/UserScript==
+
+// ==OpenUserJS==
+// @author       rzlnhd
+// ==/OpenUserJS==
 
 var timer = setInterval(general,1000);
 function general(){
