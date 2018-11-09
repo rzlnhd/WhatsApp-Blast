@@ -7,7 +7,7 @@
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
 // @version      2.2.4
-// @date         2018-11-9
+// @date         2018-11-7
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
