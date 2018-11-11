@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.0
-// @date         2018-11-8
+// @version      3.0.1
+// @date         2018-11-11
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,7 +20,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,send_media,Store = {},_image,version = "v3.0";
+var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,send_media,Store = {},_image,version = "v3.0.1";
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
@@ -320,7 +320,9 @@ function back(id){
 /* Make Report Matrix Data */
 function dataA(array){
     var str=" ",size=array.length;
-    if(size==2){
+    if(size==1){
+        str+="("+array[0]+")";
+    } else if(size==2){
         str+="("+array[0]+" & "+array[1]+")";
     } else if(size!=0){
         for(var i=0; i<size ; i++){
