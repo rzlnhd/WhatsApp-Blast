@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         WhatsApp Blast
 // @description  Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
-// @copyright    2018, rzlnhd (https://openuserjs.org//users/rzlnhd)
+// @copyright    2018, rzlnhd (https://openuserjs.org/users/rzlnhd)
 // @license      GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.0.1
-// @date         2018-11-11
+// @version      3.0.2
+// @date         2018-11-26
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,7 +20,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,send_media,Store = {},_image,version = "v3.0.1";
+var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,send_media,Store = {},_image,version = "v3.0.2",doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
@@ -125,7 +125,8 @@ function spam(){
         code=getCode(),index=getIndex(code),
         sukses=0, gagal=0, error=0,pinned,
         reader = new FileReader();
-    if(obj==''){alert('Silahkan Masukkan Text terlebih dahulu...');return;}
+    if(doing){alert('Tools Sedang Berjalan, Silahkan Tunggu!');return;}
+    else if(obj==''){alert('Silahkan Masukkan Text terlebih dahulu...');return;}
     else if(!files.length){alert('Silahkan Masukkan File Penerima Pesan...');return;}
     else if(input == null){alert('Silahkan Pilih Chatroom Terlebih dahulu');return;}
     else if(auto){
@@ -135,7 +136,7 @@ function spam(){
             if(!pinned){alert('Chatroom Belum di PIN!');return;}
         }
     }
-    document.getElementsByClassName("_1vDUw _1NrpZ")[0].style.overflowY="hidden";
+    document.getElementsByClassName("_1vDUw _1NrpZ")[0].style.overflowY="hidden";doing=true;
     reader.onload = function (progressEvent) {
         var lines =this.result.split(/\r\n|\r|\n/);
         var btn = document.getElementsByClassName("_35EW6");
@@ -348,7 +349,7 @@ function finish(sukses, gagal, error, a_gagal, a_error, auto){
     } else{
         msg+="[REPORT] Penulisan Link Selesai. "+sukses+" Link Berhasil Ditulis";
     }
-    document.getElementsByClassName("_1vDUw _1NrpZ")[0].style.overflowY="auto";
+    document.getElementsByClassName("_1vDUw _1NrpZ")[0].style.overflowY="auto";doing=false;
     alert(msg);
 }
 /* EventFire Function */
