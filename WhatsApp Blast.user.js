@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.0.2
-// @date         2018-11-26
+// @version      3.0.3
+// @date         2019-05-29
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,16 +20,16 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,send_media,Store = {},_image,version = "v3.0.2",doing=false;
+var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,send_media,Store = {},_image,version = "v3.0.3",doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
-    if(document.getElementsByClassName("swl8g")[0] != null){
-        var item2 = document.getElementsByClassName("_3auIg")[0];
-        var panel = document.getElementsByClassName("swl8g")[0];
+    if(document.getElementsByClassName("_1uESL")[0] != null){
+        var item2 = document.getElementsByClassName("_3Jvyf")[0];
+        var panel = document.getElementsByClassName("_1uESL")[0];
         var e = item2.cloneNode(true);
         initComponents(e);panel.insertBefore(e, panel.childNodes[1]);
-		initListener();initMedia();
+		initListener();//initMedia();
 		console.log("WhatsApp Blast "+version+" - Blast Your Follow Up NOW!");
 		clearInterval(timer);
 	} else{
@@ -117,7 +117,7 @@ function initMedia(){
 function spam(){
     var files = document.getElementById('getFile').files,
         obj = document.getElementById('message').value,
-        input = document.getElementsByClassName("_2S1VP")[0],
+        input = document.getElementsByClassName("_3u328")[0],
         auto = document.getElementById("auto").checked,
         c_img = document.getElementById("s_mg").checked,
         capt = document.getElementById("capt").value,
@@ -136,30 +136,30 @@ function spam(){
             if(!pinned){alert('Chatroom Belum di PIN!');return;}
         }
     }
-    document.getElementsByClassName("_1vDUw _1NrpZ")[0].style.overflowY="hidden";doing=true;
+    document.getElementsByClassName("_1c8mz _1RYPC")[0].style.overflowY="hidden";doing=true;
     reader.onload = function (progressEvent) {
         var lines =this.result.split(/\r\n|\r|\n/);
-        var btn = document.getElementsByClassName("_35EW6");
+        var btn = document.getElementsByClassName("_3M-N-");
         var l = 0, b=lines.length;
         function execute(){
             index=getIndex(code);
             if(lines[l]!=''){
                 var column=lines[l].split(/,|;/);
-                input = document.getElementsByClassName("_2S1VP")[0];
+                input = document.getElementsByClassName("_3u328")[0];
                 dispatch(input, ((l+1)+"). "+mesej(column[0],column[1],column[2],column[3])));
                 var ph = setPhone(column[1]);
-                btn = document.getElementsByClassName("_35EW6");
+                btn = document.getElementsByClassName("_3M-N-");
                 btn[0].click();
                 if(auto){
                     console.log("Link ke-"+(l+1)+": [TULIS]");
                     setTimeout(() => {
-                        var chat=document.getElementsByClassName("vW7d1"),num=chat.length;
+                        var chat=document.getElementsByClassName("FTBzM"),num=chat.length;
                         chat[num-1].getElementsByTagName('a')[0].click();
                         console.log("Link ke-"+l+": [EKSEKUSI]");
                     }, 1000);
                     setTimeout(() => {
-                        btn = document.getElementsByClassName("_35EW6");
-                        var err=document.getElementsByClassName("_1WZqU");
+                        btn = document.getElementsByClassName("_3M-N-");
+                        var err=document.getElementsByClassName("_2eK7W _3PQ7V");
                         if(err[0]!=null){
                             if(err[0].innerText==="OK"){
                                 a_error[error]=l;error++;
@@ -277,9 +277,9 @@ function getLastDay(dateString){
 =====================================*/
 /* Getting code from Selected Chatroom */
 function getCode(){
-    var obj = document.getElementsByClassName("_2wP_Y");
+    var obj = document.getElementsByClassName("X7YrQ");
     for (var l = 0; l < obj.length; l++){
-        if(obj[l].getElementsByClassName('_1f1zm')[0]!=null){
+        if(obj[l].getElementsByClassName('_3mMX1')[0]!=null){
             var id=obj[l].getElementsByTagName("img")[0];
             if(id!=null){
                 var code=id.getAttribute("src").split("&");
@@ -298,7 +298,7 @@ function getCode(){
 function getIndex(code){
     var index,i=0;
     while(i <= 11){
-        if(document.getElementsByClassName("_2wP_Y")[i].innerHTML.includes(code)){
+        if(document.getElementsByClassName("X7YrQ")[i].innerHTML.includes(code)){
             index=i; break;
         } else{
             i++;
@@ -312,11 +312,11 @@ function getIndex(code){
 }
 /* Getting Pinned Status from Selected Chatroom*/
 function getPinned(index){
-    return document.getElementsByClassName("_2wP_Y")[index].innerHTML.includes("pinned");
+    return document.getElementsByClassName("X7YrQ")[index].innerHTML.includes("pinned");
 }
 /* Back to the First Chatroom */
 function back(id){
-    eventFire(document.getElementsByClassName("_2wP_Y")[id],"mousedown");
+    eventFire(document.getElementsByClassName("X7YrQ")[id],"mousedown");
 }
 /* Make Report Matrix Data */
 function dataA(array){
@@ -349,7 +349,7 @@ function finish(sukses, gagal, error, a_gagal, a_error, auto){
     } else{
         msg+="[REPORT] Penulisan Link Selesai. "+sukses+" Link Berhasil Ditulis";
     }
-    document.getElementsByClassName("_1vDUw _1NrpZ")[0].style.overflowY="auto";doing=false;
+    document.getElementsByClassName("_1c8mz _1RYPC")[0].style.overflowY="auto";doing=false;
     alert(msg);
 }
 /* EventFire Function */
@@ -397,10 +397,17 @@ function prevImg(evt){
 }
 /* Listeners for Checkbox */
 function checking(evt){
-	var form = document.getElementById(this.value),
-        attr = this.getAttributeNode('capt-id');
-    if(attr!=null){document.getElementById(attr.value).disabled=!this.checked}
-	form.disabled=!this.checked;
+    if(this.value=="getImg"){
+        var msg="Mohon Maaf, Untuk sementara fitur Kirim Gambar TIDAK TERSEDIA."
+            +"\nTerimakasih.";
+        alert(msg);
+        this.checked=false;
+    } else{
+        var form = document.getElementById(this.value),
+            attr = this.getAttributeNode('capt-id');
+        if(attr!=null){document.getElementById(attr.value).disabled=!this.checked}
+        form.disabled=!this.checked;
+    }
 }
 /* Tabview Event Listeners */
 function openMenu(evt){
