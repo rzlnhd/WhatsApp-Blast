@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.0.3
-// @date         2019-05-29
+// @version      3.1.3
+// @date         2019-06-11
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,7 +20,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,send_media,Store = {},_image,version = "v3.0.3",doing=false;
+var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.1.3", doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
@@ -29,7 +29,7 @@ function general(){
         var panel = document.getElementsByClassName("_1uESL")[0];
         var e = item2.cloneNode(true);
         initComponents(e);panel.insertBefore(e, panel.childNodes[1]);
-		initListener();//initMedia();
+		initListener();initMedia();
 		console.log("WhatsApp Blast "+version+" - Blast Your Follow Up NOW!");
 		clearInterval(timer);
 	} else{
@@ -51,7 +51,9 @@ function initComponents(e){
 		+"#tabs button{background-color:inherit;float:left;cursor:pointer;padding:6px;transition:0.3s;width:50%;font-weight:600;border-radius:10px 10px 0 0;}"
 		+"#tabs button:hover,#tabs button.active,.tabcontent{background: rgb(255, 255, 255, 0.35);}.tabcontent{display:none;animation:fadeEffect .5s}"
 		+".immg{border: 2px solid rgba(0,0,0,0.1);max-height:151px;min-height:77px;}.immg img{max-height:141px;max-width:95%;width:auto;margin:auto;display:block}"
-		+"@keyframes fadeEffect{from {opacity:0} to {opacity:1}}</style>";
+        +".credit-icon{cursor:pointer;display:inline-block;width:16px;vertical-align:-0.125em;padding:0 1px}.btn-sc{margin-top:5px}.btn-sc a{color:#000}"
+        +".icon-facebook a:hover{color:#4267b0}.icon-twitter a:hover{color:#20a0ef}.icon-instagram a:hover{color:#da524b}.icon-whatsapp a:hover{color:#02c046}"
+		+".wb-cred{margin: 5px auto 0px;text-align:center;background:rgb(0,0,0,0.07);padding:4px 0px}@keyframes fadeEffect{from {opacity:0} to {opacity:1}}</style>";
 	e.innerHTML +="<div id='tabs'><button class='tablinks' value='_MSG'>Pesan</button><button class='tablinks' value='_IMG'>Gambar</button></div>"
 		+"<div id='_MSG' class='tabcontent'><textarea rows='9' id='message' class='copyable-text selectable-text' placeholder='Message Here!'></textarea>"
 		+"<div id='c_bc'><input type='checkbox' id='s_bc' class='checks trig' name='s_bc' value='t_bp' title='Super BC?'>"
@@ -66,7 +68,20 @@ function initComponents(e){
 		+"<div style='margin-top: 5px;'><input type='checkbox' name='automatic' id='auto' class='checks' value='Auto' title='Blast Automatic?'> "
 		+"<input type='file' accept='.csv,.txt' id='getFile' name='files' style='width:180px;cursor:pointer;'>"
 		+"<div id='spam' data-icon='send' class='img icon icon-send' title='BLAST!' style='float:right;cursor:pointer;'>"
-		+"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'><path opacity='.4' d='M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z'></path></svg></div></div>";
+		+"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'><path opacity='.4' d='M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z'></path></svg></div></div>"
+        +"<div class='wb-cred'>WhatsApp Blast "+version+"<div class='btn-sc'>"
+        +"<span id='sc-facebook' data-icon='facebook' class='img icon credit-icon icon-facebook' title='Rizal Nurhidayat'><a href='https://web.facebook.com/rzlnhd' target='_blank'>"
+        +"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512' width='16' height='16'>"
+        +"<path opacity='.4' fill='currentColor' d='M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z'></path></svg></a></span>"
+        +"<span id='sc-twitter' data-icon='twitter' class='img icon credit-icon icon-twitter' title='Rizal Nurhidayat'><a href='https://mobile.twitter.com/rzlnhd' target='_blank'>"
+        +"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='16' height='16'>"
+        +"<path opacity='.4' fill='currentColor' d='M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z'></path></svg></a></span>"
+        +"<span id='sc-instagram' data-icon='instagram' class='img icon credit-icon icon-instagram' title='Rizal Nurhidayat'><a href='https://www.instagram.com/rzlnhd/' target='_blank'>"
+        +"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512' width='16' height='16'>"
+        +"<path opacity='.4' fill='currentColor' d='M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z'></path></svg></a></span>"
+        +"<span id='sc-whatsapp' data-icon='whatsapp' class='img icon credit-icon icon-whatsapp' title='Rizal Nurhidayat'><a href='https://api.whatsapp.com/send?phone=6285726467611'>"
+        +"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512' width='16' height='16'>"
+        +"<path opacity='.4' fill='currentColor' d='M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z'></path></svg></a></span></div></div>";
 }
 /* Set All Component Listeners */
 function initListener(){
@@ -81,34 +96,39 @@ function initListener(){
 }
 /* Prepare to Send Media */
 function initMedia(){
-	function getAllModules() {
-		return new Promise((resolve) => {
-			const id = _.uniqueId("fakeModule_");
-			window["webpackJsonp"](
-				[], {
-					[id]: function(module, exports, __webpack_require__) {
-						resolve(__webpack_require__.c);
-					}
-				}, [id]
-			);
-		});
-	}
-	var modules = getAllModules()._value;
-	for (var key in modules){
-		if (modules[key].exports) {
-			if (modules[key].exports.createFromData) {
-				createFromData_id = modules[key].id.replace(/"/g, '"');
-			}
-			if (modules[key].exports.prepRawMedia) {
-				prepareRawMedia_id = modules[key].id.replace(/"/g, '"');
-			}
-			if (modules[key].exports.default) {
-				if (modules[key].exports.default.Wap) {
-					store_id = modules[key].id.replace(/"/g, '"');
-				}
-			}
-		}
-	}
+    function getAllModules() {
+        return new Promise((resolve) => {
+            const id = _.uniqueId("fakeModule_");
+            window["webpackJsonp"](
+                [],
+                {
+                    [id]: function(module, exports, __webpack_require__) {
+                        resolve(__webpack_require__.c);
+                    }
+                },
+                [id]
+            );
+        });
+    }
+    var modules = getAllModules()._value;
+    for (var key in modules) {
+        if (modules[key].exports) {
+            if (modules[key].exports.createFromData) {
+                createFromData_id = modules[key].i.replace(/"/g, '"');
+            }
+            if (modules[key].exports.prepRawMedia) {
+                prepareRawMedia_id = modules[key].i.replace(/"/g, '"');
+            }
+            if (modules[key].exports.default) {
+                if (modules[key].exports.default.Wap) {
+                    store_id = modules[key].i.replace(/"/g, '"');
+                }
+            }
+            if (modules[key].exports.sendTextMsgToChat) {
+                chat_id = modules[key].i.replace(/"/g, '"');
+            }
+        }
+    }
 }
 /*=====================================
    Main Function
@@ -212,6 +232,7 @@ function spam(){
 /* Main Send Image Function */
 function sendImg(num, file, capt){
     window.Store = _requireById(store_id).default;
+    window.Store.sendTextMsgToChat = _requireById(chat_id).sendTextMsgToChat;
     var reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = function(){
@@ -397,17 +418,10 @@ function prevImg(evt){
 }
 /* Listeners for Checkbox */
 function checking(evt){
-    if(this.value=="getImg"){
-        var msg="Mohon Maaf, Untuk sementara fitur Kirim Gambar TIDAK TERSEDIA."
-            +"\nTerimakasih.";
-        alert(msg);
-        this.checked=false;
-    } else{
-        var form = document.getElementById(this.value),
-            attr = this.getAttributeNode('capt-id');
-        if(attr!=null){document.getElementById(attr.value).disabled=!this.checked}
-        form.disabled=!this.checked;
-    }
+    var form = document.getElementById(this.value),
+        attr = this.getAttributeNode('capt-id');
+    if(attr!=null){document.getElementById(attr.value).disabled=!this.checked}
+    form.disabled=!this.checked;
 }
 /* Tabview Event Listeners */
 function openMenu(evt){
@@ -433,26 +447,23 @@ function fixBinary(bin) {
 	var buf = new ArrayBuffer(length);
 	var arr = new Uint8Array(buf);
 	for (var i = 0; i < length; i++) {
-		arr[i] = bin.charCodeAt(i);
+        arr[i] = bin.charCodeAt(i);
 	}
 	return buf;
 }
 /* Core Send Media Function*/
-window.send_media = function(num, base_64, caption, msg_id, content_type) {
+window.send_media = function(jid, link, caption, msg_id, content_type) {
 	var file = "";
 	var createFromDataClass = _requireById(createFromData_id)["default"];
 	var prepareRawMediaClass = _requireById(prepareRawMedia_id).prepRawMedia;
-	window.Store.Chat.find(num+"@c.us").then((chat) => {
-		chat.markComposing();
-		var img_b64 = base_64;
+	window.Store.Chat.find(jid+"@c.us").then((chat) => {
+		var img_b64 = link;
 		var base64 = img_b64.split(',')[1];
 		var type = img_b64.split(',')[0];
 		type = type.split(';')[0];
 		type = type.split(':')[1];
 		var binary = fixBinary(atob(base64));
-		var blob = new Blob([binary], {
-			type: type
-		});
+		var blob = new Blob([binary], {type: type});
 		var random_name = Math.random().toString(36).substr(2, 5);
 		file = new File([blob], random_name, {
 			type: type,
