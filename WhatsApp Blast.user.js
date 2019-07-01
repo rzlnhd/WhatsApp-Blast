@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.1.4
-// @date         2019-06-11
+// @version      3.1.5
+// @date         2019-07-1
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,7 +20,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.1.4", doing=false;
+var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.1.5", doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
@@ -51,9 +51,9 @@ function initComponents(e){
 		+"#tabs button{background-color:inherit;float:left;cursor:pointer;padding:6px;transition:0.3s;width:50%;font-weight:600;border-radius:10px 10px 0 0;}"
 		+"#tabs button:hover,#tabs button.active,.tabcontent{background: rgb(255, 255, 255, 0.35);}.tabcontent{display:none;animation:fadeEffect .5s}"
 		+".immg{border: 2px solid rgba(0,0,0,0.1);max-height:151px;min-height:77px;}.immg img{max-height:141px;max-width:95%;width:auto;margin:auto;display:block}"
-        +".credit-icon{cursor:pointer;display:inline-block;width:16px;vertical-align:-0.125em;padding:0 1px}.btn-sc{margin-top:5px}.btn-sc a{color:#000}"
+        +".credit-icon{cursor:pointer;display:inline-block;width:16px;vertical-align:-0.125em;padding:0 1px}.btn-sc{float:right}.btn-sc a{color:#000}"
         +".icon-facebook a:hover{color:#4267b0}.icon-twitter a:hover{color:#20a0ef}.icon-instagram a:hover{color:#da524b}.icon-whatsapp a:hover{color:#02c046}"
-		+".wb-cred{margin: 5px auto 0px;text-align:center;background:rgb(0,0,0,0.07);padding:4px 0px}@keyframes fadeEffect{from {opacity:0} to {opacity:1}}</style>";
+		+".wb-cred{margin: 5px auto 0px;text-align:left;background:rgb(0,0,0,0.07);padding:5px}@keyframes fadeEffect{from {opacity:0} to {opacity:1}}</style>";
 	e.innerHTML +="<div id='tabs'><button class='tablinks' value='_MSG'>Pesan</button><button class='tablinks' value='_IMG'>Gambar</button></div>"
 		+"<div id='_MSG' class='tabcontent'><textarea rows='9' id='message' class='copyable-text selectable-text' placeholder='Message Here!'></textarea>"
 		+"<div id='c_bc'><input type='checkbox' id='s_bc' class='checks trig' name='s_bc' value='t_bp' title='Super BC?'>"
@@ -173,7 +173,9 @@ function spam(){
                 if(auto){
                     console.log("Link ke-"+(l+1)+": [TULIS]");
                     setTimeout(() => {
-                        var chat=document.getElementsByClassName("FTBzM"),num=chat.length;
+                        var chat=document.getElementsByClassName("FTBzM"),num=chat.length,
+                            rm=chat[num-1].getElementsByClassName("_2VdJh");
+                        if(rm.length!=0){rm[0].click()};
                         chat[num-1].getElementsByTagName('a')[0].click();
                         console.log("Link ke-"+l+": [EKSEKUSI]");
                     }, 1000);
