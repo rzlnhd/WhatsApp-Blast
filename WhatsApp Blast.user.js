@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.1.5
-// @date         2019-07-1
+// @version      3.1.6
+// @date         2019-08-4
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,7 +20,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.1.5", doing=false;
+var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.1.6", doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
@@ -289,9 +289,11 @@ function setPhone(phone){
 function getLastDay(dateString){
     var d = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],
         m = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"],
-        date = dateString.split('/');
+        date = dateString.split('/'),i=0,j=0,
+	_date;
     date.forEach(function(item,index){date[index]=parseInt(item);});
-    var _date = new Date(date[2], date[1]-1, date[0]);
+    if(date[0]>100){j=2} else{i=2}
+    _date = new Date(date[i], date[1]-1, date[j]);
     _date.setDate(_date.getDate() + 30);
     return d[_date.getDay()]+", "+_date.getDate()+" "+m[_date.getMonth()]+" "+_date.getFullYear();
 }
