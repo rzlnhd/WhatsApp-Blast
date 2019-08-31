@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.1.6
-// @date         2019-08-4
+// @version      3.2.2
+// @date         2019-08-31
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,22 +20,87 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.1.6", doing=false;
+var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.2.2", doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
     if(document.getElementsByClassName("_1uESL")[0] != null){
         var item2 = document.getElementsByClassName("_3Jvyf")[0];
         var panel = document.getElementsByClassName("_1uESL")[0];
-        var e = item2.cloneNode(true);
-        initComponents(e);panel.insertBefore(e, panel.childNodes[1]);
-		initListener();initMedia();
+        var e = item2.cloneNode(true);loadModule();
+        initComponents(e);panel.insertBefore(e, panel.childNodes[1]);initListener();
 		console.log("WhatsApp Blast "+version+" - Blast Your Follow Up NOW!");
 		clearInterval(timer);
 	} else{
 		console.log("WhatsApp Blast "+version+" - Waiting for WhatsApp to load...");
     }
 }
+/* Load WAPI Module for Send Image */
+function loadModule(){if (!window.Store) {
+    (function () {
+        function getStore(modules) {
+            let foundCount = 0;
+            let neededObjects = [
+                { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
+                { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processFiles !== undefined) ? module.default : null },
+                { id: "ChatClass", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.Collection !== undefined && module.default.prototype.Collection === "Chat") ? module : null },
+                { id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
+                { id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
+                { id: "ServiceWorker", conditions: (module) => (module.default && module.default.killServiceWorker) ? module : null },
+                { id: "State", conditions: (module) => (module.STATE && module.STREAM) ? module : null },
+                { id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
+                { id: "Conn", conditions: (module) => (module.default && module.default.ref && module.default.refTTL) ? module.default : null },
+                { id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
+                { id: "CryptoLib", conditions: (module) => (module.decryptE2EMedia) ? module : null },
+                { id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
+                { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
+                { id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
+                { id: "SendSeen", conditions: (module) => (module.sendSeen) ? module.sendSeen : null },
+                { id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null }
+            ];
+            for (let idx in modules) {
+                if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                    let first = Object.values(modules[idx])[0];
+                    if ((typeof first === "object") && (first.exports)) {
+                        for (let idx2 in modules[idx]) {
+                            let module = modules(idx2);
+                            if (!module) {
+                                continue;
+                            }
+                            neededObjects.forEach((needObj) => {
+                                if (!needObj.conditions || needObj.foundedModule)
+                                    return;
+                                let neededModule = needObj.conditions(module);
+                                if (neededModule !== null) {
+                                    foundCount++;
+                                    needObj.foundedModule = neededModule;
+                                }
+                            });
+                            if (foundCount == neededObjects.length) {
+                                break;
+                            }
+                        }
+
+                        let neededStore = neededObjects.find((needObj) => needObj.id === "Store");
+                        window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
+                        neededObjects.splice(neededObjects.indexOf(neededStore), 1);
+                        neededObjects.forEach((needObj) => {
+                            if (needObj.foundedModule) {
+                                window.Store[needObj.id] = needObj.foundedModule;
+                            }
+                        });
+                        window.Store.ChatClass.default.prototype.sendMessage = function (e) {
+                            return window.Store.SendTextMsgToChat(this, ...arguments);
+                        }
+                        return window.Store;
+                    }
+                }
+            }
+        }
+
+        webpackJsonp([], { 'parasite': (x, y, z) => getStore(z) }, ['parasite']);
+    })();
+};};
 /*=====================================
    Initial Function
 =====================================*/
@@ -93,42 +158,6 @@ function initListener(){
 	document.getElementById("del").addEventListener("click", prevImg);
 	document.getElementById("message").addEventListener("input", superBC);
 	tabs[0].click();
-}
-/* Prepare to Send Media */
-function initMedia(){
-    function getAllModules() {
-        return new Promise((resolve) => {
-            const id = _.uniqueId("fakeModule_");
-            window["webpackJsonp"](
-                [],
-                {
-                    [id]: function(module, exports, __webpack_require__) {
-                        resolve(__webpack_require__.c);
-                    }
-                },
-                [id]
-            );
-        });
-    }
-    var modules = getAllModules()._value;
-    for (var key in modules) {
-        if (modules[key].exports) {
-            if (modules[key].exports.createFromData) {
-                createFromData_id = modules[key].i.replace(/"/g, '"');
-            }
-            if (modules[key].exports.prepRawMedia) {
-                prepareRawMedia_id = modules[key].i.replace(/"/g, '"');
-            }
-            if (modules[key].exports.default) {
-                if (modules[key].exports.default.Wap) {
-                    store_id = modules[key].i.replace(/"/g, '"');
-                }
-            }
-            if (modules[key].exports.sendTextMsgToChat) {
-                chat_id = modules[key].i.replace(/"/g, '"');
-            }
-        }
-    }
 }
 /*=====================================
    Main Function
@@ -233,12 +262,11 @@ function spam(){
 }
 /* Main Send Image Function */
 function sendImg(num, file, capt){
-    window.Store = _requireById(store_id).default;
-    window.Store.sendTextMsgToChat = _requireById(chat_id).sendTextMsgToChat;
     var reader = new FileReader();
+	num+="@c.us";
     reader.readAsDataURL(file);
     reader.onload = function(){
-        window.send_media(num, reader.result, capt, null, null);
+        window.sendImage(num, reader.result, capt, undefined);
     };
     reader.onerror = function(error) {
         console.log('Error: ', error);
@@ -441,48 +469,32 @@ function openMenu(evt){
 	document.getElementById(menuName).style.display = 'block';
 	evt.currentTarget.className += ' active';
 }
-/* Getting Require by ID */
-function _requireById(id) {
-	return webpackJsonp([], null, [id]);
-}
-/* Getting Fix Binary */
-function fixBinary(bin) {
-	var length = bin.length;
-	var buf = new ArrayBuffer(length);
-	var arr = new Uint8Array(buf);
-	for (var i = 0; i < length; i++) {
-        arr[i] = bin.charCodeAt(i);
-	}
-	return buf;
-}
+/* Convert Base64Image To File */
+var base64ImageToFile = function (b64Data, filename) {
+    var arr   = b64Data.split(',');
+    var mime  = arr[0].match(/:(.*?);/)[1];
+    var bstr  = atob(arr[1]);
+    var n     = bstr.length;
+    var u8arr = new Uint8Array(n);
+
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, {type: mime});
+};
 /* Core Send Media Function*/
-window.send_media = function(jid, link, caption, msg_id, content_type) {
-	var file = "";
-	var createFromDataClass = _requireById(createFromData_id)["default"];
-	var prepareRawMediaClass = _requireById(prepareRawMedia_id).prepRawMedia;
-	window.Store.Chat.find(jid+"@c.us").then((chat) => {
-		var img_b64 = link;
-		var base64 = img_b64.split(',')[1];
-		var type = img_b64.split(',')[0];
-		type = type.split(';')[0];
-		type = type.split(':')[1];
-		var binary = fixBinary(atob(base64));
-		var blob = new Blob([binary], {type: type});
-		var random_name = Math.random().toString(36).substr(2, 5);
-		file = new File([blob], random_name, {
-			type: type,
-			lastModified: Date.now()
-		});
-		var temp = createFromDataClass.createFromData(file, file.type);
-		var rawMedia = prepareRawMediaClass(temp, {});
-		var target = _.filter(window.Store.Msg.models, (msg) => {
-			return msg.id.id === msg_id;
-		})[0];
-		var textPortion = {
-			caption: caption,
-			mentionedJidList: [],
-			quotedMsg: target
-		};
-		rawMedia.sendToChat(chat, textPortion);
-	});
+window.sendImage = function (chatid, imgBase64, caption, done) {
+    var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+    var random_name = Math.random().toString(36).substr(2, 5);
+    done = undefined;
+    return window.Store.Chat.find(idUser).then((chat) => {
+        var mediaBlob = base64ImageToFile(imgBase64, random_name);
+        var mc = new window.Store.MediaCollection();
+        mc.processFiles([mediaBlob], chat, 1).then(() => {
+            var media = mc.models[0];
+            media.sendToChat(chat, { caption: caption });
+            if (done !== undefined) done(true);
+        });
+    });
 }
