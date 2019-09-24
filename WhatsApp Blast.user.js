@@ -6,7 +6,7 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.2.3
+// @version      3.2.4
 // @date         2019-09-24
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
@@ -20,7 +20,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.2.3", doing=false;
+var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.2.4", doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
@@ -289,7 +289,7 @@ var mesej = function (nama, phone, bp, date){
     var en_msg = encodeURIComponent(msg).replace(/'/g,"%27").replace(/"/g,"%22");
     return abs_link+setPhone(phone)+'&text='+en_msg;
 }
-/* Break When Number is Empty */
+/* Break When Name is Empty */
 var break_f = function (line){
     var column=line.split(/,|;/);
     console.log(column[0]);
