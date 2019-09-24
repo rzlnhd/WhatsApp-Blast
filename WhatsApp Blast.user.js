@@ -224,10 +224,10 @@ function spam(){
                         } else{
                             if(btn[0]!=null){
                                 sukses++;
-                                //btn[0].click();
+                                btn[0].click();
                                 console.log("Link ke-"+l+": [EKSEKUSI SUKSES]");
                                 if(c_img && _image!=null){
-                                    //sendImg(ph, _image, capt);
+                                    sendImg(ph, _image, capt);
                                     console.log("Link ke-"+l+": [GAMBAR SUKSES DIKIRIM]");
                                 };
                             } else{
