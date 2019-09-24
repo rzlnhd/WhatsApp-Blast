@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.2.2
-// @date         2019-08-31
+// @version      3.2.3
+// @date         2019-09-24
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,7 +20,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.2.2", doing=false;
+var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.2.3", doing=false;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
@@ -192,7 +192,7 @@ function spam(){
         var l = 0, b=lines.length;
         function execute(){
             index=getIndex(code);
-            if(lines[l]!=''){
+            if(lines[l]!='' && break_f(lines[l])){
                 var column=lines[l].split(/,|;/);
                 input = document.getElementsByClassName("_3u328")[0];
                 dispatch(input, ((l+1)+"). "+mesej(column[0],column[1],column[2],column[3])));
@@ -224,10 +224,10 @@ function spam(){
                         } else{
                             if(btn[0]!=null){
                                 sukses++;
-                                btn[0].click();
+                                //btn[0].click();
                                 console.log("Link ke-"+l+": [EKSEKUSI SUKSES]");
                                 if(c_img && _image!=null){
-                                    sendImg(ph, _image, capt);
+                                    //sendImg(ph, _image, capt);
                                     console.log("Link ke-"+l+": [GAMBAR SUKSES DIKIRIM]");
                                 };
                             } else{
@@ -288,6 +288,15 @@ var mesej = function (nama, phone, bp, date){
     if(date!=null){msg = msg.replace(/L_DAY/g,getLastDay(date));}
     var en_msg = encodeURIComponent(msg).replace(/'/g,"%27").replace(/"/g,"%22");
     return abs_link+setPhone(phone)+'&text='+en_msg;
+}
+/* Break When Number is Empty */
+var break_f = function (line){
+    var column=line.split(/,|;/);
+    console.log(column[0]);
+    if(column[0]!=''){
+        return true;
+    }
+    return false;
 }
 /* Set Name of the Recipient */
 function setName(nama,opt){
