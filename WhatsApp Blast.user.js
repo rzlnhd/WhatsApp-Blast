@@ -6,8 +6,8 @@
 // @icon         https://i.imgur.com/H5XHdYV.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.2.4
-// @date         2019-09-24
+// @version      3.2.5
+// @date         2019-10-04
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        none
@@ -20,13 +20,16 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.2.4", doing=false;
+var createFromData_id = 0, prepareRawMedia_id = 0, store_id = 0, chat_id = 0, send_media, Store = {},_image,version = "v3.2.5", doing=false,
+    classPanel = "_1uESL" /*from div#side Element*/, classItem = "_3Jvyf" /*from header tag element*/, classInput = "_3u328" /*from input message*/,
+    classSend = "_3M-N-" /*from send button*/, classChat = "FTBzM" /*from message in chat*/, classErr = "_2eK7W _3PQ7V" /*from error message when execute link*/,
+    classChRoom = "X7YrQ" /*from chatroom list*/, classAcChRoom = "_3mMX1" /*from active chatroom*/, classPCh = "_1c8mz _1RYPC" /*from div#pane-side*/;
 /* First Function */
 var timer = setInterval(general,1000);
 function general(){
-    if(document.getElementsByClassName("_1uESL")[0] != null){
-        var item2 = document.getElementsByClassName("_3Jvyf")[0];
-        var panel = document.getElementsByClassName("_1uESL")[0];
+    if(document.getElementsByClassName(classPanel)[0] != null){
+        var item2 = document.getElementsByClassName(classItem)[0];
+        var panel = document.getElementsByClassName(classPanel)[0];
         var e = item2.cloneNode(true);loadModule();
         initComponents(e);panel.insertBefore(e, panel.childNodes[1]);initListener();
 		console.log("WhatsApp Blast "+version+" - Blast Your Follow Up NOW!");
@@ -166,7 +169,7 @@ function initListener(){
 function spam(){
     var files = document.getElementById('getFile').files,
         obj = document.getElementById('message').value,
-        input = document.getElementsByClassName("_3u328")[0],
+        input = document.getElementsByClassName(classInput)[0],
         auto = document.getElementById("auto").checked,
         c_img = document.getElementById("s_mg").checked,
         capt = document.getElementById("capt").value,
@@ -188,29 +191,29 @@ function spam(){
     document.getElementsByClassName("_1c8mz _1RYPC")[0].style.overflowY="hidden";doing=true;
     reader.onload = function (progressEvent) {
         var lines =this.result.split(/\r\n|\r|\n/);
-        var btn = document.getElementsByClassName("_3M-N-");
+        var btn = document.getElementsByClassName(classSend);
         var l = 0, b=lines.length;
         function execute(){
             index=getIndex(code);
             if(lines[l]!='' && break_f(lines[l])){
                 var column=lines[l].split(/,|;/);
-                input = document.getElementsByClassName("_3u328")[0];
+                input = document.getElementsByClassName(classInput)[0];
                 dispatch(input, ((l+1)+"). "+mesej(column[0],column[1],column[2],column[3])));
                 var ph = setPhone(column[1]);
-                btn = document.getElementsByClassName("_3M-N-");
+                btn = document.getElementsByClassName(classSend);
                 btn[0].click();
                 if(auto){
                     console.log("Link ke-"+(l+1)+": [TULIS]");
                     setTimeout(() => {
-                        var chat=document.getElementsByClassName("FTBzM"),num=chat.length,
-                            rm=chat[num-1].getElementsByClassName("_2VdJh");
-                        if(rm.length!=0){rm[0].click()};
+                        var chat=document.getElementsByClassName(classChat),num=chat.length,
+                            rm=chat[num-1].querySelectorAll('span[role="button"]');
+                        while(rm.length!=0){rm[0].click();rm=getRM()};
                         chat[num-1].getElementsByTagName('a')[0].click();
                         console.log("Link ke-"+l+": [EKSEKUSI]");
                     }, 1000);
                     setTimeout(() => {
-                        btn = document.getElementsByClassName("_3M-N-");
-                        var err=document.getElementsByClassName("_2eK7W _3PQ7V");
+                        btn = document.getElementsByClassName(classSend);
+                        var err=document.getElementsByClassName(classErr);
                         if(err[0]!=null){
                             if(err[0].innerText==="OK"){
                                 a_error[error]=l;error++;
@@ -292,7 +295,6 @@ var mesej = function (nama, phone, bp, date){
 /* Break When Name is Empty */
 var break_f = function (line){
     var column=line.split(/,|;/);
-    console.log(column[0]);
     if(column[0]!=''){
         return true;
     }
@@ -310,6 +312,11 @@ function setName(nama,opt){
         }
         return new_name;
     }
+}
+/* Get Read More Button */
+function getRM(){
+    var chat=document.getElementsByClassName(classChat),num=chat.length;
+    return chat[num-1].querySelectorAll('span[role="button"]');
 }
 /* Title Case Text Transform */
 function titleCase(str) {
@@ -339,9 +346,9 @@ function getLastDay(dateString){
 =====================================*/
 /* Getting code from Selected Chatroom */
 function getCode(){
-    var obj = document.getElementsByClassName("X7YrQ");
+    var obj = document.getElementsByClassName(classChRoom);
     for (var l = 0; l < obj.length; l++){
-        if(obj[l].getElementsByClassName('_3mMX1')[0]!=null){
+        if(obj[l].getElementsByClassName(classAcChRoom)[0]!=null){
             var id=obj[l].getElementsByTagName("img")[0];
             if(id!=null){
                 var code=id.getAttribute("src").split("&");
@@ -360,7 +367,7 @@ function getCode(){
 function getIndex(code){
     var index,i=0;
     while(i <= 11){
-        if(document.getElementsByClassName("X7YrQ")[i].innerHTML.includes(code)){
+        if(document.getElementsByClassName(classChRoom)[i].innerHTML.includes(code)){
             index=i; break;
         } else{
             i++;
@@ -374,11 +381,11 @@ function getIndex(code){
 }
 /* Getting Pinned Status from Selected Chatroom*/
 function getPinned(index){
-    return document.getElementsByClassName("X7YrQ")[index].innerHTML.includes("pinned");
+    return document.getElementsByClassName(classChRoom)[index].innerHTML.includes("pinned");
 }
 /* Back to the First Chatroom */
 function back(id){
-    eventFire(document.getElementsByClassName("X7YrQ")[id],"mousedown");
+    eventFire(document.getElementsByClassName(classChRoom)[id],"mousedown");
 }
 /* Make Report Matrix Data */
 function dataA(array){
@@ -411,7 +418,7 @@ function finish(sukses, gagal, error, a_gagal, a_error, auto){
     } else{
         msg+="[REPORT] Penulisan Link Selesai. "+sukses+" Link Berhasil Ditulis";
     }
-    document.getElementsByClassName("_1c8mz _1RYPC")[0].style.overflowY="auto";doing=false;
+    document.getElementsByClassName(classPCh)[0].style.overflowY="auto";doing=false;
     alert(msg);
 }
 /* EventFire Function */
