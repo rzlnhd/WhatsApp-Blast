@@ -6,8 +6,8 @@
 // @icon         https://i.ibb.co/9hvj6jY/WA-Blast-Icon.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.3.1
-// @date         2020-1-15
+// @version      3.3.2
+// @date         2020-1-16
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @match        https://web.whatsapp.com/
@@ -21,7 +21,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,chat_id = 0,send_media,Store = {},_image,version = "v3.3.1",upDate = "15 Jan 2020",doing=false,
+var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,chat_id = 0,send_media,Store = {},_image,version = "v3.3.2",upDate = "16 Jan 2020",doing=false,
     classChat = "FTBzM" /*from message in chat*/, classErr = "_2eK7W _3PQ7V" /*from error message when execute link*/,
     classChRoom = "X7YrQ" /*from chatroom list*/, classAcChRoom = "_3mMX1" /*from active chatroom*/;
 /* First Function */
@@ -113,7 +113,7 @@ function initComponents(e){
 	e.innerHTML ="<style>#wbHead{padding:5px 16px;background:#ededed;border-top:1px #bbb solid}#wbBody{padding:0px 16px;height:0;border-bottom:1px #bbb solid;transition:height 0.2s ease-in-out;overflow:hidden}"
         +"img.appIco{height:32px;padding:5px;vertical-align:middle}span.active{color:rgb(0,155,76) !important;transform:rotate(-90deg)}"
         +"#wbHead>span{display:inline-block}span.rightIco{float:right;vertical-align:middle;padding:7px;border-radius:50%;color:rgba(0,155,76,.5);transition:transform 0.2s ease-in-out}"
-        +"textarea{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:100%}"
+        +"textarea{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:100%}textarea#message{height:145px}"
 		+"textarea#capt{border-color:rgb(0,0,0,0.1);background:rgb(0,0,0,0.05);color:black}textarea#capt::-webkit-input-placeholder{font-size:90%;color:white}"
 		+"textarea#capt:disabled{background:rgb(0,0,0,0.15)}textarea#capt:disabled::-webkit-input-placeholder{color:#eee}"
 		+"input.checks{width:1.5em;height:1.5em;position:relative;float:left;display:block;top:1px;margin-right:2px}"
@@ -159,9 +159,10 @@ function initComponents(e){
 /* Set All Component Listeners */
 function initListener(){
 	var i, tabs = document.getElementsByClassName("tablinks"), trigs = document.getElementsByClassName("trig"),
-        wbHead = document.getElementById("toggleApp");
+        wbHead = document.getElementById("toggleApp"),checkL = document.querySelectorAll("input[type='checkbox']");
 	for(i=0 ; i < tabs.length ; i++){tabs[i].addEventListener("click", openMenu)};
 	for(i=0 ; i < trigs.length ; i++){trigs[i].addEventListener("click", checking)};
+    for(i=1 ; i < checkL.length ; i++){checkL[i].addEventListener("click", lockF)};
     wbHead.addEventListener("click",toggleApp);
 	document.getElementById("blast").addEventListener("click", blast);
 	document.getElementById("getImg").addEventListener("change", prevImg);
@@ -359,7 +360,9 @@ function getLastDay(dateString){
 /* Show Change Log */
 function changeLog(){
     var cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog+="\n▫ Menambah fitur \"tracking error\""
+    cLog+="\n▫ Memperbaiki tampilan saat ada kata 'BC'"
+        +"\n\nVersion v3.3.1 (15 Jan 2020)."
+        +"\n▫ Menambah fitur tracking error"
         +"\n\nVersion v3.3.0 (13 Jan 2020)."
         +"\n▫ Membatasi data Blast Auto (Max 100 nama)."
         +"\n▫ Membatasi ukuran gambar (Max 4MB)."
@@ -488,10 +491,13 @@ function dispatch(input, message) {
 /* Open Super BC Menu */
 function superBC(e){
 	var obj = this.value,
+        msj = document.getElementById('message'),
 		men = document.getElementById('c_bc');
 	if(obj.includes("BC")){
+        msj.style.height='110px';
 		men.style.display='block';
 	} else {
+        msj.style.height=null;
 		men.style.display='none';
 	}
 }
@@ -584,3 +590,4 @@ window.sendImage = function (chatid, imgBase64, caption, done) {
         });
     });
 }
+var _0x4e95=['Mohon\x20maaf\x20fitur\x20sementara\x20dikunci!','currentTarget','checked'];(function(_0x7edfd4,_0x126aa7){var _0xe103ae=function(_0x51222e){while(--_0x51222e){_0x7edfd4['push'](_0x7edfd4['shift']());}};_0xe103ae(++_0x126aa7);}(_0x4e95,0x1c8));var _0x1e87=function(_0x7edfd4,_0x126aa7){_0x7edfd4=_0x7edfd4-0x0;var _0xe103ae=_0x4e95[_0x7edfd4];return _0xe103ae;};function lockF(_0x126aa7){alert(_0x1e87('0x0'));_0x126aa7[_0x1e87('0x1')][_0x1e87('0x2')]=![];}
