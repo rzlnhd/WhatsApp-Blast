@@ -6,8 +6,8 @@
 // @icon         https://i.ibb.co/9hvj6jY/WA-Blast-Icon.png
 // @homepageURL  https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast
 // @supportURL   https://openuserjs.org/scripts/rzlnhd/WhatsApp_Blast/issues
-// @version      3.3.2
-// @date         2020-1-16
+// @version      3.3.3
+// @date         2020-1-18
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @match        https://web.whatsapp.com/
@@ -21,7 +21,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,chat_id = 0,send_media,Store = {},_image,version = "v3.3.2",upDate = "16 Jan 2020",doing=false,
+var createFromData_id = 0,prepareRawMedia_id = 0,store_id = 0,chat_id = 0,send_media,Store = {},_image,version = "v3.3.3",upDate = "18 Jan 2020",doing=false,
     classChat = "FTBzM" /*from message in chat*/, classErr = "_2eK7W _3PQ7V" /*from error message when execute link*/,
     classChRoom = "X7YrQ" /*from chatroom list*/, classAcChRoom = "_3mMX1" /*from active chatroom*/;
 /* First Function */
@@ -162,7 +162,7 @@ function initListener(){
         wbHead = document.getElementById("toggleApp"),checkL = document.querySelectorAll("input[type='checkbox']");
 	for(i=0 ; i < tabs.length ; i++){tabs[i].addEventListener("click", openMenu)};
 	for(i=0 ; i < trigs.length ; i++){trigs[i].addEventListener("click", checking)};
-    for(i=1 ; i < checkL.length ; i++){checkL[i].addEventListener("click", lockF)};
+    for(i=1 ; i < checkL.length ; i++){checkL[i].addEventListener("click", _10ckF)};
     wbHead.addEventListener("click",toggleApp);
 	document.getElementById("blast").addEventListener("click", blast);
 	document.getElementById("getImg").addEventListener("change", prevImg);
@@ -360,7 +360,9 @@ function getLastDay(dateString){
 /* Show Change Log */
 function changeLog(){
     var cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog+="\n▫ Memperbaiki tampilan saat ada kata 'BC'"
+    cLog+="\n▫ Menetapkan password pada fitur berbayar."
+        +"\n\nVersion v.3.3.2 (16 Jan 2020)."
+        +"\n▫ Memperbaiki tampilan saat ada kata 'BC'"
         +"\n\nVersion v3.3.1 (15 Jan 2020)."
         +"\n▫ Menambah fitur tracking error"
         +"\n\nVersion v3.3.0 (13 Jan 2020)."
@@ -575,6 +577,28 @@ var base64ImageToFile = function (b64Data, filename) {
 
     return new File([u8arr], filename, {type: mime});
 };
+/* Set Cookie Function */
+function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  var expires = "expires="+d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+/* Set Cookie Function */
+function getCookie(cname) {
+  var name = cname + "=";
+  var ca = document.cookie.split(';');
+  for(var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 /* Core Send Media Function*/
 window.sendImage = function (chatid, imgBase64, caption, done) {
     var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
@@ -590,4 +614,12 @@ window.sendImage = function (chatid, imgBase64, caption, done) {
         });
     });
 }
-var _0x4e95=['Mohon\x20maaf\x20fitur\x20sementara\x20dikunci!','currentTarget','checked'];(function(_0x7edfd4,_0x126aa7){var _0xe103ae=function(_0x51222e){while(--_0x51222e){_0x7edfd4['push'](_0x7edfd4['shift']());}};_0xe103ae(++_0x126aa7);}(_0x4e95,0x1c8));var _0x1e87=function(_0x7edfd4,_0x126aa7){_0x7edfd4=_0x7edfd4-0x0;var _0xe103ae=_0x4e95[_0x7edfd4];return _0xe103ae;};function lockF(_0x126aa7){alert(_0x1e87('0x0'));_0x126aa7[_0x1e87('0x1')][_0x1e87('0x2')]=![];}
+/* Checking String on an Array*/
+function checkS(pram,arr){
+    for(let i=0;i<arr.length;i++){
+        if(pram==arr[i]){return true}
+    }
+    return false;
+}
+/* Credits Purpose */
+var _0x40a6=['\x0a▫\x20Simpan\x20password\x20ini,\x20password\x20akan\x20hilang\x20jika\x20halaman\x20dimuat\x20ulang.','checked','currentTarget','\x0a▫\x20Password\x20akan\x20diganti\x20secara\x20periodik.','cmhuVktHcmhTa2Jz','Maaf,\x20password\x20yang\x20Anda\x20masukkan\x20salah.','YnhYN3plOW5hTnZO','Z3pUelNMQ3ZITmY5','Masukkan\x20Password\x20untuk\x20menggunakan\x20fitur\x20ini','\x0a▫\x20Anda\x20akan\x20mendapatkan\x20password\x20baru\x20selama\x20masa\x20berlangganan.','btoa','wbpass','NFFac2FyRG1QVDhN','bkF6eHN3MmRYY0pj','RTZDeVVkRjZjTUV0','YUpTSk5uOE5WVUZq','WTZmdTNYOHRaaHE2','VXZCUGU0UjVKZUs5','UTRIakRjbVZtRWhD','Fitur\x20Terbuka!\x20Selamat\x20menikmati\x20fitur\x20berbayar\x20ini!\x20Harap\x20diperhatikan:'];(function(_0x46d6d8,_0x110543){var _0x10c094=function(_0x3c2019){while(--_0x3c2019){_0x46d6d8['push'](_0x46d6d8['shift']());}};_0x10c094(++_0x110543);}(_0x40a6,0x10d));var _0x3bc8=function(_0x46d6d8,_0x110543){_0x46d6d8=_0x46d6d8-0x0;var _0x10c094=_0x40a6[_0x46d6d8];return _0x10c094;};function _10ckF(_0x146e5e){var _0x4eabb0=getCookie(_0x3bc8('0x2')),_0x1fbf37=[_0x3bc8('0xf'),_0x3bc8('0x8'),_0x3bc8('0x5'),_0x3bc8('0x3'),_0x3bc8('0x6'),_0x3bc8('0x7'),_0x3bc8('0x12'),_0x3bc8('0x9'),_0x3bc8('0x4'),_0x3bc8('0x11')];if(!_0x4eabb0||!checkS(_0x4eabb0,_0x1fbf37)){_0x4eabb0=window[_0x3bc8('0x1')](prompt(_0x3bc8('0x13')));if(_0x4eabb0&&checkS(_0x4eabb0,_0x1fbf37)){alert(_0x3bc8('0xa')+_0x3bc8('0xe')+_0x3bc8('0x0')+_0x3bc8('0xb')+'\x0a▫\x20Dilarang\x20keras\x20menyebarkan\x20password\x20ini\x20kepada\x20siapapun!');setCookie(_0x3bc8('0x2'),_0x4eabb0,0x1e);}else{alert(_0x3bc8('0x10'));_0x146e5e[_0x3bc8('0xd')][_0x3bc8('0xc')]=![];}}}
