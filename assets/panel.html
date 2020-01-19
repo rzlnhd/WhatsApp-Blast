@@ -1,9 +1,9 @@
 <style type="text/css">
   #wbHead{padding:5px 16px;background:#ededed;border-top:1px #bbb solid}
-  #wbBody{padding:0px 16px;height:0;border-bottom:1px #bbb solid;transition:height 0.2s ease-in-out;overflow:hidden}
+  #wbHead>span{display:inline-block}
+  #wbBody{padding:0px 16px;height:0;border-bottom:1px #bbb solid;height:300px;transition:height 0.2s ease-in-out;overflow:hidden}
   img.appIco{height:32px;padding:5px;vertical-align:middle}
   span.active{color:rgb(0,155,76) !important;transform:rotate(-90deg)}
-  #wbHead>span{display:inline-block}
   span.rightIco{float:right;vertical-align:middle;padding:7px;border-radius:50%;color:rgba(0,155,76,.5);transition:transform 0.2s ease-in-out}
   textarea{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:100%}
   textarea#message{height:145px}
@@ -30,7 +30,7 @@
 </style>
 <div id='wbHead'>
   <span id='changeLog' title='Lihat Change Log'>
-    <img class='appIco' src='https://i.ibb.co/9hvj6jY/WA-Blast-Icon.png'/>WhatsApp Blast "+version+"
+    <img class='appIco' src='https://i.ibb.co/9hvj6jY/WA-Blast-Icon.png'/>WhatsApp Blast <span id="version"></span>
   </span>
   <span id='toggleApp' value='wbBody' title='Buka/Tutup Tools' class='rightIco'>
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='28' height='28'>
