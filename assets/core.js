@@ -212,7 +212,9 @@ function getPremium(e){
     if(e.currentTarget.checked){
         console.log("activating: "+isPremium());
         if(!isPremium()){
-            alert('Maaf, Anda belum terdaftar sebagai pengguna.\nAtau masa berlangganan Anda sudah habis.');
+            alert('Maaf, fitur hanya untuk Pengguna Premium.'
+		  +'\nTampaknya Anda belum terdaftar, Atau masa berlangganan Anda sudah habis.'
+		  +'\n\nInformasi lebih lanjut, hubungi saya.');
             e.currentTarget.checked=false;
         }
     }
