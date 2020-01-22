@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.0
-// @date         2020-1-21
+// @version      3.4.1
+// @date         2020-1-22
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -26,7 +26,7 @@
 
 /* Global Variables */
 var createFromData_id=0,prepareRawMedia_id=0,store_id=0,chat_id=0,send_media,
-    Store={},_image,user,version="v3.4.0",upDate="21 Jan 2020",doing=false,alrt=true,
+    Store={},_image,user,version="v3.4.1",upDate="22 Jan 2020",doing=false,alrt=true,
     classPp="jZhyM" /*from profile image*/, classChat = "FTBzM" /*from message in chat*/,
     classErr="_2eK7W._3PQ7V" /*from error message when execute link*/,classIn="_3u328" /*input chat*/,
     classChRoom="X7YrQ" /*from chatroom list*/,classAcChRoom="_3mMX1" /*from active chatroom*/;
