@@ -12,6 +12,12 @@
   textarea#capt:disabled{background:rgb(0,0,0,0.15)}
   textarea#capt:disabled::-webkit-input-placeholder{color:#eee}
   input.checks{width:1.5em;height:1.5em;position:relative;float:left;display:block;top:1px;margin-right:2px}
+  .switch{position:relative;display:inline-block;width:2.25em;height:1.5em;vertical-align:middle}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,.15);transition:.4s;border-radius:1.5em}
+  .slider:before{position:absolute;content:"M";left:.25em;width:1em;height:1em;bottom:.25em;background-color:white;transition:.4s;border-radius:50%;font-size:.725em;padding:.275em;text-align:center;font-weight:bold;color:rgba(0,0,0,.6)}
+  input:checked + .slider{background-color:rgba(33,150,243,.9)}
+  input:checked + .slider:before{transform:translateX(1em);content:"A";color:rgba(33,150,243,.9)}
   #c_bc,#i_mg{margin-top:2px;background:rgb(0, 0, 0, 0.05);padding:5px}
   #c_bc{display:none;animation:fadeEffect .3s}
   #tabs{display:block;width:100%;height:30px;margin-top:10px}
@@ -46,7 +52,7 @@
   <div id='_MSG' class='tabcontent'>
     <textarea rows='9' id='message' class='copyable-text selectable-text' placeholder='Message Here!'></textarea>
     <div id='c_bc'>
-      <input type='checkbox' id='s_bc' class='checks trig' name='s_bc' value='t_bp' title='Super BC?'>
+	  <input type='checkbox' id='s_bc' class='checks trig' name='s_bc' value='t_bp' title='Super BC?'>
       <span>Atur Target untuk Super BC? : </span>
       <input type='number' id='t_bp' name='t_bp' min='100' max='250' step='5' value='200' style='width:50px;' disabled>
       <span> BP</span>
@@ -54,7 +60,7 @@
   </div>
   <div id='_IMG' class='tabcontent'>
     <div id='i_mg'>
-      <input type='checkbox' id='s_mg' class='checks trig' name='s_mg' value='getImg' capt-id='capt' title='Attach Image?'>
+	  <input type='checkbox' id='s_mg' class='checks trig' name='s_mg' value='getImg' capt-id='capt' title='Attach Image?'>
       <input type='file' accept='image/*' id='getImg' name='images' style='width:200px;cursor:pointer;' disabled>
       <div id='del' data-icon='close' class='img icon icon-del' data-value='getImg' title='Delete Image' style='float:right;cursor:pointer;display:none'>
         <svg width='20' height='20' viewBox='0 0 1792 1792' xmlns='http://www.w3.org/2000/svg'>
@@ -67,7 +73,10 @@
   </div>
   <div style='height:2px;width:100%;display:block;background:#888;margin:5px 0;'></div>
   <div style='margin-top: 5px;'>
-    <input type='checkbox' name='automatic' id='auto' class='checks' value='Auto' title='Blast Automatic?'>
+	<label class="switch">
+		<input type="checkbox" name="automatic" id="auto" value="Auto">
+		<span class="slider" title="Blast Automatic?"></span>
+	</label>
     <input type='file' accept='.csv,.txt' id='getFile' name='files' style='width:180px;cursor:pointer;'>
     <div id='blast' data-icon='send' class='img icon icon-send' title='BLAST!' style='float:right;cursor:pointer;'>
       <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='24' height='24'>
