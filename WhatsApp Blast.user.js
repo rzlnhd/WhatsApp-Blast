@@ -86,7 +86,6 @@ function loadModule(){if (true) {
                         window.Store.sendMessage = function (e) {
                             return window.Store.SendTextMsgToChat(this, ...arguments);
                         }
-                        console.log(window.Store);
                         return window.Store;
                     }
                 }
