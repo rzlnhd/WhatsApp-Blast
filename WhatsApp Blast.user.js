@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.3
-// @date         2020-2-5
+// @version      3.4.4
+// @date         2020-2-8
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -29,7 +29,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-const version="v3.4.3",upDate="5 Feb 2020", classPp="jZhyM" /*from profile image*/,
+const version="v3.4.4",upDate="8 Feb 2020", classPp="jZhyM" /*from profile image*/,
       classChat="FTBzM" /*from message in chat*/, classMsg="_F7Vk" /*from message in chat*/,
       classErr="_2eK7W._3PQ7V" /*from error message when execute link*/,classIn="_3u328" /*input chat*/,
       classChRoom="X7YrQ" /*from chatroom list*/,classAcChRoom="_3mMX1" /*from active chatroom*/;
@@ -63,19 +63,19 @@ function loadModule(){if(true){
                     if((typeof first==="object") && (first.exports)){
                         for(let idx2 in modules[idx]){
                             let module=modules(idx2);
-                            if(!module){continue}
+                            if(!module){continue;}
                             storeObjects.forEach(needObj=>{
                                 if(!needObj.conditions || needObj.foundedModule) return;
                                 let neededModule=needObj.conditions(module);
-                                if(neededModule!==null){foundCount++;needObj.foundedModule=neededModule}
+                                if(neededModule!==null){foundCount++;needObj.foundedModule=neededModule;}
                             });
-                            if(foundCount==storeObjects.length){break}
+                            if(foundCount==storeObjects.length){break;}
                         }
                         let neededStore=storeObjects.find(needObj=>needObj.id==="Store");
                         window.Store=neededStore.foundedModule?neededStore.foundedModule:{};
                         storeObjects.splice(storeObjects.indexOf(neededStore),1);
-                        storeObjects.forEach(needObj=>{if(needObj.foundedModule){window.Store[needObj.id]=needObj.foundedModule}});
-                        window.Store.sendMessage=function(e){return window.Store.SendTextMsgToChat(this, ...arguments)}
+                        storeObjects.forEach(needObj=>{if(needObj.foundedModule){window.Store[needObj.id]=needObj.foundedModule;}});
+                        window.Store.sendMessage=function(e){return window.Store.SendTextMsgToChat(this, ...arguments);};
                         return window.Store;
                     }
                 }
@@ -83,13 +83,16 @@ function loadModule(){if(true){
         }
         webpackJsonp([],{parasite:(x,y,z)=>getStore(z)},['parasite']);
     })();
-};}
+}}
 /*=====================================
    Initial Function
 =====================================*/
 /* Load UI Component */
 function initComponents(e){
-    let pnl="function"==typeof GM_getResourceText?GM_getResourceText('pnl'):GM.getResourceText('pnl');
+    let pnl;
+    if("function"==typeof GM_getResourceText){
+        pnl=GM_getResourceText('pnl');
+    } else{pnl=GM.getResourceText('pnl');}
     pnl=pnl.replace(/VERSION/g,version);
 	e.style.zIndex=0;
     e.style['background-color']='#fed859';
@@ -97,22 +100,22 @@ function initComponents(e){
     e.style.display='block';
     e.style.height='auto';
     e.style.padding='0px';
-	e.innerHTML=pnl
+	e.innerHTML=pnl;
 }
 /* Set All Component Listeners */
 function initListener(){
 	let tab=document.querySelectorAll(".tablinks"),trg=document.querySelectorAll(".trig"),
         wbH=document.getElementById("toggleApp"),chk=document.querySelectorAll("input[type='checkbox']"),
-        clk=[{"id":"blast","fn":blast},{"id":"del","fn":prevImg},{"id":"changeLog","fn":changeLog}],
-        opn="function"==typeof GM_getValue?GM_getValue('opn',true):GM.getValue('opn',true);;
+        clk=[{"id":"blast","fn":blast},{"id":"del","fn":prevImg},{"id":"changeLog","fn":changeLog}],opn;
+    if("function"==typeof GM_getValue){opn=GM_getValue('opn',true);}else{opn=GM.getValue('opn',true);}
     wbH.addEventListener("click",toggleApp);getingData();
-    chk.forEach((e,i)=>{if(i>0)e.addEventListener("click",getPremium)});
-    tab.forEach(e=>{e.addEventListener("click",openMenu)});
-    trg.forEach(e=>{e.addEventListener("click",checking)});
-    clk.forEach(e=>{document.getElementById(e.id).addEventListener("click",e.fn)});
+    chk.forEach((e,i)=>{if(i>0)e.addEventListener("click",getPremium);});
+    tab.forEach(e=>{e.addEventListener("click",openMenu);});
+    trg.forEach(e=>{e.addEventListener("click",checking);});
+    clk.forEach(e=>{document.getElementById(e.id).addEventListener("click",e.fn);});
 	document.getElementById("getImg").addEventListener("change",prevImg);
 	document.getElementById("message").addEventListener("input",superBC);
-	tab[0].click();if(opn)wbH.click()
+	tab[0].click();if(opn)wbH.click();
 }
 /*=====================================
    Main Function
@@ -127,13 +130,13 @@ function blast(){
         capt=document.getElementById("capt").value,
         a_gagal=[],a_error=[],code,pinned,sukses=0,
         gagal=0,error=0,reader=new FileReader();
-    if(getStatus()){if(confirm("Stop WhatsApp Blast?")){setStatus(false)}return}
-    else if(!obj){alert('Silahkan Masukkan Text terlebih dahulu...');return}
-    else if(!file){alert('Silahkan Masukkan File Penerima Pesan...');return}
-    else if(!getInput()){alert('Silahkan Pilih Chatroom Terlebih dahulu');return}
+    if(getStatus()){if(confirm("Stop WhatsApp Blast?")){setStatus(false);}return;}
+    else if(!obj){alert('Silahkan Masukkan Text terlebih dahulu...');return;}
+    else if(!file){alert('Silahkan Masukkan File Penerima Pesan...');return;}
+    else if(!getInput()){alert('Silahkan Pilih Chatroom Terlebih dahulu');return;}
     else if(auto){code=getCode();pinned=getPinned();
-        if(!code){alert('Chatroom Tidak Memiliki Foto Profil!');return}
-        if(!pinned){alert('Chatroom Belum di PIN!');return}
+        if(!code){alert('Chatroom Tidak Memiliki Foto Profil!');return;}
+        if(!pinned){alert('Chatroom Belum di PIN!');return;}
     }
     console.log("Blast!: onload data");
     reader.readAsText(file);
@@ -142,16 +145,16 @@ function blast(){
             l=0,b,data=[],dt=[];
         lines.forEach(e=>{if(e && break_f(e)){
             let u=e.split(/,|;/);data.push(e);
-            if(u[2] && u[2].length>3){dt.push(u[2])}
-            else if(u[3]){dt.push(u[3])}
-        }});b=data.length;mPos(dt);
+            if(u[2] && u[2].length>3){dt.push(u[2]);}
+            else if(u[3]){dt.push(u[3]);}
+        }});b=data.length;mIdx_=mPos(dt);
         function execute(){
             if(auto && b>100){
-                alert('Blast Auto tidak boleh lebih dari 100 Nama!');setStatus(false)
+                alert('Blast Auto tidak boleh lebih dari 100 Nama!');setStatus(false);
             } else if(auto && getCode()!=code){
-                alert('Chatroom berbeda, Blast dihentikan!');setStatus(false)
+                alert('Chatroom berbeda, Blast dihentikan!');setStatus(false);
             } else if(getStatus() && l<b){
-                let column=data[l].split(/,|;/),ph=setPhone(column[1]);
+                let column=data[l].split(/,|;/),ph=setPhone(column[1]),time=10;
                 dispatch(getInput(), ((l+1)+"). "+mesej(obj,column[0],column[1],column[2],column[3])));
                 getBtn().click();
                 if(auto){
@@ -159,51 +162,48 @@ function blast(){
                     setTimeout(()=>{
                         let ch=document.querySelectorAll('div.'+classChat),
                             li=document.querySelectorAll('a.'+classMsg);
-                        while(getRM(ch)){getRM(ch).click()}
+                        while(getRM(ch)){getRM(ch).click();}
                         li[li.length-1].click();
-                        console.log("Link ke-"+l+": [EKSEKUSI]")
+                        console.log("Link ke-"+l+": [EKSEKUSI]");
                     },1000);
                     setTimeout(()=>{
                         let err=document.querySelector("div."+classErr+"[role='button']");
                         if(err){
                             if(err.innerText=="OK"){
-                                a_error[error]=l;error++;
-                                err.click();
-                                console.log("Link ke-"+l+": [EKSEKUSI ERROR]")
+                                a_error[error]=l;error++;err.click();
+                                console.log("Link ke-"+l+": [EKSEKUSI ERROR]");
                             } else{
-                                a_gagal[gagal]=l;gagal++;
-                                err.click();
-                                console.log("Link ke-"+l+": [EKSEKUSI GAGAL]")
+                                a_gagal[gagal]=l;gagal++;err.click();
+                                console.log("Link ke-"+l+": [EKSEKUSI GAGAL]");
                             }
                         } else{
-                            sukses++;
-                            getBtn().click();
+                            sukses++;getBtn().click();
                             console.log("Link ke-"+l+": [EKSEKUSI SUKSES]");
                             if(c_img && _image){
                                 sendImg(ph, _image, capt);
-                                console.log("Link ke-"+l+": [GAMBAR SUKSES DIKIRIM]")
+                                console.log("Link ke-"+l+": [GAMBAR SUKSES DIKIRIM]");
                             }
                         }
                     },4000);
-                    setTimeout(()=>{back(code)},5000);
+                    setTimeout(()=>{back(code);},5000);
                 } else{sukses=l+1;}
-                l++;auto?setTimeout(execute,6000):setTimeout(execute,10)
+                l++;if(auto){time=6000;}setTimeout(execute,time);
             } else {
-                finish(sukses,gagal,error,a_gagal,a_error,auto)
+                finish(sukses,gagal,error,a_gagal,a_error,auto);
             }
         }
         console.log("Blast!: execute data");
         setStatus(true);execute();
-    }
+    };
 }
 /* Main Send Image Function */
 function sendImg(num, file, capt){
     let reader=new FileReader();
     reader.readAsDataURL(file);
     reader.onload=()=>{
-        window.sendImage(num+"@c.us", reader.result, file.name, capt, undefined)
+        window.sendImage(num+"@c.us", reader.result, file.name, capt, undefined);
     };
-    reader.onerror=err=>{console.error('Error: ',err)}
+    reader.onerror=err=>{console.error('Error: ',err);};
 }
 /* Create Links Message */
 var mesej=(obj,nama,phone,bp,date)=>{
@@ -212,53 +212,53 @@ var mesej=(obj,nama,phone,bp,date)=>{
         c_bc=document.getElementById('s_bc').checked,
         s_bp=document.getElementById('t_bp').value,
         msg=obj.replace(/F_NAMA/g,setName(nama,1)).replace(/NAMA/g,setName(nama,0));
-    if(obj.includes("BC")){c_bc?t_bp=s_bp:t_bp=bc}
+    if(obj.includes("BC")){if(c_bc){t_bp=s_bp;}else{t_bp=bc;}}
     if(bp){
-        if(bp.length<=3){bp_=t_bp-_bp;msg = msg.replace(/P_BP/g,_bp+" BP").replace(/K_BP/g,bp_+" BP")}
-        else{msg=msg.replace(/L_DAY/g,getLastDay(bp))}
+        if(bp.length<=3){bp_=t_bp-_bp;msg = msg.replace(/P_BP/g,_bp+" BP").replace(/K_BP/g,bp_+" BP");}
+        else{msg=msg.replace(/L_DAY/g,getLastDay(bp));}
     }
-    if(date){msg=msg.replace(/L_DAY/g,getLastDay(date))}
+    if(date){msg=msg.replace(/L_DAY/g,getLastDay(date));}
     en_msg=encodeURIComponent(msg).replace(/'/g,"%27").replace(/"/g,"%22");
-    return abs_link+setPhone(phone)+'&text='+en_msg
-}
+    return abs_link+setPhone(phone)+'&text='+en_msg;
+};
 /* Break When Name is Empty */
-var break_f=line=>{let column=line.split(/,|;/);return Boolean(column[0])}
+var break_f=line=>{let column=line.split(/,|;/);return Boolean(column[0]);};
 /* Set Name of the Recipient */
 var setName=(nama,opt)=>{
     let fname=nama.split(' '),count=fname.length,new_name=titleCase(fname[0]);
-    if(opt==1){for(let i=1;i<count;i++){new_name+=" "+titleCase(fname[i])}}
-    return new_name
-}
+    if(opt==1){for(let i=1;i<count;i++){new_name+=" "+titleCase(fname[i]);}}
+    return new_name;
+};
 /* Title Case Text Transform */
-var titleCase=str=>{let st=str.toLowerCase();return st.charAt(0).toUpperCase()+st.slice(1)}
+var titleCase=str=>{let st=str.toLowerCase();return st.charAt(0).toUpperCase()+st.slice(1);};
 /* Set the Recipient's Phone Number */
 var setPhone=phn=>{
     let ph=phn.match(/\d+/g).join();
-    if(!ph || ph.charAt(0)==="6"){return ph}
-    else if(ph.charAt(0)==="0"){return "62"+ph.substr(1)}
-    else{return "62"+ph}
-}
+    if(!ph || ph.charAt(0)==="6"){return ph;}
+    else if(ph.charAt(0)==="0"){return "62"+ph.substr(1);}
+    else{return "62"+ph;}
+};
 /* Get Read More Button */
-var getRM=e=>{return e[e.length-1].querySelector('span[role="button"]')}
+var getRM=e=>{return e[e.length-1].querySelector('span[role="button"]');};
 /* Getting Last Day Welcome Program */
 var getLastDay=dateString=>{
     let date;
     if(!isFormat && (mIdx!=mIdx_)){
         date=dateString.split('/');
-        dateString=arrMove(date,mIdx_,mIdx).join('/')
+        dateString=arrMove(date,mIdx_,mIdx).join('/');
     }
     date=new Date(dateString);
     date.setDate(date.getDate()+30);
-    return dateFormat(date)
-}
+    return dateFormat(date);
+};
 /* Get Send Button */
-var getBtn=()=>{return document.querySelector("span[data-icon='send']")}
+var getBtn=()=>{return document.querySelector("span[data-icon='send']");};
 /* Get Input Area */
-var getInput=()=>{return document.querySelector("div."+classIn+".copyable-text.selectable-text")}
+var getInput=()=>{return document.querySelector("div."+classIn+".copyable-text.selectable-text");};
 /* Setting User */
-var getUser=()=>{return user}
+var getUser=()=>{return user;};
 /* Setting User */
-function setUser(u){user=u}
+function setUser(u){user=u;}
 /*=====================================
    Utilities Function
 =====================================*/
@@ -268,74 +268,84 @@ function setStatus(stat){
         ico=document.getElementById("blastIc"),
         chatList=document.getElementById("pane-side"),
         stopIc="M505.16405,19.29688c-1.176-5.4629-6.98736-11.26563-12.45106-12.4336C460.61647,0,435.46433,0,410.41962,0,307.2013,0,245.30155,55.20312,199.09162,128H94.88878c-16.29733,0-35.599,11.92383-42.88913,26.49805L2.57831,253.29688A28.39645,28.39645,0,0,0,.06231,264a24.008,24.008,0,0,0,24.00353,24H128.01866a96.00682,96.00682,0,0,1,96.01414,96V488a24.008,24.008,0,0,0,24.00353,24,28.54751,28.54751,0,0,0,10.7047-2.51562l98.747-49.40626c14.56074-7.28515,26.4746-26.56445,26.4746-42.84374V312.79688c72.58882-46.3125,128.01886-108.40626,128.01886-211.09376C512.07522,76.55273,512.07522,51.40234,505.16405,19.29688ZM384.05637,168a40,40,0,1,1,40.00589-40A40.02,40.02,0,0,1,384.05637,168ZM35.68474,352.06641C9.82742,377.91992-2.94985,442.59375.57606,511.41016c69.11565,3.55859,133.61147-9.35157,159.36527-35.10547,40.28913-40.2793,42.8774-93.98633,6.31147-130.54883C129.68687,309.19727,75.97,311.78516,35.68474,352.06641Zm81.63312,84.03125c-8.58525,8.584-30.08256,12.88672-53.11915,11.69922-1.174-22.93555,3.08444-44.49219,11.70289-53.10938,13.42776-13.42578,31.33079-14.28906,43.51813-2.10352C131.60707,404.77148,130.74562,422.67188,117.31786,436.09766Z",
-        blastIc="M505.12019,19.09375c-1.18945-5.53125-6.65819-11-12.207-12.1875C460.716,0,435.507,0,410.40747,0,307.17523,0,245.26909,55.20312,199.05238,128H94.83772c-16.34763.01562-35.55658,11.875-42.88664,26.48438L2.51562,253.29688A28.4,28.4,0,0,0,0,264a24.00867,24.00867,0,0,0,24.00582,24H127.81618l-22.47457,22.46875c-11.36521,11.36133-12.99607,32.25781,0,45.25L156.24582,406.625c11.15623,11.1875,32.15619,13.15625,45.27726,0l22.47457-22.46875V488a24.00867,24.00867,0,0,0,24.00581,24,28.55934,28.55934,0,0,0,10.707-2.51562l98.72834-49.39063c14.62888-7.29687,26.50776-26.5,26.50776-42.85937V312.79688c72.59753-46.3125,128.03493-108.40626,128.03493-211.09376C512.07526,76.5,512.07526,51.29688,505.12019,19.09375ZM384.04033,168A40,40,0,1,1,424.05,128,40.02322,40.02322,0,0,1,384.04033,168Z"
+        blastIc="M505.12019,19.09375c-1.18945-5.53125-6.65819-11-12.207-12.1875C460.716,0,435.507,0,410.40747,0,307.17523,0,245.26909,55.20312,199.05238,128H94.83772c-16.34763.01562-35.55658,11.875-42.88664,26.48438L2.51562,253.29688A28.4,28.4,0,0,0,0,264a24.00867,24.00867,0,0,0,24.00582,24H127.81618l-22.47457,22.46875c-11.36521,11.36133-12.99607,32.25781,0,45.25L156.24582,406.625c11.15623,11.1875,32.15619,13.15625,45.27726,0l22.47457-22.46875V488a24.00867,24.00867,0,0,0,24.00581,24,28.55934,28.55934,0,0,0,10.707-2.51562l98.72834-49.39063c14.62888-7.29687,26.50776-26.5,26.50776-42.85937V312.79688c72.59753-46.3125,128.03493-108.40626,128.03493-211.09376C512.07526,76.5,512.07526,51.29688,505.12019,19.09375ZM384.04033,168A40,40,0,1,1,424.05,128,40.02322,40.02322,0,0,1,384.04033,168Z";
     if(stat){
         console.log("Blasting...");
         path.setAttribute("title","STOP!");
         ico.setAttribute("d",stopIc);
-        chatList.style.overflowY="hidden"
+        chatList.style.overflowY="hidden";
     } else{
+        isFormat=stat;
         console.log("Stoped.");
         path.setAttribute("title","BLAST!");
         ico.setAttribute("d",blastIc);
-        chatList.style.overflowY="auto"
+        chatList.style.overflowY="auto";
     }
-    doing=stat
+    disElement(stat);doing=stat;
 }
 /* Getting "BLAST" Status */
-var getStatus=()=>{return doing}
+var getStatus=()=>{return doing;};
 /* Getting code from Selected Chatroom */
 var getCode=()=>{
     let obj=document.querySelector('div.'+classAcChRoom+' img.'+classPp);
-    return obj.getAttribute('src')
-}
+    return obj.getAttribute('src');
+};
 /* Getting Pinned Status from Selected Chatroom*/
-var getPinned=()=>{return document.querySelector('div.'+classAcChRoom).innerHTML.includes("pinned")}
+var getPinned=()=>{return document.querySelector('div.'+classAcChRoom).innerHTML.includes("pinned");};
 /* Formating Date Data */
 var dateFormat=e=>{
     let d=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],
         m=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-    return d[e.getDay()]+", "+e.getDate()+" "+m[e.getMonth()]+" "+e.getFullYear()
-}
+    return d[e.getDay()]+", "+e.getDate()+" "+m[e.getMonth()]+" "+e.getFullYear();
+};
 /* Moving Array Elements */
 var arrMove=(arr,oIdx,nIdx)=>{
     if (nIdx>=arr.length){
         var k=nIdx-arr.length+1;
-        while(k--){arr.push(undefined)}
+        while(k--){arr.push(undefined);}
     }
     arr.splice(nIdx,0,arr.splice(oIdx,1)[0]);
-    return arr
+    return arr;
 };
 /* Make Report Matrix Data */
 var dataA=arr=>{
     let size=arr.length,str="";
-    if(size==1){return " ("+arr[0]+")"}
-    if(size==2){return " ("+arr[0]+" & "+arr[1]+")"}
-    for(var i=0; i<size ; i++){
-        if(i==0){str+=" ("}
-        if(i<size-1){str+=arr[i]+", "}
-        if(i==size-1){str+=arr[i]+")"}
+    if(size==1){return " ("+arr[0]+")";}
+    if(size==2){return " ("+arr[0]+" & "+arr[1]+")";}
+    for(let i=0; i<size ; i++){
+        if(i===0){str+=" (";}
+        if(i<size-1){str+=arr[i]+", ";}
+        if(i==size-1){str+=arr[i]+")";}
     }
-    return str
-}
-/* Getting Month Index */
-function mPos(d){
-    let n,n1,m,m1;
-    d.forEach(e=>{
-        let a=e.split('/');
-        if(a[0].length>3){isFormat=true}
-        else{
-            if(a[0]==m){m1+=1}else{m=a[0];m1=1};
-            if(a[1]==n){n1+=1}else{n=a[1];n1=1}
-        };
-    })
-    if(m1<n1){mIdx_=1}else{mIdx_=0}
+    return str;
 };
+/* Getting Month Index */
+var mPos=d=>{
+    let m=0,b,c,b1=1,c1=1;
+    for(let i=0;i<d.length;i++){
+        let a=d[i].split('/');
+        if(i===0){b=a[0];c=a[1];if(a[0].length>3){isFormat=true;return 0;}}
+        if(parseInt(a[0])>12){return 1;}
+        else if(parseInt(a[1])>12){return 0;}
+        else{if(a[0]==b){b1+=1;}if(a[1]==c){c1+=1;}}
+    }
+    if(b1<c1){m=1;}
+    return m;
+};
+/* Disable/Enable Core Element */
+function disElement(stat){
+    let div=['#tabs','#_MSG','#_IMG'],inp=['#auto','#getFile'];
+    div.forEach(e=>{
+        let a=document.querySelector(e);
+        if(stat){a.style.pointerEvents='none';}else{a.style.pointerEvents='';}
+    });
+    inp.forEach(i=>{document.querySelector(i).disabled=stat;});
+}
 /* Back to the First Chatroom */
 function back(a){
     let p=document.querySelectorAll("img[src='"+a+"']"),i=0,elm;
-    if(p.length>1){i=1}elm=p[i].parentElement;
-    eventFire(elm,"mousedown")
+    if(p.length>1){i=1;}elm=p[i];
+    eventFire(elm,"mousedown");
 }
 /* Show the Report Data */
 function finish(sukses,gagal,error,a_gagal,a_error,auto){
@@ -348,21 +358,19 @@ function finish(sukses,gagal,error,a_gagal,a_error,auto){
     } else{
         msg="[REPORT] Penulisan Link Selesai. "+sukses+" Link Berhasil Ditulis";
     }
-    if(getStatus()){setStatus(false)};
-    alert(msg)
+    if(getStatus()){setStatus(false);}
+    alert(msg);
 }
 /* EventFire Function */
 function eventFire(node,eventType){
     let clickEvent=document.createEvent('MouseEvents');
     clickEvent.initEvent(eventType,true,true);
-    node.parentElement.dispatchEvent(clickEvent)
+    node.dispatchEvent(clickEvent);
 }
 /* Dispatch Function */
 function dispatch(input,message){
-    InputEvent=Event||InputEvent;
     let evt=new InputEvent('input',{bubbles:true,composer:true});
-    input.innerHTML=message;
-    input.dispatchEvent(evt)
+    input.innerHTML=message;input.dispatchEvent(evt);
 }
 /*=====================================
    Listener Function Handler
@@ -373,10 +381,10 @@ function superBC(e){
 		men=document.getElementById('c_bc');
 	if(obj.includes("BC")){
         e.currentTarget.style.height='110px';
-		men.style.display='block'
+		men.style.display='block';
 	} else{
         e.currentTarget.style.height=null;
-		men.style.display='none'
+		men.style.display='none';
 	}
 }
 /* Preview the Selected Image File*/
@@ -387,56 +395,56 @@ function prevImg(e){
         mByte=Math.pow(1024, 2),maxSize=4*mByte;
     if(!btn){
         res=e.target.files[0];
-        if(res.size<=maxSize){_image=res}
+        if(res.size<=maxSize){_image=res;}
         else{
             alert("Ukuran gambar tidak boleh lebih dari 4MB");
-            this.value='';res=null
+            this.value='';res=null;
         }
     } else{
-        document.getElementById(btn.value).value=''
+        document.getElementById(btn.value).value='';
     }
     if(res){
         output.src=URL.createObjectURL(res);
-        del.style.display='block'
+        del.style.display='block';
     } else{
         output.removeAttribute("src");
-        del.style.display='none'
+        del.style.display='none';
     }
 }
 /* Listeners for Checkbox */
 function checking(evt){
     let form=document.getElementById(this.value),
         attr=this.getAttributeNode('capt-id');
-    if(attr){document.getElementById(attr.value).disabled=!this.checked}
-    form.disabled=!this.checked
+    if(attr){document.getElementById(attr.value).disabled=!this.checked;}
+    form.disabled=!this.checked;
 }
 /* Toggle Apps Listener */
 function toggleApp(e){
     let butn=e.currentTarget,id=butn.getAttribute("value"),
         acdBody=document.getElementById(id),
         a=butn.classList.toggle('active');
-    (acdBody.style.height)?acdBody.style.height=null:acdBody.style.height=acdBody.scrollHeight + 'px';
-    ("function"==typeof GM_setValue)?GM_setValue('opn',a):GM.setValue('opn',a)
+    if(acdBody.style.height){acdBody.style.height=null;}else{acdBody.style.height=acdBody.scrollHeight + 'px';}
+    if("function"==typeof GM_setValue){GM_setValue('opn',a);}else{GM.setValue('opn',a);}
 }
 /* Tabview Event Listeners */
 function openMenu(e){
 	let i,menuName=this.value,
 	tabcontent=document.querySelectorAll(".tabcontent"),
 	tablinks=document.querySelectorAll(".tablinks");
-	tabcontent.forEach(i=>{i.style.display='none'});
-	tablinks.forEach(i=>{i.className=i.className.replace(' active', '')});
+	tabcontent.forEach(i=>{i.style.display='none';});
+	tablinks.forEach(i=>{i.className=i.className.replace(' active', '');});
 	document.getElementById(menuName).style.display = 'block';
-	e.currentTarget.className+=' active'
+	e.currentTarget.className+=' active';
 }
 /* Show Change Log */
 function changeLog(){
     let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog+="\n▫ Memperbaiki pembacaan jumlah data."
+    cLog+="\n▫ Memperbaiki bug minor (mendadak berhenti)."
+        +"\n▫ Memperbaiki algoritma last day WP."
+        +"\n\nVersion v.3.4.3 (5 Feb 2020)."
+        +"\n▫ Memperbaiki pembacaan jumlah data."
         +"\n▫ Memperbaiki algoritma nomor & last day WP."
         +"\n▫ Menambah proteksi saat chatroom tidak sesuai."
-        +"\n▫ Refactoring script."
-        +"\n\nVersion v.3.4.2 (31 Jan 2020)."
-        +"\n▫ Memperbaiki pengiriman gambar otomatis."
         +"\n▫ Refactoring script.";
     alert(cLog);
 }
@@ -447,8 +455,8 @@ var base64ImageToFile=(b64Data, filename)=>{
         bstr=atob(arr[1]),
         n=bstr.length,
         u8arr=new Uint8Array(n);
-    while(n--){u8arr[n]=bstr.charCodeAt(n)}
-    return new File([u8arr],filename,{type:mime})
+    while(n--){u8arr[n]=bstr.charCodeAt(n);}
+    return new File([u8arr],filename,{type:mime});
 };
 /* Core Send Media Function*/
 window.sendImage=(chatid,imgBase64,filename,caption,done)=>{
@@ -459,9 +467,9 @@ window.sendImage=(chatid,imgBase64,filename,caption,done)=>{
         mc.processFiles([mediaBlob],chat,1).then(()=>{
             let media=mc.models[0];
             media.sendToChat(chat,{caption:caption});
-            if(done!==undefined)done(true)
-        })
-    })
+            if(done!==undefined)done(true);
+        });
+    });
 };
 /*=====================================
    For Credits Purpose
@@ -472,9 +480,9 @@ var getUphone=()=>{
         let a=document.querySelector('header img.'+classPp),
             b=a.getAttribute('src'),
             c=b.split('&');
-        return c[2].match(/(\d+)/)[0]
-    } else{return setPhone(user.phone)}
-}
+        return c[2].match(/(\d+)/)[0];
+    } else{return setPhone(user.phone);}
+};
 /* Getting User Data */
 function getingData(){
     let a={
@@ -490,20 +498,20 @@ function getingData(){
             }
         },
     };
-    ("function"==typeof GM_xmlhttpRequest)?GM_xmlhttpRequest(a):GM.xmlHttpRequest(a);
-    setTimeout(getingData,10000)
+    if("function"==typeof GM_xmlhttpRequest){GM_xmlhttpRequest(a);}else{GM.xmlHttpRequest(a);}
+    setTimeout(getingData,10000);
 }
 /* Is Premium? */
-var isPremium=()=>{return isSubsribe(getUser())}
+var isPremium=()=>{return isSubsribe(getUser());};
 /* Is Subscibed */
 var isSubsribe=u=>{
     if(u){
         let today=new Date(),e=new Date(u.reg);
         e.setMonth(e.getMonth()+u.mon);
-        if(today.getTime()<=e.getTime()){getAlrt(e);return true}
+        if(today.getTime()<=e.getTime()){getAlrt(e);return true;}
     }
-    return false
-}
+    return false;
+};
 /* Inform to the Subscriber */
 function getAlrt(e){
     let str=dateFormat(e);
@@ -511,7 +519,7 @@ function getAlrt(e){
         alert("Halo kak "+setName(getUser().name,1)+"!"
               +"\nSelamat menggunakan fitur Pengguna Premium."
               +"\nMasa aktif Kakak sampai dengan "+str+" ya...");
-        alrt=false
+        alrt=false;
     }
 }
 /* Get Premium User */
@@ -522,7 +530,7 @@ function getPremium(e){
                   +'\nTampaknya Anda belum terdaftar sebagai Pengguna Premium,'
                   +'\nAtau masa berlangganan Anda mungkin telah habis.'
                   +'\n\nInformasi lebih lanjut, silahkan hubungi saya.');
-            e.currentTarget.checked=false
+            e.currentTarget.checked=false;
         }
     }
 }
