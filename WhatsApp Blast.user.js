@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.5
-// @date         2020-2-9
+// @version      3.4.6
+// @date         2020-2-18
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -29,61 +29,59 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-const version="v3.4.5", upDate="9 Feb 2020", classPp="jZhyM" /*from profile image*/,
+const version="v3.4.6", upDate="18 Feb 2020", classPp="jZhyM" /*from profile image*/,
       classChat="FTBzM" /*from message in chat*/, classMsg="_F7Vk" /*from message in chat*/,
       classErr="_2eK7W._3PQ7V" /*from error message when execute link*/, classIn="_3u328" /*input chat*/,
       classChRoom="X7YrQ" /*from chatroom list*/, classAcChRoom="_3mMX1" /*from active chatroom*/;
 var _image, user, mIdx_, mIdx=0, isFormat=false, doing=false, alrt=true;
 /* First Function */
 console.log('WhatsApp Blast '+version+' - Waiting for WhatsApp to load...');
-var timer=setInterval(general, 1000);
+var timer = setInterval(general, 1000);
 function general(){
     if (document.querySelector("div.app")){
         let pnl=document.getElementById("side"),
             itm=document.querySelector("header"),
-            e=itm.cloneNode(true);loadModule();
+            e=itm.cloneNode(true); loadModule();
         initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
         console.log("WhatsApp Blast "+version+" - Blast Your Follow Up NOW!");
         clearInterval(timer);
     }
 }
 /* Load WAPI Module for Send Image */
-function loadModule(){if (true){
-    (function(){
-        function getStore(modules){
-            const storeObjects = [
-                {id:"Store", conditions:module => module.Chat && module.Msg ? module : null},
-                {id:"MediaCollection", conditions:module => module.default && module.default.prototype && module.default.prototype.processFiles !== undefined ? module.default : null},
-                {id:"UserConstructor", conditions:module => module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser ? module.default : null}
-            ];
-            let foundCount = 0;
-            for (let idx in modules) {
-                if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
-                    let first = Object.values(modules[idx])[0];
-                    if ((typeof first === "object") && (first.exports)) {
-                        for (let idx2 in modules[idx]) {
-                            let module = modules(idx2);
-                            if (!module) {continue;}
-                            storeObjects.forEach(needObj => {
-                                if (!needObj.conditions || needObj.foundedModule) {return;}
-                                let neededModule = needObj.conditions(module);
-                                if (neededModule !== null) {foundCount++; needObj.foundedModule = neededModule;}
-                            });
-                            if (foundCount == storeObjects.length) {break;}
-                        }
-                        let neededStore = storeObjects.find(needObj => needObj.id === "Store");
-                        window.Store = neededStore.foundedModule?neededStore.foundedModule:{};
-                        storeObjects.splice(storeObjects.indexOf(neededStore), 1);
-                        storeObjects.forEach(needObj => {if (needObj.foundedModule) {window.Store[needObj.id] = needObj.foundedModule;}});
-                        window.Store.sendMessage = function(e) {return window.Store.SendTextMsgToChat(this, ...arguments);};
-                        return window.Store;
+function loadModule(){
+    function getStore(modules) {
+        const storeObjects = [
+            { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
+            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
+            { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null }
+        ];
+        let foundCount = 0;
+        for (let idx in modules) {
+            if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                let first = Object.values(modules[idx])[0];
+                if ((typeof first === "object") && (first.exports)) {
+                    for (let idx2 in modules[idx]) {
+                        let module = modules(idx2);
+                        if (!module) {continue;}
+                        storeObjects.forEach(needObj => {
+                            if (!needObj.conditions || needObj.foundedModule) return;
+                            let neededModule = needObj.conditions(module);
+                            if (neededModule !== null) {foundCount++; needObj.foundedModule = neededModule;}
+                        });
+                        if (foundCount == storeObjects.length) {break;}
                     }
+                    let neededStore = storeObjects.find(needObj => needObj.id === "Store");
+                    window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
+                    storeObjects.splice(storeObjects.indexOf(neededStore), 1);
+                    storeObjects.forEach(needObj => {if (needObj.foundedModule) window.Store[needObj.id] = needObj.foundedModule;});
+                    window.Store.sendMessage = e => {return window.Store.SendTextMsgToChat(this, ...arguments)}
+                    return window.Store;
                 }
             }
         }
-        webpackJsonp([], {parasite:(x, y, z) => getStore(z)}, ['parasite']);
-    })();
-}}
+    }
+    webpackJsonp([], { parasite: (x, y, z) => getStore(z) }, ['parasite']);
+}
 /*=====================================
    Initial Function
 =====================================*/
@@ -100,14 +98,14 @@ function initListener(){
         wbH=document.getElementById("toggleApp"), chk=document.querySelectorAll("input[type='checkbox']"),
         clk=[{"id":"blast", "fn":blast}, {"id":"del", "fn":prevImg}, {"id":"changeLog", "fn":changeLog}],
         opn="function"==typeof GM_getValue?GM_getValue('opn', true):GM.getValue('opn', true);
-    wbH.addEventListener("click", toggleApp);getingData();
-    chk.forEach((e, i) => {if(i>0){e.addEventListener("click", getPremium);}});
-    tab.forEach(e => {e.addEventListener("click", openMenu);});
-    trg.forEach(e => {e.addEventListener("click", checking);});
-    clk.forEach(e => {document.getElementById(e.id).addEventListener("click", e.fn);});
+    wbH.addEventListener("click", toggleApp); getingData();
+    chk.forEach((e, i) => {if(i>0){e.addEventListener("click", getPremium)}});
+    tab.forEach(e => {e.addEventListener("click", openMenu)});
+    trg.forEach(e => {e.addEventListener("click", checking)});
+    clk.forEach(e => {document.getElementById(e.id).addEventListener("click", e.fn)});
     document.getElementById("getImg").addEventListener("change", prevImg);
     document.getElementById("message").addEventListener("input", superBC);
-    tab[0].click();if(opn){wbH.click();}
+    tab[0].click();if(opn)wbH.click();
 }
 /*=====================================
    Main Function
@@ -118,141 +116,139 @@ function blast(){
     let file=document.getElementById("getFile").files[0], obj=document.getElementById("message").value,
         auto=document.getElementById("auto").checked, c_img=document.getElementById("s_mg").checked,
         capt=document.getElementById("capt").value, a_gagal=[], a_error=[], code, pinned,
-        sukses = 0, gagal=0, error=0, reader=new FileReader();
-    if (getStatus()){if(confirm("Stop WhatsApp Blast?")){setStatus(false);} return;}
-    else if (!obj){alert('Silahkan Masukkan Text terlebih dahulu...'); return;}
-    else if (!file){alert('Silahkan Masukkan File Penerima Pesan...'); return;}
-    else if (!getInput()){alert('Silahkan Pilih Chatroom Terlebih dahulu'); return;}
+        sukses = 0, gagal=0, error=0, reader=new FileReader(), time=10;
+    if (getStatus()){if(confirm("Stop WhatsApp Blast?")){setStatus(false)} return}
+    else if (!obj){alert('Silahkan Masukkan Text terlebih dahulu...'); return}
+    else if (!file){alert('Silahkan Masukkan File Penerima Pesan...'); return}
+    else if (!getInput()){alert('Silahkan Pilih Chatroom Terlebih dahulu'); return}
     else if (auto){
-        code=getCode();pinned=getPinned();
-        if (!code){alert('Chatroom Tidak Memiliki Foto Profil!'); return;}
-        if (!pinned){alert('Chatroom Belum di PIN!'); return;}
+        code=getCode();pinned=getPinned();time=6000;
+        if (!code){alert('Chatroom Tidak Memiliki Foto Profil!'); return}
+        if (!pinned){alert('Chatroom Belum di PIN!'); return}
     }
     console.log("Blast!: onload data");
-    reader.readAsText(file);
-    reader.onload = function(z){
-        let lines=this.result.split(/\r\n|\r|\n/), l=0, data=loadData(lines), b=data.length;
-        function execute() {
+    reader.onload = f => {
+        let lines=f.currentTarget.result.split(/\r\n|\r|\n/), l=0, data=loadData(lines), b=data.length;
+        console.log("Data Loaded", Boolean(lines), Boolean(data), b, mIdx_);
+        async function execute(){
             if (auto && (b>100)){
-                alert('Blast Auto tidak boleh lebih dari 100 Nama!'); setStatus(false);
+                alert('Blast Auto tidak boleh lebih dari 100 Nama!');
+                setStatus(false);
             } else if (auto && (getCode()!=code)){
-                alert('Chatroom berbeda, Blast dihentikan!'); setStatus(false);
+                alert('Chatroom berbeda, Blast dihentikan!');
+                setStatus(false);
             } else if (getStatus() && (l<b)){
-                let column=data[l].split(/,|;/), ph=setPhone(column[1]), time=10;
-                dispatch(getInput(), (l+1)+"). "+mesej(obj, column[0], column[1], column[2], column[3]));
+                let column=data[l].split(/,|;/), ph=setPhone(column[1]);
+                dispatch(getInput(), ((l+1)+"). "+mesej(obj, column[0], column[1], column[2], column[3])));
                 getBtn().click();
                 if (auto){
                     console.log("Link ke-"+(l+1)+": [TULIS]");
-                    setTimeout(() => {
+                    await setTimeout(() => {
                         let ch=document.querySelectorAll('div.'+classChat), li=document.querySelectorAll('a.'+classMsg);
-                        while (getRM(ch)){getRM(ch).click();}
+                        while (getRM(ch)){getRM(ch).click()}
                         li[li.length-1].click();
-                        console.log("Link ke-"+l+": [EKSEKUSI]");
+                        console.log("Link ke-"+l+": [EKSEKUSI]")
                     }, 1000);
-                    setTimeout(() => {
+                    await setTimeout(() => {
                         let err=document.querySelector("div."+classErr+"[role='button']");
                         if (err){
                             if(err.innerText === "OK"){
                                 a_error.push(l); error++; err.click();
-                                console.log("Link ke-"+l+": [EKSEKUSI ERROR]");
+                                console.log("Link ke-"+l+": [EKSEKUSI ERROR]")
                             } else{
                                 a_gagal.push(l); gagal++; err.click();
-                                console.log("Link ke-"+l+": [EKSEKUSI GAGAL]");
+                                console.log("Link ke-"+l+": [EKSEKUSI GAGAL]")
                             }
-                        } else {
+                        } else{
                             sukses++; getBtn().click();
                             console.log("Link ke-"+l+": [EKSEKUSI SUKSES]");
                             if (c_img && _image){
                                 sendImg(ph, _image, capt);
-                                console.log("Link ke-"+l+": [GAMBAR SUKSES DIKIRIM]");
+                                console.log("Link ke-"+l+": [GAMBAR SUKSES DIKIRIM]")
                             }
                         }
                     }, 4000);
-                    setTimeout(() => {back(code);}, 5000);
-                } else {sukses=l+1;}
-                l++;
-                if (auto){time=6000;}
-                setTimeout(execute, time);
-            } else {
-                finish(sukses, gagal, error, a_gagal, a_error, auto);
+                    await setTimeout(() => {back(code)}, 5000)
+                } else{sukses=l+1}
+                l++; await setTimeout(execute, time)
+            } else{
+                finish(sukses, gagal, error, a_gagal, a_error, auto)
             }
         }
         console.log("Blast!: execute data");
         setStatus(true); execute();
     };
+    reader.readAsText(file);
 }
 /* Main Send Image Function */
 function sendImg(num, file, capt){
     let reader = new FileReader();
+    reader.onload = e => {
+        window.sendImage(num+"@c.us", e.currentTarget.result, file.name, capt, undefined);
+    };
     reader.readAsDataURL(file);
-    reader.onload = function(){
-        window.sendImage(num+"@c.us", reader.result, file.name, capt, undefined);
-    };
-    reader.onerror = function(err){
-        console.error('Error: ', err);
-    };
 }
 /* Create The Real Data */
-var loadData = function(arr){
+var loadData = arr => {
     let data=[], dt=[];
     arr.forEach(e => {
         if (e && break_f(e)){
             let u=e.split(/,|;/);data.push(e);
-            if (u[2] && (u[2].length>3)){dt.push(u[2]);}
-            else if (u[3]){dt.push(u[3]);}
+            if (u[2] && (u[2].length>3)){dt.push(u[2])}
+            else if (u[3]){dt.push(u[3])}
         }
     });
     mIdx_=mPos(dt);
-    return data;
+    return data
 };
 /* Create Links Message */
-var mesej = function(obj, nama, phone, bp, date){
+var mesej = (obj, nama, phone, bp, date) => {
     let absLink='https://api.whatsapp.com/send?phone=', _bp=parseInt(bp), tBp=100, bp_, enMsg, bC=200,
         cBc=document.getElementById('s_bc').checked, sBp=document.getElementById('t_bp').value,
         msg=obj.replace(/F_NAMA/g,setName(nama, 1)).replace(/NAMA/g, setName(nama, 0));
-    if (obj.includes("BC")){if(cBc){tBp=sBp;}else{tBp=bC;}}
+    if (obj.includes("BC")){if (cBc){tBp=sBp} else{tBp=bC}}
     if (bp){
-        if (bp.length<=3){bp_=tBp-_bp; msg=msg.replace(/P_BP/g, _bp+" BP").replace(/K_BP/g, bp_+" BP");}
-        else{msg=msg.replace(/L_DAY/g, getLastDay(bp));}
+        if (bp.length<=3){bp_=tBp-_bp; msg=msg.replace(/P_BP/g, _bp+" BP").replace(/K_BP/g, bp_+" BP")}
+        else{msg=msg.replace(/L_DAY/g, getLastDay(bp))}
     }
-    if (date){msg=msg.replace(/L_DAY/g, getLastDay(date));}
+    if (date){msg=msg.replace(/L_DAY/g, getLastDay(date))}
     enMsg=encodeURIComponent(msg).replace(/'/g, "%27").replace(/"/g, "%22");
-    return absLink+setPhone(phone)+'&text='+enMsg;
+    return absLink+setPhone(phone)+'&text='+enMsg
 };
 /* Break When Name is Empty */
-var break_f = function(line){let column=line.split(/,|;/);return Boolean(column[0]);};
+var break_f = line => {let column=line.split(/,|;/);return Boolean(column[0])}
 /* Set Name of the Recipient */
-var setName = function(nama, opt){
+var setName = (nama, opt) => {
     let fname=nama.split(' '), count=fname.length, new_name=titleCase(fname[0]), i;
-    if (opt==1){for (i=1; i<count; i++){new_name+=" "+titleCase(fname[i]);}}
-    return new_name;
+    if (opt==1){for (i=1; i<count; i++){new_name+=" "+titleCase(fname[i])}}
+    return new_name
 };
 /* Title Case Text Transform */
-var titleCase = function(str){let st=str.toLowerCase();return st.charAt(0).toUpperCase()+st.slice(1);};
+var titleCase = str => {let st=str.toLowerCase();return st.charAt(0).toUpperCase()+st.slice(1)};
 /* Set the Recipient's Phone Number */
-var setPhone = function(phn){
+var setPhone = phn => {
     let ph=phn.match(/\d+/g).join();
-    if (!ph || ph.charAt(0) === "6"){return ph;}
-    else if (ph.charAt(0) === "0"){return "62"+ph.substr(1);}
-    else {return "62"+ph;}
+    if (!ph || ph.charAt(0) === "6"){return ph}
+    else if (ph.charAt(0) === "0"){return "62"+ph.substr(1)}
+    else {return "62"+ph}
 };
 /* Getting Last Day Welcome Program */
-var getLastDay = function(dateString){
+var getLastDay = dateString => {
     let date;
-    if (!isFormat && (mIdx!=mIdx_)){date=dateString.split('/'); dateString=arrMove(date, mIdx_, mIdx).join('/');}
+    if (!isFormat && (mIdx!=mIdx_)){date=dateString.split('/'); dateString=arrMove(date, mIdx_, mIdx).join('/')}
     date=new Date(dateString); date.setDate(date.getDate()+30);
-    return dateFormat(date);
+    return dateFormat(date)
 };
 /* Get Input Area */
-var getInput = function(){return document.querySelector("div."+classIn+".copyable-text.selectable-text");};
+var getInput = () => {return document.querySelector("div."+classIn+".copyable-text.selectable-text")};
 /* Get Send Button */
-var getBtn = function(){return document.querySelector("span[data-icon='send']");};
+var getBtn = () => {return document.querySelector("span[data-icon='send']")};
 /* Get Read More Button */
-var getRM = function(e){return e[e.length-1].querySelector('span[role="button"]');};
+var getRM = e => {return e[e.length-1].querySelector('span[role="button"]')};
 /* Getting User */
-var getUser = function(){return user;};
+var getUser = () => {return user};
 /* Setting User */
-function setUser(u){user=u;}
+function setUser(u){user=u}
 /*=====================================
    Utilities Function
 =====================================*/
@@ -271,58 +267,58 @@ function setStatus(stat){
     doing=stat;
 }
 /* Getting "BLAST" Status */
-var getStatus = function(){return doing;};
+var getStatus = () => {return doing};
 /* Getting code from Selected Chatroom */
-var getCode = function(){
+var getCode = () => {
     let obj=document.querySelector('div.'+classAcChRoom+' img.'+classPp);
-    return obj.getAttribute('src');
+    return obj.getAttribute('src')
 };
 /* Getting Pinned Status from Selected Chatroom*/
-var getPinned = function(){return document.querySelector('div.'+classAcChRoom).innerHTML.includes("pinned");};
+var getPinned = () => {return document.querySelector('div.'+classAcChRoom).innerHTML.includes("pinned")};
 /* Formating Date Data */
-var dateFormat = function(e){
+var dateFormat = e => {
     let d=["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
         m=["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    return d[e.getDay()]+", "+e.getDate()+" "+m[e.getMonth()]+" "+e.getFullYear();
+    return d[e.getDay()]+", "+e.getDate()+" "+m[e.getMonth()]+" "+e.getFullYear()
 };
 /* Moving Array Elements */
-var arrMove = function(arr, oIdx, nIdx){
+var arrMove = (arr, oIdx, nIdx) => {
     if (nIdx >= arr.length){
         let k = nIdx - arr.length + 1;
-        while (k--) {arr.push(undefined);}
+        while (k--){arr.push(undefined)}
     }
     arr.splice(nIdx, 0, arr.splice(oIdx, 1)[0]);
-    return arr;
+    return arr
 };
 /* Make Report Matrix Data */
-var dataA = function(arr){
+var dataA = arr => {
     let size=arr.length, str="";
-    if (size==1) {return " ("+arr[0]+")";}
-    if (size==2) {return " ("+arr[0]+" & "+arr[1]+")";}
-    for(let i=0; i<size; i++) {
-        if (i===0) {str+=" (";}
-        if (i<size-1) {str+=arr[i]+", ";}
-        if (i==size-1) {str+=arr[i]+")";}
+    if (size==1){return " ("+arr[0]+")"}
+    if (size==2){return " ("+arr[0]+" & "+arr[1]+")"}
+    for (let i=0; i<size; i++) {
+        if (i===0){str+=" ("}
+        if (i<size-1){str+=arr[i]+", "}
+        if (i==size-1){str+=arr[i]+")"}
     }
-    return str;
+    return str
 };
 /* Getting Month Index */
-var mPos = function(d){
+var mPos = d => {
     let m=0, b1=1, c1=1, b, c, size=d.length, i;
-    for(i=0; i<size; i++){
+    for (i=0; i<size; i++){
         let a=d[i].split('/');
-        if(i===0){b=a[0];c=a[1];if (a[0].length>3){isFormat=true;return 0;}}
-        if(parseInt(a[0])>12){return 1;}
-        else if(parseInt(a[1])>12){return 0;}
-        else{if (a[0]==b){b1+=1;}if (a[1]==c){c1+=1;}}
+        if (i===0){b=a[0];c=a[1];if (a[0].length>3){isFormat=true;return 0}}
+        if (parseInt(a[0])>12){return 1}
+        else if (parseInt(a[1])>12){return 0}
+        else{if (a[0]==b){b1+=1}if (a[1]==c){c1+=1}}
     }
-    if(b1<c1){m=1;}
-    return m;
+    if (b1<c1){m=1}
+    return m
 };
 /* Back to the First Chatroom */
 function back(a){
     let p=document.querySelectorAll("img[src='" +a+ "']"), i=0, elm;
-    if(p.length>1){i=1;} elm=p[i];
+    if (p.length>1){i=1} elm=p[i];
     eventFire(elm, "mousedown");
 }
 /* Show the Report Data */
@@ -333,11 +329,11 @@ function finish(sukses, gagal, error, a_gagal, a_error, auto){
             +"\n    • SUKSES  = "+sukses
             +"\n    • GAGAL   = "+gagal+dataA(a_gagal)
             +"\n    • ERROR   = "+error+dataA(a_error);
-    } else {
+    } else{
         msg="[REPORT] Penulisan Link Selesai. " +sukses+ " Link Berhasil Ditulis";
     }
-    if(getStatus()){setStatus(false);}
-    alert(msg);
+    if (getStatus()){setStatus(false)}
+    alert(msg)
 }
 /* EventFire Function */
 function eventFire(node, eventType){
@@ -356,7 +352,7 @@ function dispatch(input, message){
 =====================================*/
 /* Open Super BC Menu */
 function superBC(e){
-    let obj=this.value, men=document.getElementById('c_bc');
+    let obj=e.currentTarget.value, men=document.getElementById('c_bc');
     if (obj.includes("BC")){
         e.currentTarget.style.height='110px'; men.style.display='block';
     } else{
@@ -366,26 +362,26 @@ function superBC(e){
 /* Preview the Selected Image File*/
 function prevImg(e){
     let output=document.getElementById('o_img'), res=null, del=document.getElementById('del'),
-        btn=this.getAttributeNode('data-value'), mByte=Math.pow(1024, 2), maxSize=4*mByte;
+        btn=e.currentTarget.getAttributeNode('data-value'), mByte=Math.pow(1024, 2), maxSize=4*mByte;
     if (!btn){
         res=e.target.files[0];
         if (res.size<=maxSize){_image=res;}
         else{
             alert("Ukuran gambar tidak boleh lebih dari 4MB");
-            this.value=''; res=null;
+            e.currentTarget.value=''; res=null;
         }
     } else{document.getElementById(btn.value).value='';}
     if (res){
         output.src=URL.createObjectURL(res); del.style.display='block';
-    } else {
+    } else{
         output.removeAttribute("src"); del.style.display='none';
     }
 }
 /* Listeners for Checkbox */
 function checking(e){
-    let form=document.getElementById(this.value), attr=this.getAttributeNode('capt-id');
-    if(attr){document.getElementById(attr.value).disabled=!this.checked;}
-    form.disabled=!this.checked;
+    let form=document.getElementById(e.currentTarget.value), attr=e.currentTarget.getAttributeNode('capt-id');
+    if (attr){document.getElementById(attr.value).disabled=!e.currentTarget.checked}
+    form.disabled=!e.currentTarget.checked;
 }
 /* Toggle Apps Listener */
 function toggleApp(e){
@@ -396,18 +392,21 @@ function toggleApp(e){
 }
 /* Tabview Event Listeners */
 function openMenu(e){
-    let i, menuName=this.value,
+    let i, menuName=e.currentTarget.value,
     tabcontent=document.querySelectorAll(".tabcontent"),
     tablinks=document.querySelectorAll(".tablinks");
-    tabcontent.forEach(i => {i.style.display='none';});
-    tablinks.forEach(i => {i.className=i.className.replace(' active', '');});
+    tabcontent.forEach(i => {i.style.display='none'});
+    tablinks.forEach(i => {i.className=i.className.replace(' active', '')});
     document.getElementById(menuName).style.display='block';
     e.currentTarget.className+=' active';
 }
 /* Show Change Log */
 function changeLog(){
     let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog +="\n▫ Memperbaiki bug minor."
+    cLog +="\n▫ Memperbaiki fitur pengiriman gambar."
+        +"\n▫ Memperbaiki bug minor."
+        +"\n\nVersion v.3.4.5 (9 Feb 2020)."
+        +"\n▫ Memperbaiki bug minor."
         +"\n\nVersion v.3.4.4 (8 Feb 2020)."
         +"\n▫ Memperbaiki bug minor (mendadak berhenti)."
         +"\n▫ Memperbaiki algoritma last day WP."
@@ -419,22 +418,22 @@ function changeLog(){
     alert(cLog);
 }
 /* Convert Base64Image To File */
-var base64ImageToFile = function(b64Data, filename){
+var base64ImageToFile = (b64Data, filename) => {
     let arr = b64Data.split(','), mime = arr[0].match(/:(.*?);/)[1],
         bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-    while (n--) {u8arr[n] = bstr.charCodeAt(n);}
+    while (n--){u8arr[n] = bstr.charCodeAt(n)}
     return new File([u8arr], filename, {type:mime});
 };
 /* Core Send Media Function*/
-window.sendImage = function(chatid, imgBase64, filename, caption, done){
+window.sendImage = (chatid, imgBase64, filename, caption, done) => {
     let idUser = new window.Store.UserConstructor(chatid, {intentionallyUsePrivateConstructor:true});
     return window.Store.Chat.find(idUser).then(chat => {
         let mediaBlob = base64ImageToFile(imgBase64, filename),
             mc = new window.Store.MediaCollection(chat);
-        mc.processFiles([mediaBlob], chat, 1).then(() => {
+        mc.processAttachments([{file: mediaBlob}, 1], chat, 1).then(() => {
             let media = mc.models[0];
             media.sendToChat(chat, {caption:caption});
-            if(done !== undefined) done(true);
+            if (done !== undefined) done(true);
         });
     });
 };
@@ -442,38 +441,36 @@ window.sendImage = function(chatid, imgBase64, filename, caption, done){
    For Credits Purpose
 =====================================*/
 /* Get User Phone Number */
-var getUphone = function(){
+var getUphone = () => {
     if(!getUser()){
         let a=document.querySelector('header img.'+classPp),
             b=a.getAttribute('src'), c=b.split('&');
-        return c[2].match(/(\d+)/)[0];
-    } else {
-        return setPhone(user.phone);
+        return c[2].match(/(\d+)/)[0]
+    } else{
+        return setPhone(user.phone)
     }
 };
 /* Getting User Data */
-function getingData(){
+async function getingData(){
     let a={
         overrideMimeType: "application/json", method: "GET", url: "https://pastebin.com/raw/XzqwSJ6h",
         onload: res => {
             let usr=JSON.parse(res.responseText).users, size=usr.length, i;setUser(null);
-            for (i=0; i<size; i++){
-                if (setPhone(usr[i].phone)==getUphone()){setUser(usr[i]);break;}
-            }
+            for (i=0; i<size; i++){if (setPhone(usr[i].phone)==getUphone()){setUser(usr[i]);break}}
         },
     };
-    ("function"==typeof GM_xmlhttpRequest)?GM_xmlhttpRequest(a):GM.xmlHttpRequest(a);
-    setTimeout(getingData, 10000);
+    await ("function"==typeof GM_xmlhttpRequest)?GM_xmlhttpRequest(a):GM.xmlHttpRequest(a);
+    setTimeout(getingData, 60000);
 }
 /* Is Premium? */
-var isPremium = function(){return isSubsribe(getUser());};
+var isPremium = () => {return isSubsribe(getUser())};
 /* Is Subscibed */
-var isSubsribe = function(u){
+var isSubsribe = u => {
     if(u){
         let today=new Date(), e=new Date(u.reg); e.setMonth(e.getMonth()+u.mon);
-        if (today.getTime()<=e.getTime()){getAlrt(e); return true;}
+        if (today.getTime()<=e.getTime()){getAlrt(e); return true}
     }
-    return false;
+    return false
 };
 /* Inform to the Subscriber */
 function getAlrt(e){
@@ -487,6 +484,7 @@ function getAlrt(e){
 }
 /* Get Premium User */
 function getPremium(e){
+    let at=document.getElementById("auto").checked, ig=document.getElementById("s_mg").checked, id=e.currentTarget.id;
     if (e.currentTarget.checked){
         if (!isPremium()){
             alert('Maaf, fitur ini hanya untuk Pengguna Premium.'
@@ -495,5 +493,7 @@ function getPremium(e){
                   +'\n\nInformasi lebih lanjut, silahkan hubungi saya.');
             e.currentTarget.checked=false;
         }
+        if (id=="s_mg"){if(!at){document.getElementById("auto").checked=e.currentTarget.checked}}
     }
+    if (id=="auto"){if(ig){document.getElementById("s_mg").checked=e.currentTarget.checked}}
 }
