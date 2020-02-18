@@ -338,7 +338,7 @@ var dateFormat = e => {
 /* Back to the First Chatroom */
 function back(a){
     let p=document.querySelectorAll("img[src='"+a+"']"),i=0,elm;
-    if(p.length>1){i=1}elm=p[i].parentElement;
+    if(p.length>1){i=1}elm=p[i];
     eventFire(elm,"mousedown");
 }
 /* Make Report Matrix Data */
@@ -370,8 +370,8 @@ function finish(sukses, gagal, error, a_gagal, a_error, auto){
 /* EventFire Function */
 function eventFire(node, eventType){
     let clickEvent = document.createEvent('MouseEvents');
-    clickEvent.initEvent(eventType, true, true);
-    node.parentElement.dispatchEvent(clickEvent);
+    clickEvent.initEvent(eventType, true, false);
+    node.dispatchEvent(clickEvent);
 }
 /* Dispatch Function */
 function dispatch(input, message) {
