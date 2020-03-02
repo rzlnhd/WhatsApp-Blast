@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.6
-// @date         2020-2-18
+// @version      3.4.7
+// @date         2020-3-3
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -29,22 +29,23 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-const version="v3.4.6", upDate="18 Feb 2020", classPp="jZhyM" /*from profile image*/,
+const version="v3.4.7", upDate="3 Mar 2020", classPp="jZhyM" /*from profile image*/,
       classChat="FTBzM" /*from message in chat*/, classMsg="_F7Vk" /*from message in chat*/,
       classErr="_2eK7W._3PQ7V" /*from error message when execute link*/, classIn="_3u328" /*input chat*/,
-      classChRoom="X7YrQ" /*from chatroom list*/, classAcChRoom="_3mMX1" /*from active chatroom*/;
+      classChRoom="X7YrQ" /*from chatroom list*/, classAcChRoom="_3mMX1" /*from active chatroom*/,
+      xmlReq=("function"==typeof GM_xmlhttpRequest)?GM_xmlhttpRequest:GM.xmlhttpRequest,
+      getRes=("function"==typeof GM_getResourceText)?GM_getResourceText:GM.getResourceText,
+      getVal=("function"==typeof GM_getValue)?GM_getValue:GM.getValue,
+      setVal=("function"==typeof GM_setValue)?GM_setValue:GM.setValue;
 var _image, user, mIdx_, mIdx=0, isFormat=false, doing=false, alrt=true;
 /* First Function */
 console.log('WhatsApp Blast '+version+' - Waiting for WhatsApp to load...');
 var timer = setInterval(general, 1000);
 function general(){
     if (document.querySelector("div.app")){
-        let pnl=document.getElementById("side"),
-            itm=document.querySelector("header"),
-            e=itm.cloneNode(true); loadModule();
-        initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
-        console.log("WhatsApp Blast "+version+" - Blast Your Follow Up NOW!");
-        clearInterval(timer);
+        let pnl=document.getElementById("side"), itm=document.querySelector("header"), e=itm.cloneNode(true);
+        loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
+        console.log("WhatsApp Blast "+version+" - Blast Your Follow Up NOW!"); clearInterval(timer);
     }
 }
 /* Load WAPI Module for Send Image */
@@ -87,17 +88,15 @@ function loadModule(){
 =====================================*/
 /* Load UI Component */
 function initComponents(e){
-    let pnl="function"==typeof GM_getResourceText?GM_getResourceText('pnl'):GM.getResourceText('pnl');
-    pnl=pnl.replace(/VERSION/g, version); e.style.zIndex=0; e.style.display='block';
+    let pnl=getRes('pnl').replace(/VERSION/g, version); e.style.zIndex=0; e.style.display='block';
     e.style['background-color']='#fed859'; e.style['justify-content']='flex-start';
     e.style.height='auto'; e.style.padding='0px'; e.innerHTML=pnl;
 }
 /* Set All Component Listeners */
 function initListener(){
-    let tab=document.querySelectorAll(".tablinks"), trg=document.querySelectorAll(".trig"),
+    let tab=document.querySelectorAll(".tablinks"), trg=document.querySelectorAll(".trig"), opn=getVal('opn', true),
         wbH=document.getElementById("toggleApp"), chk=document.querySelectorAll("input[type='checkbox']"),
-        clk=[{"id":"blast", "fn":blast}, {"id":"del", "fn":prevImg}, {"id":"changeLog", "fn":changeLog}],
-        opn="function"==typeof GM_getValue?GM_getValue('opn', true):GM.getValue('opn', true);
+        clk=[{"id":"blast", "fn":blast}, {"id":"del", "fn":prevImg}, {"id":"changeLog", "fn":changeLog}];
     wbH.addEventListener("click", toggleApp); getingData();
     chk.forEach((e, i) => {if(i>0){e.addEventListener("click", getPremium)}});
     tab.forEach(e => {e.addEventListener("click", openMenu)});
@@ -112,71 +111,72 @@ function initListener(){
 =====================================*/
 /* Main Function */
 function blast(){
-    console.log("Blast!: ignite engine");
+    if (getStatus()){if(confirm("Stop WhatsApp Blast?")){setStatus(false)} return}
+    console.log("Blast!: Ignite Engine");
     let file=document.getElementById("getFile").files[0], obj=document.getElementById("message").value,
         auto=document.getElementById("auto").checked, c_img=document.getElementById("s_mg").checked,
         capt=document.getElementById("capt").value, a_gagal=[], a_error=[], code, pinned,
-        sukses = 0, gagal=0, error=0, reader=new FileReader(), time=10;
-    if (getStatus()){if(confirm("Stop WhatsApp Blast?")){setStatus(false)} return}
-    else if (!obj){alert('Silahkan Masukkan Text terlebih dahulu...'); return}
+        sukses=0, gagal=0, error=0, reader=new FileReader(), time=10;
+    if (!obj){alert('Silahkan Masukkan Text terlebih dahulu...'); return}
     else if (!file){alert('Silahkan Masukkan File Penerima Pesan...'); return}
     else if (!getInput()){alert('Silahkan Pilih Chatroom Terlebih dahulu'); return}
     else if (auto){
-        code=getCode();pinned=getPinned();time=6000;
+        code=getCode(); pinned=getPinned(); time=6000;
         if (!code){alert('Chatroom Tidak Memiliki Foto Profil!'); return}
         if (!pinned){alert('Chatroom Belum di PIN!'); return}
     }
-    console.log("Blast!: onload data");
+    console.log("Blast!: Onload Data");
     reader.onload = f => {
-        let lines=f.currentTarget.result.split(/\r\n|\r|\n/), l=0, data=loadData(lines), b=data.length;
-        console.log("Data Loaded", Boolean(lines), Boolean(data), b, mIdx_);
-        async function execute(){
-            if (auto && (b>100)){
+        let lines=f.currentTarget.result.split(/\r\n|\r|\n/), l=0,
+            data=loadData(lines), b=data.length, i=new Interval(execute, time);
+        console.log("Blast!: Data Loaded,", !!data, b);
+        function execute(){
+            if (!i.isRunning()){i.start(); setStatus(true)}
+            if (auto && b>100){
                 alert('Blast Auto tidak boleh lebih dari 100 Nama!');
-                setStatus(false);
-            } else if (auto && (getCode()!=code)){
-                alert('Chatroom berbeda, Blast dihentikan!');
-                setStatus(false);
-            } else if (getStatus() && (l<b)){
-                let column=data[l].split(/,|;/), ph=setPhone(column[1]);
-                dispatch(getInput(), ((l+1)+"). "+mesej(obj, column[0], column[1], column[2], column[3])));
-                getBtn().click();
+                setStatus(false); i.stop();
+            } else if (auto && getCode()!=code){
+                alert('Chatroom terdeteksi berbeda, Blast dihentikan!');
+                setStatus(false); i.stop();
+            } else if (getStatus() && l<b){
+                let clm=data[l].split(/,|;/), ph=setPhone(clm[1]), no=l+1;
+                dispatch(getInput(), (no+"). "+mesej(obj, ...clm)));
+                getBtn().click(); l++;
                 if (auto){
-                    console.log("Link ke-"+(l+1)+": [TULIS]");
-                    await setTimeout(() => {
-                        let ch=document.querySelectorAll('div.'+classChat), li=document.querySelectorAll('a.'+classMsg);
+                    console.log("Link ke-"+no+": [TULIS]");
+                    setTimeout(() => {
+                        let ch=document.querySelectorAll('div.'+classChat),
+                            li=document.querySelectorAll('a.'+classMsg);
                         while (getRM(ch)){getRM(ch).click()}
                         li[li.length-1].click();
-                        console.log("Link ke-"+l+": [EKSEKUSI]")
+                        console.log("Link ke-"+no+": [EKSEKUSI]")
                     }, 1000);
-                    await setTimeout(() => {
+                    setTimeout(() => {
                         let err=document.querySelector("div."+classErr+"[role='button']");
                         if (err){
                             if(err.innerText === "OK"){
-                                a_error.push(l); error++; err.click();
-                                console.log("Link ke-"+l+": [EKSEKUSI ERROR]")
+                                a_error.push(no); error++; err.click();
+                                console.log("Link ke-"+no+": [EKSEKUSI ERROR]")
                             } else{
-                                a_gagal.push(l); gagal++; err.click();
-                                console.log("Link ke-"+l+": [EKSEKUSI GAGAL]")
+                                a_gagal.push(no); gagal++; err.click();
+                                console.log("Link ke-"+no+": [EKSEKUSI GAGAL]")
                             }
                         } else{
                             sukses++; getBtn().click();
-                            console.log("Link ke-"+l+": [EKSEKUSI SUKSES]");
+                            console.log("Link ke-"+no+": [EKSEKUSI SUKSES]");
                             if (c_img && _image){
                                 sendImg(ph, _image, capt);
-                                console.log("Link ke-"+l+": [GAMBAR SUKSES DIKIRIM]")
+                                console.log("Link ke-"+no+": [GAMBAR SUKSES DIKIRIM]")
                             }
                         }
                     }, 4000);
-                    await setTimeout(() => {back(code)}, 5000)
-                } else{sukses=l+1}
-                l++; await setTimeout(execute, time)
+                    setTimeout(() => {back(code)}, 5000)
+                } else{sukses++}
             } else{
-                finish(sukses, gagal, error, a_gagal, a_error, auto)
+                i.stop(); finish(sukses, gagal, error, a_gagal, a_error, auto)
             }
         }
-        console.log("Blast!: execute data");
-        setStatus(true); execute();
+        execute();
     };
     reader.readAsText(file);
 }
@@ -193,30 +193,35 @@ var loadData = arr => {
     let data=[], dt=[];
     arr.forEach(e => {
         if (e && break_f(e)){
-            let u=e.split(/,|;/);data.push(e);
-            if (u[2] && (u[2].length>3)){dt.push(u[2])}
-            else if (u[3]){dt.push(u[3])}
+            let d=e.split(/,|;/); data.push(e);
+            if(d.length>2)dt.push(getSgDate(d));
         }
     });
-    mIdx_=mPos(dt);
+    mIdx_=(dt)?mPos(dt):mIdx;
     return data
 };
+/* Get Sign Up Date Data */
+var getSgDate = d => {let i=2, l=d.length; for(i; i<l; i++){let e=d[i]; if((i==2)?e && e.length>3:e){return e}}};
 /* Create Links Message */
 var mesej = (obj, nama, phone, bp, date) => {
-    let absLink='https://api.whatsapp.com/send?phone=', _bp=parseInt(bp), tBp=100, bp_, enMsg, bC=200,
+    let absLink='api.whatsapp.com/send?phone=', tBp=100, kBp, enMsg,
         cBc=document.getElementById('s_bc').checked, sBp=document.getElementById('t_bp').value,
-        msg=obj.replace(/F_NAMA/g,setName(nama, 1)).replace(/NAMA/g, setName(nama, 0));
-    if (obj.includes("BC")){if (cBc){tBp=sBp} else{tBp=bC}}
+        bC=200, msg=obj.replace(/F_NAMA/g, setName(nama, 1)).replace(/NAMA/g, setName(nama, 0));
+    if (obj.includes("BC"))tBp=cBc?sBp:bC;
     if (bp){
-        if (bp.length<=3){bp_=tBp-_bp; msg=msg.replace(/P_BP/g, _bp+" BP").replace(/K_BP/g, bp_+" BP")}
-        else{msg=msg.replace(/L_DAY/g, getLastDay(bp))}
+        if (bp.length<=3){
+            kBp=tBp-parseInt(bp); if(kBp<0)kBp=0;
+            msg=msg.replace(/P_BP/g, bp+" BP").replace(/K_BP/g, kBp+" BP");
+        } else{
+            msg=msg.replace(/L_DAY/g, getLastDay(bp));
+        }
     }
-    if (date){msg=msg.replace(/L_DAY/g, getLastDay(date))}
+    if (date)msg=msg.replace(/L_DAY/g, getLastDay(date));
     enMsg=encodeURIComponent(msg).replace(/'/g, "%27").replace(/"/g, "%22");
     return absLink+setPhone(phone)+'&text='+enMsg
 };
 /* Break When Name is Empty */
-var break_f = line => {let column=line.split(/,|;/);return Boolean(column[0])}
+var break_f = e => {let clm=e.split(/,|;/);return !!clm[0]}
 /* Set Name of the Recipient */
 var setName = (nama, opt) => {
     let fname=nama.split(' '), count=fname.length, new_name=titleCase(fname[0]), i;
@@ -233,18 +238,18 @@ var setPhone = phn => {
     else {return "62"+ph}
 };
 /* Getting Last Day Welcome Program */
-var getLastDay = dateString => {
+var getLastDay = dateStr => {
     let date;
-    if (!isFormat && (mIdx!=mIdx_)){date=dateString.split('/'); dateString=arrMove(date, mIdx_, mIdx).join('/')}
-    date=new Date(dateString); date.setDate(date.getDate()+30);
+    if (!isFormat && (mIdx!=mIdx_)){date=dateStr.split('/'); dateStr=arrMove(date, mIdx_, mIdx).join('/')}
+    date=new Date(dateStr); date.setDate(date.getDate()+30);
     return dateFormat(date)
 };
 /* Get Input Area */
-var getInput = () => {return document.querySelector("div."+classIn+".copyable-text.selectable-text")};
+var getInput = () => {return document.querySelector("div."+classIn)};
 /* Get Send Button */
 var getBtn = () => {return document.querySelector("span[data-icon='send']")};
 /* Get Read More Button */
-var getRM = e => {return e[e.length-1].querySelector('span[role="button"]')};
+var getRM = e => {return e[e.length-1].querySelector("span[role='button']")};
 /* Getting User */
 var getUser = () => {return user};
 /* Setting User */
@@ -261,7 +266,7 @@ function setStatus(stat){
         console.log("Blasting..."); path.setAttribute("title", "STOP!");
         ico.setAttribute("d", stopIc); chatList.style.overflowY = "hidden";
     } else{
-        isFormat=stat; console.log("Stoped."); path.setAttribute("title", "BLAST!");
+        console.log("Stoped."); path.setAttribute("title", "BLAST!");
         ico.setAttribute("d", blastIc); chatList.style.overflowY = "auto";
     }
     doing=stat;
@@ -269,10 +274,7 @@ function setStatus(stat){
 /* Getting "BLAST" Status */
 var getStatus = () => {return doing};
 /* Getting code from Selected Chatroom */
-var getCode = () => {
-    let obj=document.querySelector('div.'+classAcChRoom+' img.'+classPp);
-    return obj.getAttribute('src')
-};
+var getCode = () => {return document.querySelector('div.'+classAcChRoom+' img.'+classPp).getAttribute('src')};
 /* Getting Pinned Status from Selected Chatroom*/
 var getPinned = () => {return document.querySelector('div.'+classAcChRoom).innerHTML.includes("pinned")};
 /* Formating Date Data */
@@ -281,6 +283,13 @@ var dateFormat = e => {
         m=["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     return d[e.getDay()]+", "+e.getDate()+" "+m[e.getMonth()]+" "+e.getFullYear()
 };
+/* Interval Class */
+function Interval(fn, time){
+    var timer = false;
+    this.start = function(){if (!this.isRunning()){timer=setInterval(fn, time)}};
+    this.stop = function(){clearInterval(timer);timer=false};
+    this.isRunning = function(){return timer!==false};
+}
 /* Moving Array Elements */
 var arrMove = (arr, oIdx, nIdx) => {
     if (nIdx >= arr.length){
@@ -304,7 +313,7 @@ var dataA = arr => {
 };
 /* Getting Month Index */
 var mPos = d => {
-    let m=0, b1=1, c1=1, b, c, size=d.length, i;
+    let m=0, b1=1, c1=1, b, c, size=d.length, i; isFormat=false;
     for (i=0; i<size; i++){
         let a=d[i].split('/');
         if (i===0){b=a[0];c=a[1];if (a[0].length>3){isFormat=true;return 0}}
@@ -317,7 +326,7 @@ var mPos = d => {
 };
 /* Back to the First Chatroom */
 function back(a){
-    let p=document.querySelectorAll("img[src='" +a+ "']"), i=0, elm;
+    let p=document.querySelectorAll("img[src='"+a+"']"), i=0, elm;
     if (p.length>1){i=1} elm=p[i];
     eventFire(elm, "mousedown");
 }
@@ -330,7 +339,7 @@ function finish(sukses, gagal, error, a_gagal, a_error, auto){
             +"\n    • GAGAL   = "+gagal+dataA(a_gagal)
             +"\n    • ERROR   = "+error+dataA(a_error);
     } else{
-        msg="[REPORT] Penulisan Link Selesai. " +sukses+ " Link Berhasil Ditulis";
+        msg="[REPORT] Penulisan Link Selesai. "+sukses+" Link Berhasil Ditulis";
     }
     if (getStatus()){setStatus(false)}
     alert(msg)
@@ -344,8 +353,7 @@ function eventFire(node, eventType){
 /* Dispatch Function */
 function dispatch(input, message){
     let evt=new InputEvent('input', {bubbles:true, composer:true});
-    input.innerHTML=message;
-    input.dispatchEvent(evt);
+    input.innerHTML=message; input.dispatchEvent(evt);
 }
 /*=====================================
    Listener Function Handler
@@ -386,9 +394,8 @@ function checking(e){
 /* Toggle Apps Listener */
 function toggleApp(e){
     let butn=e.currentTarget, id=butn.getAttribute("value"),
-        acdBody=document.getElementById(id), a=butn.classList.toggle('active');
+        acdBody=document.getElementById(id), a=butn.classList.toggle('active'); setVal('opn', a);
     (acdBody.style.height)?acdBody.style.height=null:acdBody.style.height=acdBody.scrollHeight+'px';
-    ("function"==typeof GM_setValue)?GM_setValue('opn', a):GM.setValue('opn', a);
 }
 /* Tabview Event Listeners */
 function openMenu(e){
@@ -403,18 +410,16 @@ function openMenu(e){
 /* Show Change Log */
 function changeLog(){
     let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog +="\n▫ Memperbaiki fitur pengiriman gambar."
+    cLog +="\n▫ Memperbarui Logic & Engine."
+        +"\n▫ Memperbaiki bug minor."
+        +"\n\nVersion v.3.4.6 (18 Feb 2020)."
+        +"\n▫ Memperbaiki fitur pengiriman gambar."
         +"\n▫ Memperbaiki bug minor."
         +"\n\nVersion v.3.4.5 (9 Feb 2020)."
         +"\n▫ Memperbaiki bug minor."
         +"\n\nVersion v.3.4.4 (8 Feb 2020)."
         +"\n▫ Memperbaiki bug minor (mendadak berhenti)."
-        +"\n▫ Memperbaiki algoritma last day WP."
-        +"\n\nVersion v.3.4.3 (5 Feb 2020)."
-        +"\n▫ Memperbaiki pembacaan jumlah data."
-        +"\n▫ Memperbaiki algoritma nomor & last day WP."
-        +"\n▫ Menambah proteksi saat chatroom tidak sesuai."
-        +"\n▫ Refactoring script.";
+        +"\n▫ Memperbaiki algoritma last day WP.";
     alert(cLog);
 }
 /* Convert Base64Image To File */
@@ -451,24 +456,23 @@ var getUphone = () => {
     }
 };
 /* Getting User Data */
-async function getingData(){
+function getingData(){
     let a={
-        overrideMimeType: "application/json", method: "GET", url: "https://pastebin.com/raw/XzqwSJ6h",
+        overrideMimeType:"application/json", method:"GET", url:"https://pastebin.com/raw/XzqwSJ6h",
         onload: res => {
-            let usr=JSON.parse(res.responseText).users, size=usr.length, i;setUser(null);
-            for (i=0; i<size; i++){if (setPhone(usr[i].phone)==getUphone()){setUser(usr[i]);break}}
+            let usr=JSON.parse(res.responseText).users, u;setUser(null);
+            for (u of usr){if(setPhone(u.phone)==getUphone()){setUser(u);break}}
         },
     };
-    await ("function"==typeof GM_xmlhttpRequest)?GM_xmlhttpRequest(a):GM.xmlHttpRequest(a);
-    setTimeout(getingData, 60000);
+    xmlReq(a); setTimeout(getingData, 60000);
 }
 /* Is Premium? */
 var isPremium = () => {return isSubsribe(getUser())};
 /* Is Subscibed */
 var isSubsribe = u => {
     if(u){
-        let today=new Date(), e=new Date(u.reg); e.setMonth(e.getMonth()+u.mon);
-        if (today.getTime()<=e.getTime()){getAlrt(e); return true}
+        let d=new Date(), e=new Date(u.reg); e.setMonth(e.getMonth()+u.mon);
+        if (d.getTime()<=e.getTime()){getAlrt(e); return true}
     }
     return false
 };
@@ -478,7 +482,7 @@ function getAlrt(e){
     if (alrt){
         alert("Halo kak "+setName(getUser().name, 1)+"!"
               +"\nSelamat menggunakan fitur Pengguna Premium."
-              +"\nMasa aktif Kakak sampai dengan "+str+" ya...");
+              +"\nMasa aktif Kakak berakhir hari "+str+" ya...");
         alrt=false;
     }
 }
@@ -495,5 +499,5 @@ function getPremium(e){
         }
         if (id=="s_mg"){if(!at){document.getElementById("auto").checked=e.currentTarget.checked}}
     }
-    if (id=="auto"){if(ig){document.getElementById("s_mg").checked=e.currentTarget.checked}}
+    if (id=="auto"){if(ig){document.getElementById("s_mg").click()}}
 }
