@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.7
-// @date         2020-3-3
+// @version      3.4.8
+// @date         2020-3-4
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -29,10 +29,10 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-const version="v3.4.7", upDate="3 Mar 2020", classPp="jZhyM" /*from profile image*/,
+const version="v3.4.8", upDate="4 Mar 2020", classPp="jZhyM" /*from profile image*/,
       classChat="FTBzM" /*from message in chat*/, classMsg="_F7Vk" /*from message in chat*/,
-      classErr="_2eK7W._3PQ7V" /*from error message when execute link*/, classIn="_3u328" /*input chat*/,
       classChRoom="X7YrQ" /*from chatroom list*/, classAcChRoom="_3mMX1" /*from active chatroom*/,
+      classErr="_2eK7W._3PQ7V" /*from error message when execute link*/,
       xmlReq=("function"==typeof GM_xmlhttpRequest)?GM_xmlhttpRequest:GM.xmlhttpRequest,
       getRes=("function"==typeof GM_getResourceText)?GM_getResourceText:GM.getResourceText,
       getVal=("function"==typeof GM_getValue)?GM_getValue:GM.getValue,
@@ -245,7 +245,7 @@ var getLastDay = dateStr => {
     return dateFormat(date)
 };
 /* Get Input Area */
-var getInput = () => {return document.querySelector("div."+classIn)};
+var getInput = () => {return document.querySelector("#main div[contenteditable='true']")};
 /* Get Send Button */
 var getBtn = () => {return document.querySelector("span[data-icon='send']")};
 /* Get Read More Button */
@@ -285,7 +285,7 @@ var dateFormat = e => {
 };
 /* Interval Class */
 function Interval(fn, time){
-    var timer = false;
+    let timer = false;
     this.start = function(){if (!this.isRunning()){timer=setInterval(fn, time)}};
     this.stop = function(){clearInterval(timer);timer=false};
     this.isRunning = function(){return timer!==false};
@@ -410,7 +410,9 @@ function openMenu(e){
 /* Show Change Log */
 function changeLog(){
     let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog +="\n▫ Memperbarui Logic & Engine."
+    cLog +="\n▫ Memperbaiki link untuk Chrome 32bit."
+        +"\n\nVersion v.3.4.7 (3 Mar 2020)."
+        +"\n▫ Memperbarui Logic & Engine."
         +"\n▫ Memperbaiki bug minor."
         +"\n\nVersion v.3.4.6 (18 Feb 2020)."
         +"\n▫ Memperbaiki fitur pengiriman gambar."
