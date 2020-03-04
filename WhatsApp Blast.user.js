@@ -454,7 +454,7 @@ function changeLog(){
     let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
     cLog+="\n▫ Memperbaiki pengiriman link yg kacau."
         +"\n\nVersion v.3.4.2b (18 Mar 2020)."
-        +"\n▫ Memperbaiki Pengiriman Gambar Otomatis.
+        +"\n▫ Memperbaiki Pengiriman Gambar Otomatis."
         +"\n\nVersion v.3.4.2 (31 Jan 2020)."
         +"\n▫ Memperbaiki Pengiriman Gambar Otomatis."
         +"\n▫ Refactoring Script Aplikasi."
