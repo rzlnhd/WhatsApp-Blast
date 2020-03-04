@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.2b
-// @date         2020-2-18
+// @version      3.4.2c
+// @date         2020-3-4
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -25,7 +25,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-const version="v3.4.2b",upDate="18 Feb 2020",
+const version="v3.4.2c",upDate="4 Mar 2020",
     classPp="jZhyM" /*from profile image*/, classChat="FTBzM" /*from message in chat*/,
     classErr="_2eK7W._3PQ7V" /*from error message when execute link*/,classIn="_3u328" /*input chat*/,
     classChRoom="X7YrQ" /*from chatroom list*/,classAcChRoom="_3mMX1" /*from active chatroom*/;
@@ -283,7 +283,7 @@ var getBtn = () => {
 }
 /* Get Input Area */
 var getInput = () => {
-    return document.querySelector("div."+classIn+".copyable-text.selectable-text")
+    return document.querySelector("#main div."+classIn)
 }
 /* Setting User */
 var getUser = () => {
@@ -452,7 +452,9 @@ function openMenu(evt){
 /* Show Change Log */
 function changeLog(){
     let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog+="\n▫ Memperbaiki Pengiriman Gambar Otomatis."
+    cLog+="\n▫ Memperbaiki pengiriman link yg kacau."
+        +"\n\nVersion v.3.4.2b (18 Mar 2020)."
+        +"\n▫ Memperbaiki Pengiriman Gambar Otomatis.
         +"\n\nVersion v.3.4.2 (31 Jan 2020)."
         +"\n▫ Memperbaiki Pengiriman Gambar Otomatis."
         +"\n▫ Refactoring Script Aplikasi."
@@ -536,7 +538,7 @@ function getAlrt(e){
     if(alrt){
         alert("Halo kak "+setName(getUser().name,1)+"!"
               +"\nSelamat menggunakan fitur Pengguna Premium."
-              +"\nMasa aktif Kakak sampai dengan "+str+" ya...");
+              +"\nMasa aktif Kakak berakhir hari "+str+" ya...");
         alrt=false
     }
 }
