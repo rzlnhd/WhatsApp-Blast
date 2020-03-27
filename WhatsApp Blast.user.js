@@ -6,7 +6,7 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.23
+// @version      3.4.2e
 // @date         2020-3-27
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
@@ -25,10 +25,10 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-const version="v3.4.2d",upDate="27 Mar 2020",
-    classPp="jZhyM" /*from profile image*/, classChat="FTBzM" /*from message in chat*/,
-    classErr="_2eK7W._3PQ7V" /*from error message when execute link*/,classIn="_3u328" /*input chat*/,
-    classChRoom="X7YrQ" /*from chatroom list*/,classAcChRoom="_3mMX1" /*from active chatroom*/;
+const version="v3.4.2e",upDate="27 Mar 2020",
+    classPp="_3FXB1" /*from profile image*/, classChat="message-out" /*from message in chat*/,
+    classErr="_1WZqU.PNlAR" /*from error message when execute link*/,classIn="_2S1VP " /*input chat*/,
+    classAcChRoom="_1f1zm" /*from active chatroom*/;
 var _image,user,doing=false,alrt=true;
 /* First Function */
 var timer = setInterval(general,1000);
@@ -437,13 +437,14 @@ function openMenu(evt){
 }
 /* Show Change Log */
 function changeLog(){
-    let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
+    let cLog="WhatsApp Blast v3.4.2d - "+version+" (Last Update: "+upDate+").";
     cLog+="\n▫ Memperbaiki tampilan yang tools hilang."
-        + "\n\nVersion v.3.4.2c (27 Mar 2020)."
+        +"\n▫ Memperbaiki DOM yang error."
+        + "\n\nVersion v3.4.2c (27 Mar 2020)."
         +"\n▫ Memperbaiki pengiriman link yg kacau."
-        +"\n\nVersion v.3.4.2b (18 Mar 2020)."
+        +"\n\nVersion v3.4.2b (18 Mar 2020)."
         +"\n▫ Memperbaiki Pengiriman Gambar Otomatis."
-        +"\n\nVersion v.3.4.2 (31 Jan 2020)."
+        +"\n\nVersion v3.4.2 (31 Jan 2020)."
         +"\n▫ Memperbaiki Pengiriman Gambar Otomatis."
         +"\n▫ Refactoring Script Aplikasi.";
     alert(cLog);
