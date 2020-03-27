@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.10
-// @date         2020-3-16
+// @version      3.4.11
+// @date         2020-3-27
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -28,23 +28,22 @@
 // @author       rzlnhd
 // ==/OpenUserJS==
 
-/* Global Constant Variables */
-const version = "v3.4.10", upDate = "16 Mar 2020", tDy = new Date(), qACR = "._3mMX1",
-      qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']";
+/* Global Variables */
+var version = "v3.4.11", upDate = "27 Mar 2020", tDy = new Date(), qACR = "._3mMX1",
+    qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
+    imgFile, user, mIdx_, data = [], runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
+    xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
+    getRes = ("function" == typeof GM_getResourceText) ? GM_getResourceText : GM.getResourceText,
+    getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
+    setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /* Global Minify Function */
-const xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
-      getRes = ("function" == typeof GM_getResourceText) ? GM_getResourceText : GM.getResourceText,
-      getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
-      setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue,
-      getElmAll = q => {return document.querySelectorAll(q);},
-      getById = id => {return document.getElementById(id);},
-      getElm = q => {return document.querySelector(q);};
-/* Global Editable Variables */
-var imgFile, user, mIdx_, data = [], runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true;
+function getElmAll(q){return document.querySelectorAll(q);}
+function getById(id){return document.getElementById(id);}
+function getElm(q){return document.querySelector(q);}
 /* First Function */
 console.log("WhatsApp Blast " + version + " - Waiting for WhatsApp to load...");
-const timer = setInterval(general, 1000);
-function general() {
+var timer = setInterval(general, 1000);
+function general(){
     if (getElm("div.app")){
         let pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true);
         loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
@@ -52,7 +51,7 @@ function general() {
     }
 }
 /* Load WAPI Module for Send Image */
-function loadModule() {
+function loadModule(){
     function getStore(modules) {
         const storeObjects = [
             { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
@@ -83,23 +82,21 @@ function loadModule() {
                 }
             }
         }
-    }
-    webpackJsonp([], { parasite: (x, y, z) => getStore(z) }, ['parasite']);
+    }    
+    (typeof webpackJsonp === 'function') ? webpackJsonp([], {'parasite': (x, y, z) => getStore(z)}, ['parasite'])
+        : webpackJsonp.push([['parasite'], {parasite: function (o, e, t) {getStore(t);}}, [['parasite']]]);
 }
 /* Getting User */
-const getUser = () => {return user;};
+function getUser(){return user;};
 /* Setting User */
-function setUser(u) {user = u;}
+function setUser(u){user = u;}
 /* Getting User */
-const getData = () => {return data;};
+function getData(){return data;};
 /* Setting User */
-function setData(d) {
+function setData(d){
     let ok = getById("fileOk"), eNum = getById("numbDat"), num = "", t = "";
-    if (ok && eNum){
-        ok.style.display = d ? (num = d.length, t = ("Data: Loaded, " + num + " Nama"), "inline-block") : "none";
-        ok.title = t; eNum.innerText = num;
-    }
-    runL = 0; data = d;
+    ok.style.display = d ? (num = d.length, t = ("Data: Loaded, " + num + " Nama"), "inline-block") : "none";
+    ok.title = t; eNum.innerText = num; runL = 0; data = d;
 }
 /*=====================================
    Initial Function
@@ -115,7 +112,7 @@ function initListener(){
     let clk = [{"id" : "blast", "fn" : blast}, {"id" : "del", "fn" : prevImg}, {"id" : "changeLog", "fn" : changeLog}],
         wbH = getById("toggleApp"), tab = getElmAll("#wbBody .tablinks"), trg = getElmAll("#wbBody .trig"),
         chk = getElmAll("#wbBody input[type='checkbox']"), opn = getVal('opn', true);
-    chk.forEach((e, i) => {if(i>0){e.addEventListener("click", getPremium);}});
+    chk.forEach((e, i) => {if(i > 0){e.addEventListener("click", getPremium);}});
     clk.forEach(e => {getById(e.id).addEventListener("click", e.fn);});
     tab.forEach(e => {e.addEventListener("click", openMenu);});
     trg.forEach(e => {e.addEventListener("click", checking);});
@@ -133,7 +130,7 @@ function blast(){
     if (doing){if(confirm("Stop WhatsApp Blast?")){setStatus(false);} return;}
     let obj = getById("message").value, auto = getById("auto").checked, c_img = getById("s_mg").checked,
         capt = getById("capt").value, data = getData(), b = data.length, l = runL, error = 0, sukses = 0, gagal = 0,
-        code, pinned, a_error = [], a_gagal = [], time = 10;
+        code, pinned, a_error = [], a_gagal = [], no = l+1, time = 10;
     if (!obj){alert("Silahkan Masukkan Text terlebih dahulu..."); return;}
     else if (b === 0){alert("Silahkan Masukkan File Penerima Pesan..."); return;}
     else if (!getElm(qInp)){alert("Silahkan Pilih Chatroom Terlebih dahulu"); return;}
@@ -155,7 +152,7 @@ function blast(){
             alert("Chatroom terdeteksi berbeda, Blast dihentikan!");
             finish(sukses, gagal, error, a_gagal, a_error, auto);
         } else if (doing && l < b){
-            let clm = data[l].split(/,|;/), no = l+1, lg = "Link ke-" + no;
+            let clm = data[l].split(/,|;/), lg = "Link ke-" + no;
             dispatch(getElm(qInp), (no + "). " + mesej(obj, ...clm)));
             getElm(qSend).click();
             if (auto){
@@ -182,7 +179,7 @@ function blast(){
                 }, 4000);
                 setTimeout(() => {back(code);}, 5000);
             } else{sukses++;}
-            setTimeout(() => {l++; runL = l; execute();}, time);
+            setTimeout(() => {no++; l++; runL = l; execute();}, time);
         } else{
             finish(sukses, gagal, error, a_gagal, a_error, auto);
         }
@@ -190,7 +187,7 @@ function blast(){
     setStatus(true); execute();
 }
 /* Create The Real Data */
-const loadData = arr => {
+function loadData(arr){
     let data = [], dt = [], i = 0, j = 0;
     arr.forEach(e => {
         if (e && break_f(e)){
@@ -202,9 +199,9 @@ const loadData = arr => {
     });
     mIdx_ = (dt.length !== 0) ? mPos(dt) : mIdx;
     return data;
-};
+}
 /* Get Sign Up Date Data */
-const getSgDate = d => {
+function getSgDate(d){
     let i = 2, l = d.length;
     for (i; i < l; i++){
         let e = d[i];
@@ -212,9 +209,9 @@ const getSgDate = d => {
             return e;
         }
     }
-};
+}
 /* Create Links Message */
-const mesej = (obj, nama, phone, bp, date) => {
+function mesej(obj, nama, phone, bp, date){
     let absLink = "api.whatsapp.com/send?phone=", bC = 200, msg = obj,
         cBc = getById("s_bc").checked, sBp = getById("t_bp").value,
         tBp = msg.includes("BC") ? (cBc ? sBp : bC) : 100, kBp, enMsg;
@@ -228,11 +225,11 @@ const mesej = (obj, nama, phone, bp, date) => {
     msg = date ? msg.replace(/L_DAY/g, getLastDay(date)) : msg;
     enMsg = encodeURIComponent(msg).replace(/'/g, "%27").replace(/"/g, "%22");
     return absLink + setPhone(phone) + "&text=" + enMsg;
-};
+}
 /* Break When Name is Empty */
-const break_f = e => {return !!e.split(/,|;/)[0];};
+function break_f(e){return !!e.split(/,|;/)[0];}
 /* Set Name of the Recipient */
-const setName = (nama, opt) => {
+function setName(nama, opt){
     let fname = nama.split(' '), count = fname.length, new_name = titleCase(fname[0]), i;
     if (opt == 1){
         for (i = 1; i < count; i++){
@@ -240,24 +237,24 @@ const setName = (nama, opt) => {
         }
     }
     return new_name;
-};
+}
 /* Title Case Text Transform */
-const titleCase = str => {str = str.toLowerCase(); return str.charAt(0).toUpperCase() + str.slice(1);};
+function titleCase(str){str = str.toLowerCase(); return str.charAt(0).toUpperCase() + str.slice(1);}
 /* Set the Recipient's Phone Number */
-const setPhone = phn => {
-    let ph = phn.match(/\d+/g).join();
+function setPhone(phn){
+    let ph = phn.match(/\d+/g).join('');
     return (!ph || ph.charAt(0) === "6") ? ph
         : (ph.charAt(0) === "0") ? "62" + ph.substr(1)
         : "62" + ph;
-};
+}
 /* Getting Last Day Welcome Program */
-const getLastDay = dateStr => {
+function getLastDay(dateStr){
     let str = (!isFormat && (mIdx != mIdx_)) ? (arrMove(dateStr.split("/"), mIdx_, mIdx).join("/")) : dateStr,
         date = new Date(str); date.setDate(date.getDate() + 30);
     return dateFormat(date);
-};
+}
 /* Get Read More Button */
-const getRM = e => {return e[e.length - 1].querySelector("span[role='button']");};
+function getRM(e){return e[e.length - 1].querySelector("span[role='button']");}
 /*=====================================
    Utilities Function
 =====================================*/
@@ -271,26 +268,26 @@ function setStatus(stat){
     doing = stat;
 }
 /* Getting code from Selected Chatroom */
-const getCode = () => {return getElm("div" + qACR + " img").src;};
+function getCode(){return getElm("div" + qACR + " img").src;}
 /* Getting Pinned Status from Selected Chatroom*/
-const getPinned = () => {return getElm("div" + qACR + " span[data-icon='pinned']");};
+function getPinned(){return getElm("div" + qACR + " span[data-icon='pinned']");}
 /* Formating Date Data */
-const dateFormat = e => {
+function dateFormat(e){
     let d = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
         m = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     return d[e.getDay()] + ", " + e.getDate() + " " + m[e.getMonth()] + " " + e.getFullYear();
-};
+}
 /* Moving Array Elements */
-const arrMove = (arr, oIdx, nIdx) => {
+function arrMove(arr, oIdx, nIdx){
     if (nIdx >= arr.length){
         let k = nIdx - arr.length + 1;
         while (k--){arr.push(undefined);}
     }
     arr.splice(nIdx, 0, arr.splice(oIdx, 1)[0]);
     return arr;
-};
+}
 /* Make Report Matrix Data */
-const dataA = arr => {
+function dataA(arr){
     let size = arr.length, str = "", i = 0;
     for (i; i < size; i++) {
         str = (i === 0) ? (" (") : str;
@@ -298,9 +295,9 @@ const dataA = arr => {
             : (arr[i] + ")");
     }
     return str;
-};
+}
 /* Getting Month Index */
-const mPos = d => {
+function mPos(d){
     let b1 = 1, c1 = 1, b, c, size = d.length, i; isFormat = false;
     for (i = 0; i < size; i++){
         let a = d[i].split("/");
@@ -318,7 +315,7 @@ const mPos = d => {
         }
     }
     return (b1 < c1) ? 1 : 0;
-};
+}
 /* Back to the First Chatroom */
 function back(a){
     let elm = getElm("#pane-side img[src='" + a + "']");
@@ -404,7 +401,10 @@ function openMenu(e){
 /* Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Menambah fitur melanjutkan Blast."
+    cLog += "\n▫ Memperbaiki tampilan yang tools hilang."
+        + "\n▫ Refactoring Code."
+        + "\n\nVersion v.3.4.10 (16 Mar 2020)."
+        + "\n▫ Menambah fitur melanjutkan Blast."
         + "\n▫ Menambah fitur melihat jumlah data."
         + "\n▫ Memperbaiki bug minor."
         + "\n▫ Refactoring Code."
@@ -413,10 +413,7 @@ function changeLog(){
         + "\n▫ Better Performance."
         + "\n▫ Refactoring Code."
         + "\n\nVersion v.3.4.8 (4 Mar 2020)."
-        + "\n▫ Memperbaiki penempatan link untuk Chrome 32bit."
-        + "\n\nVersion v.3.4.7 (3 Mar 2020)."
-        + "\n▫ Memperbarui Logic & Engine."
-        + "\n▫ Memperbaiki bug minor.";
+        + "\n▫ Memperbaiki penempatan link untuk Chrome 32bit.";
     alert(cLog);
 }
 /* Core Send Media Function*/
@@ -435,9 +432,9 @@ window.sendImage = (chatid, imgFile, caption, done=undefined) => {
    For Credits Purpose
 =====================================*/
 /* Get User Phone Number */
-const getUphone = () => {
-    return !getUser() ? (getElm("header img").src.split("&")[2].match(/\d+/).join()) : setPhone(user.phone);
-};
+function getUphone(){
+    return !getUser() ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : setPhone(user.phone);
+}
 /* Getting User Data */
 function getingData(){
     let a = {
@@ -450,15 +447,15 @@ function getingData(){
     xmlReq(a); setTimeout(getingData, 60000);
 }
 /* Is Premium? */
-const isPremium = () => {return isSubsribe(getUser());};
+function isPremium(){return isSubsribe(getUser());}
 /* Is Subscibed */
-const isSubsribe = u => {
+function isSubsribe(u){
     if (u){
         let e = new Date(u.reg); e.setMonth(e.getMonth() + u.mon);
         if (tDy.getTime() <= e.getTime()){getAlrt(e); return true;}
     }
     return false;
-};
+}
 /* Inform to the Subscriber */
 function getAlrt(e){
     alrt = alrt ? (
