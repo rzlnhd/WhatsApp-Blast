@@ -6,7 +6,7 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.11
+// @version      3.4.12
 // @date         2020-3-27
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
@@ -29,7 +29,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var version = "v3.4.11", upDate = "27 Mar 2020", tDy = new Date(), qACR = "._3mMX1",
+var version = "v3.4.12", upDate = "27 Mar 2020", tDy = new Date(), qACR = "._1f1zm",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     imgFile, user, mIdx_, data = [], runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -164,7 +164,7 @@ function blast(){
                     console.log(lg + ": [EKSEKUSI]");
                 }, 1000);
                 setTimeout(() => {
-                    let err = getElm(".aymnx div[role='button']"), psn, ig, snd;
+                    let err = getElm(".overlay div[role='button']"), psn, ig, snd;
                     snd = err ? (
                         psn = (err.innerText === "OK") ? (
                             a_error[error] = no, error++, "ERROR"
@@ -400,19 +400,20 @@ function openMenu(e){
 }
 /* Show Change Log */
 function changeLog(){
-    let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
+    let cLog = "WhatsApp Blast v3.4.11 - " + version + " (Last Update: " + upDate + ").";
     cLog += "\n▫ Memperbaiki tampilan yang tools hilang."
+        + "\n▫ Memperbaiki DOM yang kacau."
         + "\n▫ Refactoring Code."
-        + "\n\nVersion v.3.4.10 (16 Mar 2020)."
+        + "\n\nVersion v3.4.10 (16 Mar 2020)."
         + "\n▫ Menambah fitur melanjutkan Blast."
         + "\n▫ Menambah fitur melihat jumlah data."
         + "\n▫ Memperbaiki bug minor."
         + "\n▫ Refactoring Code."
-        + "\n\nVersion v.3.4.9 (6 Mar 2020)."
+        + "\n\nVersion v3.4.9 (6 Mar 2020)."
         + "\n▫ Memperbaiki bug major."
         + "\n▫ Better Performance."
         + "\n▫ Refactoring Code."
-        + "\n\nVersion v.3.4.8 (4 Mar 2020)."
+        + "\n\nVersion v3.4.8 (4 Mar 2020)."
         + "\n▫ Memperbaiki penempatan link untuk Chrome 32bit.";
     alert(cLog);
 }
