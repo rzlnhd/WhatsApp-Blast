@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.2c
-// @date         2020-3-4
+// @version      3.4.23
+// @date         2020-3-27
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -25,7 +25,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-const version="v3.4.2c",upDate="4 Mar 2020",
+const version="v3.4.2d",upDate="27 Mar 2020",
     classPp="jZhyM" /*from profile image*/, classChat="FTBzM" /*from message in chat*/,
     classErr="_2eK7W._3PQ7V" /*from error message when execute link*/,classIn="_3u328" /*input chat*/,
     classChRoom="X7YrQ" /*from chatroom list*/,classAcChRoom="_3mMX1" /*from active chatroom*/;
@@ -45,55 +45,41 @@ function general(){
     }
 }
 /* Load WAPI Module for Send Image */
-function loadModule(){if (true) {
-    (function() {
-        function getStore(modules) {
-            const storeObjects = [
-                { id: "Store", conditions: module => module.Chat && module.Msg ? module : null },
-                { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
-                { id: "UserConstructor", conditions: module => module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser ? module.default : null }
-            ];
-            let foundCount = 0;
-            for (let idx in modules) {
-                if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
-                    let first = Object.values(modules[idx])[0];
-                    if ((typeof first === "object") && (first.exports)) {
-                        for (let idx2 in modules[idx]) {
-                            let module = modules(idx2);
-                            if (!module) {
-                                continue;
-                            }
-                            storeObjects.forEach(needObj => {
-                                if(!needObj.conditions || needObj.foundedModule) return;
-                                let neededModule = needObj.conditions(module);
-                                if(neededModule !== null) {
-                                    foundCount++;
-                                    needObj.foundedModule = neededModule;
-                                }
-                            });
-                            if (foundCount == storeObjects.length) {
-                                break;
-                            }
-                        }
-                        let neededStore = storeObjects.find(needObj => needObj.id === "Store");
-                        window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
-                        storeObjects.splice(storeObjects.indexOf(neededStore), 1);
+function loadModule(){
+    function getStore(modules) {
+        const storeObjects = [
+            { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
+            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
+            { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null }
+        ];
+        let foundCount = 0;
+        for (let idx in modules) {
+            if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                let first = Object.values(modules[idx])[0];
+                if ((typeof first === "object") && (first.exports)) {
+                    for (let idx2 in modules[idx]) {
+                        let module = modules(idx2);
+                        if (!module) {continue;}
                         storeObjects.forEach(needObj => {
-                            if (needObj.foundedModule) {
-                                window.Store[needObj.id] = needObj.foundedModule;
-                            }
+                            if (!needObj.conditions || needObj.foundedModule) return;
+                            let neededModule = needObj.conditions(module);
+                            if (neededModule !== null) {foundCount++; needObj.foundedModule = neededModule;}
                         });
-                        window.Store.sendMessage = function (e) {
-                            return window.Store.SendTextMsgToChat(this, ...arguments);
-                        }
-                        return window.Store;
+                        if (foundCount == storeObjects.length) {break;}
                     }
+                    let neededStore = storeObjects.find(needObj => needObj.id === "Store");
+                    window.Store = neededStore.foundedModule ? neededStore.foundedModule : window.Store;
+                    storeObjects.splice(storeObjects.indexOf(neededStore), 1);
+                    storeObjects.forEach(needObj => {if (needObj.foundedModule) window.Store[needObj.id] = needObj.foundedModule;});
+                    window.Store.sendMessage = e => {return window.Store.SendTextMsgToChat(this, ...arguments)}
+                    return window.Store;
                 }
             }
         }
-        webpackJsonp([], { parasite: (x, y, z) => getStore(z) }, ['parasite']);
-    })();
-};}
+    }    
+    (typeof webpackJsonp === 'function') ? webpackJsonp([], {'parasite': (x, y, z) => getStore(z)}, ['parasite'])
+        : webpackJsonp.push([['parasite'], {parasite: function (o, e, t) {getStore(t);}}, [['parasite']]]);
+}
 /*=====================================
    Initial Function
 =====================================*/
@@ -452,17 +438,14 @@ function openMenu(evt){
 /* Show Change Log */
 function changeLog(){
     let cLog="WhatsApp Blast "+version+" (Last Update: "+upDate+").";
-    cLog+="\n▫ Memperbaiki pengiriman link yg kacau."
+    cLog+="\n▫ Memperbaiki tampilan yang tools hilang."
+        + "\n\nVersion v.3.4.2c (27 Mar 2020)."
+        +"\n▫ Memperbaiki pengiriman link yg kacau."
         +"\n\nVersion v.3.4.2b (18 Mar 2020)."
         +"\n▫ Memperbaiki Pengiriman Gambar Otomatis."
         +"\n\nVersion v.3.4.2 (31 Jan 2020)."
         +"\n▫ Memperbaiki Pengiriman Gambar Otomatis."
-        +"\n▫ Refactoring Script Aplikasi."
-        +"\n\nVersion v.3.4.1 (22 Jan 2020)."
-        +"\n▫ Mengganti passcode dengan data pengguna."
-        +"\n▫ Mengubah nilai BC reguler menjadi 200BP (regulasi baru)."
-        +"\n▫ Mengubah minimum nilai Super BC menjadi 100BP."
-        +"\n▫ Menambah pemberitahuan info berlangganan.";
+        +"\n▫ Refactoring Script Aplikasi.";
     alert(cLog);
 }
 /* Convert Base64Image To File */
