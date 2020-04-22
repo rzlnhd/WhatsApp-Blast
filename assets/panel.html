@@ -16,7 +16,8 @@
     #tabs button{background-color:inherit;float:left;cursor:pointer;padding:6px;transition:0.3s;width:50%;font-weight:600;border-radius:10px 10px 0 0}
     #tabs button:hover,#tabs button.active,.tabcontent{background: rgb(255, 255, 255, 0.35)}
     .immg{border: 1px solid rgba(0,0,0,0.1);height:87px;overflow-y:scroll;padding:1px 0px}.immg img{max-width:97%;width:auto;margin:auto;display:block}
-    #fileOk{background:rgba(255,255,255,.5);padding:0 5px 2.5px;display:none;border-radius:10px}#numbDat,.fileChecks{vertical-align:text-bottom}
+    #fileOk{background:rgba(255,255,255,.5);padding:0 5px 2.5px;display:none;border-radius:10px}#fileOk,#numbDat,.fileChecks{vertical-align:middle}
+    #waProgress,#waBar{height:3px;border-radius:3px}#waProgress{width:100%;background-color:#fff;margin:4px 0;display:block}#waBar{width:0;background-color:#4CAF50}
     #numbDat{margin-left:2.5px;font-weight:600}.fileChecks{float:none;display:inline-block;color:rgb(0,155,76) !important}
     .credit-icon{cursor:pointer;display:inline-block;width:16px;vertical-align:-0.125em;padding:0 1px}
     .btn-sc{float:right}.btn-sc a{color:#000}.icon-facebook a:hover{color:#4267b0}.icon-twitter a:hover{color:#20a0ef}
@@ -61,7 +62,7 @@
         <div class='content immg'><img id='o_img'/></div>
         <textarea id='capt' rows='1' class='copyable-text selectable-text' placeholder='Caption Here!' disabled></textarea>
     </div>
-    <div style='height:2px;width:100%;display:block;background:#888;margin:5px 0;'></div>
+    <div id="waProgress"><div id="waBar"></div></div>
     <div style='margin-top: 5px;'>
         <label class="switch">
             <input type="checkbox" name="automatic" id="auto" value="Auto">
