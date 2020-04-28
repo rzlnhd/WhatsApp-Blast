@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         WhatsApp Blast
+// @name         WhatsApp Blast BETA
 // @description  Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
 // @copyright    2018, rzlnhd (https://github.com/rzlnhd/)
 // @license      GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
@@ -7,7 +7,7 @@
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast/3.5-beta
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/3.5-beta/issues
 // @version      3.5.0
-// @date         2020-4-30
+// @date         2020-4-28
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -147,7 +147,7 @@ class Interval {
    Initial Function
 =====================================*/
 /** Global Variables */
-var version = "v3.5.0 BETA", upDate = "30 Apr 2020", tDy = new Date(), queue = new Queue(),
+var version = "v3.5.0 BETA", upDate = "28 Apr 2020", tDy = new Date(), queue = new Queue(),
     mesej = new Message(), doBlast = new Interval(), report = new Report(),
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     imgFile, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
