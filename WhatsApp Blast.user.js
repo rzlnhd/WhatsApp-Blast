@@ -209,7 +209,7 @@ function loadModule(){
 /** Load UI Component */
 function initComponents(e){
     let pnl = getRes("pnl").replace(/VERSION/g, version); e.style.zIndex = 0; e.style.display = "block";
-    e.style["background-color"] = "var(--butterbar-background-connection)"; e.style["justify-content"] = "flex-start";
+    e.style["background-color"] = "var(--butterbar-connection-background)"; e.style["justify-content"] = "flex-start";
     e.style.height = "auto"; e.style.padding = "0px"; e.innerHTML = pnl;
 }
 /** Set All Component Listeners */
