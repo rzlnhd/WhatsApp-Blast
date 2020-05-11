@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.1
-// @date         2020-5-1
+// @version      3.5.2
+// @date         2020-5-11
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -56,7 +56,13 @@ class Message {
     constructor() {
         this.name = this.phone = this.bp = this.date = this.msg = "";
     }
-    setMsg(msgs, ...args) {[this.name, this.phone, this.bp, this.date] = args; this.msg = msgs;};
+    setMsg(msgs, args) {[this.name, this.phone, this.bp, this.date] = args; this.msg = msgs;};
+    get lastDay() {
+        let str = (!isFormat && (mIdx != mIdx_)) ?
+            (arrMove(this.date.split("/"), mIdx_, mIdx).join("/")) : this.date, d = new Date(str);
+        d.setDate(d.getDate() + 30);
+        return dateFormat(d);
+    };
     get message(){
         let cBc = getById("s_bc").checked, sBp = getById("t_bp").value, kBp,
             bC = 200, tBp = this.msg.includes("BC") ? (cBc ? sBp : bC) : 100;
@@ -66,15 +72,9 @@ class Message {
         this.msg = this.date ? this.msg.replace(/L_DAY/g, this.lastDay) : this.msg;
         return this.msg;
     };
-    get lastDay() {
-        let str = (!isFormat && (mIdx != mIdx_)) ?
-            (arrMove(this.date.split("/"), mIdx_, mIdx).join("/")) : this.date, d = new Date(str);
-        d.setDate(d.getDate() + 30);
-        return dateFormat(d);
-    };
     get link() {
-        let absLink = "api.whatsapp.com/send?phone=", msg = this.message, enMsg;
-        enMsg = encodeURIComponent(msg).replace(/'/g, "%27").replace(/"/g, "%22");
+        let absLink = "api.whatsapp.com/send?phone=", enMsg;
+        enMsg = encodeURIComponent(this.message).replace(/'/g, "%27").replace(/"/g, "%22");
         return absLink + setPhone(this.phone) + "&text=" + enMsg;
     };
     sendMsg() {
@@ -88,8 +88,7 @@ class Message {
         return false;
     };
     sendImg(imgFile, caption, done = undefined) {
-        let idUser = new window.Store.UserConstructor(setPhone(this.phone) + "@c.us", { intentionallyUsePrivateConstructor: true });
-        return window.Store.Chat.find(idUser).then(chat => {
+        return window.Store.Chat.find(setPhone(this.phone) + "@c.us").then(chat => {
             let mc = new window.Store.MediaCollection(chat);
             mc.processAttachments([{ file: imgFile }, 1], chat, 1).then(() => {
                 let media = mc.models[0];
@@ -147,7 +146,7 @@ class Interval {
    Initial Function
 =====================================*/
 /** Global Variables */
-var version = "v3.5.1 BETA", upDate = "1 Mei 2020", tDy = new Date(), queue = new Queue(),
+var version = "v3.5.2 BETA", upDate = "11 Mei 2020", tDy = new Date(), queue = new Queue(),
     mesej = new Message(), doBlast = new Interval(), report = new Report(),
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     imgFile, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
@@ -176,8 +175,7 @@ function loadModule(){
         const storeObjects = [
             { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
             { id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
-            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
-            { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null }
+            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null }
         ];
         let foundCount = 0;
         for (let idx in modules) {
@@ -251,7 +249,7 @@ function blast(){
     console.log("Blast!: Ignite Engine");
     function execute(){
         if (doBlast.isRunning && !!queue.now){
-            clm = queue.run().split(/,|;/); mesej.setMsg(obj, ...clm); lg = "Data ke-" + no;
+            clm = queue.run().split(/,|;/); mesej.setMsg(obj, clm); lg = "Data ke-" + no;
             if (auto){
                 if(mesej.sendMsg()){
                     console.log(lg + ": [EKSEKUSI SUKSES]"); report.success();
@@ -268,7 +266,7 @@ function blast(){
             }
             showProgress(no, b); no++; l++; runL = l;
         }
-        if (!queue.now) doBlast.stop(report);
+        if (!queue.now) setTimeout(() => {doBlast.stop(report)}, 100);
     }
     doBlast.loop(time, execute);
     if (!doBlast.isRunning) doBlast.start(); execute();
@@ -444,8 +442,10 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Mengaktifkan kembali Chatlist."
-        + "\n\nVersion v3.5.0 (28 Apr 2020)."
+    cLog += "\n▫ Memperbaiki fitur pengiriman gambar."
+        + "\n\nVersion v3.5.1 BETA (28 Apr 2020)."
+        + "\n▫ Mengaktifkan kembali Chatlist."
+        + "\n\nVersion v3.5.0 BETA (28 Apr 2020)."
         + "\n▫ Kirim pesan otomatis langsung ke penerima."
         + "\n▫ Mengganti separator bar menjadi progress bar."
         + "\n▫ Memperbarui Logic & Engine."
