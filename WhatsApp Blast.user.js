@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.13
-// @date         2020-4-9
+// @version      3.4.14
+// @date         2020-5-11
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -29,7 +29,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var version = "v3.4.13", upDate = "9 Apr 2020", tDy = new Date(), qACR = "._1f1zm",
+var version = "v3.4.14", upDate = "11 Mei 2020", qACR = "._1f1zm",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     imgFile, user, mIdx_, data = [], runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -55,8 +55,7 @@ function loadModule(){
     function getStore(modules) {
         const storeObjects = [
             { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
-            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
-            { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null }
+            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null }
         ];
         let foundCount = 0;
         for (let idx in modules) {
@@ -86,13 +85,9 @@ function loadModule(){
     (typeof webpackJsonp === 'function') ? webpackJsonp([], {'parasite': (x, y, z) => getStore(z)}, ['parasite'])
         : webpackJsonp.push([['parasite'], {parasite: function (o, e, t) {getStore(t);}}, [['parasite']]]);
 }
-/* Getting User */
-var getUser = () => {return user;};
 /* Setting User */
 function setUser(u){user = u;}
-/* Getting User */
-var getData = () => {return data;};
-/* Setting User */
+/* Setting Data */
 function setData(d){
     var ok = getById("fileOk"), eNum = getById("numbDat"), num = "", t = "";
     ok.style.display = d ? (num = d.length, t = ("Data: Loaded, " + num + " Nama"), "inline-block") : "none";
@@ -129,7 +124,7 @@ function initListener(){
 function blast(){
     if (doing){if(confirm("Stop WhatsApp Blast?")){setStatus(false);} return;}
     var obj = getById("message").value, auto = getById("auto").checked, c_img = getById("s_mg").checked,
-        capt = getById("capt").value, data = getData(), b = data.length, l = runL, error = 0, sukses = 0, gagal = 0,
+        capt = getById("capt").value, b = data.length, l = runL, error = 0, sukses = 0, gagal = 0,
         code, pinned, a_error = [], a_gagal = [], no = l + 1, time = 10, clm = [], lg, ch, err, psn, ig, snd;
     if (!obj){alert("Silahkan Masukkan Text terlebih dahulu..."); return;}
     else if (b === 0){alert("Silahkan Masukkan File Penerima Pesan..."); return;}
@@ -269,7 +264,7 @@ function setStatus(stat){
 /* Getting code from Selected Chatroom */
 var getCode = () => {return getElm("div" + qACR + " img").src;};
 /* Getting Pinned Status from Selected Chatroom*/
-var getPinned = () => {return getElm("div" + qACR + " span[data-icon='pinned']");};
+var getPinned = () => {return !!getElm("div" + qACR + " span[data-icon='pinned']");};
 /* Formating Date Data */
 var dateFormat = e =>{
     var d = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
@@ -335,7 +330,7 @@ function finish(sukses, gagal, error, a_gagal, a_error, auto){
 /* EventFire Function */
 function eventFire(node, eventType){
     var clickEvent = document.createEvent("MouseEvents");
-    clickEvent.initEvent(eventType, true, false);
+    clickEvent.initMouseEvent(eventType, true, false);
     node.dispatchEvent(clickEvent);
 }
 /* Dispatch Function */
@@ -400,7 +395,10 @@ function openMenu(e){
 /* Show Change Log */
 function changeLog(){
     var cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Menambah fitur Trial 7 Hari."
+    cLog += "\n▫ Memperbaiki fitur pengiriman gambar."
+        + "\n▫ Perbaikan Minor."
+        + "\n\nVersion v3.4.13 (9 Apr 2020)."
+        + "\n▫ Menambah fitur Trial 7 Hari."
         + "\n▫ Memperbaiki bug major."
         + "\n▫ Refactoring Code."
         + "\n\nVersion v3.4.11 - v3.4.12 (27 Mar 2020)."
@@ -416,8 +414,7 @@ function changeLog(){
 }
 /* Core Send Media Function*/
 window.sendImage = (chatid, imgFile, caption, done = undefined) => {
-    var idUser = new window.Store.UserConstructor(chatid, {intentionallyUsePrivateConstructor : true});
-    return window.Store.Chat.find(idUser).then(chat => {
+    return window.Store.Chat.find(chatid).then(chat => {
         var mc = new window.Store.MediaCollection(chat);
         mc.processAttachments([{file : imgFile}, 1], chat, 1).then(() => {
             var media = mc.models[0];
@@ -431,7 +428,7 @@ window.sendImage = (chatid, imgFile, caption, done = undefined) => {
 =====================================*/
 /* Get User Phone Number */
 var getUphone = () => {
-    return !getUser() ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : setPhone(user.phone);
+    return !user ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : setPhone(user.phone);
 };
 /* Getting User Data */
 function getingData(){
@@ -445,18 +442,19 @@ function getingData(){
     xmlReq(a); setTimeout(getingData, 60000);
 }
 /* Is Premium? */
-var isPremium = () => {return isSubsribe(getUser());};
+var isPremium = () => {return isSubsribe(user);};
 /* Is Subscibed */
 var isSubsribe = u => {
     if (u){
-        var e = new Date(u.reg); e.setMonth(e.getMonth() + u.mon);
+        var e = new Date(u.reg), tDy = new Date(); 
+        e.setMonth(e.getMonth() + u.mon);
         if (tDy.getTime() <= e.getTime()){getAlrt(e); return true;}
     }
     return false;
 };
 /* Is Trial */
 var isTrial = () => {
-    var d, ret = (!getVal('wabTrial')) ?
+    var d, tDy = new Date(), ret = (!getVal('wabTrial')) ?
         ((confirm("Apakah Anda mau mencoba 7 hari Trial?")) ? (setVal('wabTrial', new Date()), true) : false) :
         (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 7), ((tDy.getTime() <= d.getTime()) ? true : false));
     return ret;
@@ -464,7 +462,7 @@ var isTrial = () => {
 /* Inform to the Subscriber */
 function getAlrt(e){
     alrt = alrt ? (
-        alert("Halo kak " + setName(getUser().name, 1) + "!"
+        alert("Halo kak " + setName(user.name, 1) + "!"
               + "\nSelamat menggunakan fitur Pengguna Premium."
               + "\nMasa aktif Kakak berakhir hari " + dateFormat(e) + " ya..."
         ), false
