@@ -212,7 +212,8 @@ var getRM = e =>{return e[e.length - 1].querySelector("span[role='button']")}
 /* Title Case Text Transform */
 var titleCase = str => {str = str.toLowerCase(); return str.charAt(0).toUpperCase() + str.slice(1)}
 /* Set the Recipient's Phone Number */
-var setPhone = phone => {
+var setPhone = phn => {
+    var phone = phn.match(/\d+/g).join('');
     if(phone==null || phone.charAt(0)==="6"){return phone}
     else if(phone.charAt(0)==="0"){return "62"+phone.substr(1)}
     else{return "62"+phone}
