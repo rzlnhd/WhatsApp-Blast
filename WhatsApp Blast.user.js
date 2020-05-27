@@ -6,16 +6,18 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.14
-// @date         2020-5-11
+// @version      3.4.15
+// @date         2020-5-28
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
 // @grant        GM_xmlhttpRequest
+// @grant        GM_deleteValue
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM.getResourceText
 // @grant        GM.xmlhttpRequest
+// @grant        GM.deleteValue
 // @grant        GM.setValue
 // @grant        GM.getValue
 // @connect      pastebin.com
@@ -29,11 +31,12 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var version = "v3.4.14", upDate = "11 Mei 2020", qACR = "._1f1zm",
+var version = "v3.4.15", upDate = "28 Mei 2020", qACR = "._1f1zm",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     imgFile, user, mIdx_, data = [], runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
     getRes = ("function" == typeof GM_getResourceText) ? GM_getResourceText : GM.getResourceText,
+    delVal = ("function" == typeof GM_deleteValue) ? GM_deleteValue : GM.deleteValue,
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /* Global Minify Function */
@@ -395,7 +398,10 @@ function openMenu(e){
 /* Show Change Log */
 function changeLog(){
     var cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Memperbaiki fitur pengiriman gambar."
+    cLog += "\n▫ Perbaikan pembacaan Data Pengguna."
+        + "\n▫ Reset Masa Trial untuk Pengguna Premium."
+        + "\n\nVersion v3.4.14 (11 Mei 2020)."
+        + "\n▫ Memperbaiki fitur pengiriman gambar."
         + "\n▫ Perbaikan Minor."
         + "\n\nVersion v3.4.13 (9 Apr 2020)."
         + "\n▫ Menambah fitur Trial 7 Hari."
@@ -437,34 +443,39 @@ function getingData(){
         onload: res => {
             let usr = JSON.parse(res.responseText).users, u; setUser(null);
             for (u of usr){if(setPhone(u.phone) === getUphone()){setUser(u); break;}}
+            if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 60000);
         },
     };
-    xmlReq(a); setTimeout(getingData, 60000);
+    xmlReq(a);
 }
 /* Is Premium? */
-var isPremium = () => {return isSubsribe(user);};
-/* Is Subscibed */
-var isSubsribe = u => {
-    if (u){
-        var e = new Date(u.reg), tDy = new Date(); 
-        e.setMonth(e.getMonth() + u.mon);
-        if (tDy.getTime() <= e.getTime()){getAlrt(e); return true;}
+var isPremium = () => {
+    let tDy = new Date();
+    if (user){
+        let e = new Date(user.reg); e.setMonth(e.getMonth() + user.mon);
+        if (tDy.getTime() <= e.getTime()){return true;}
     }
     return false;
 };
 /* Is Trial */
 var isTrial = () => {
-    var d, tDy = new Date(), ret = (!getVal('wabTrial')) ?
-        ((confirm("Apakah Anda mau mencoba 7 hari Trial?")) ? (setVal('wabTrial', new Date()), true) : false) :
+    var d, tDy = new Date(), ret = (!getVal('wabTrial')) ? false :
         (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 7), ((tDy.getTime() <= d.getTime()) ? true : false));
     return ret;
 };
+var trialPrompt = e =>{
+    if(!getVal('wabTrial')) {
+        return !e ? (confirm("Apakah Anda mau mencoba 7 hari Trial?") ? (setVal('wabTrial', new Date()), true) : false) : e;
+    }
+    return e;
+}
 /* Inform to the Subscriber */
-function getAlrt(e){
+function getAlrt(){
+    if(getVal('wabTrial')) delVal('wabTrial');
     alrt = alrt ? (
         alert("Halo kak " + setName(user.name, 1) + "!"
               + "\nSelamat menggunakan fitur Pengguna Premium."
-              + "\nMasa aktif Kakak berakhir hari " + dateFormat(e) + " ya..."
+              + "\nMasa aktif Kakak berakhir hari " + dateFormat(new Date(user.reg)) + " ya..."
         ), false
     ) : alrt;
 }
@@ -482,8 +493,8 @@ function trialAlrt(){
 function getPremium(e){
     var at = getById("auto").checked, ig = getById("s_mg").checked, id = e.currentTarget.id;
     if (e.currentTarget.checked){
-        e.currentTarget.checked = isPremium() ? true : (
-            isTrial() ? (trialAlrt(), true) : (
+        e.currentTarget.checked = isPremium() ? (getAlrt(), true) : (
+            trialPrompt(isTrial()) ? (trialAlrt(), true) : (
                 alert("Maaf, fitur ini hanya untuk Pengguna Premium."
                   + "\nTampaknya Anda belum terdaftar sebagai Pengguna Premium,"
                   + "\nAtau masa berlangganan Anda mungkin telah habis."
