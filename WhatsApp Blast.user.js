@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.4.15
-// @date         2020-5-28
+// @version      3.4.16
+// @date         2020-6-2
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -31,7 +31,7 @@
 // ==/OpenUserJS==
 
 /* Global Variables */
-var version = "v3.4.15", upDate = "28 Mei 2020", qACR = "._1f1zm",
+var version = "v3.4.16", upDate = "2 Juni 2020", qACR = "._1f1zm",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     imgFile, user, mIdx_, data = [], runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -89,7 +89,15 @@ function loadModule(){
         : webpackJsonp.push([['parasite'], {parasite: function (o, e, t) {getStore(t);}}, [['parasite']]]);
 }
 /* Setting User */
-function setUser(u){user = u;}
+function setUser(u){
+    if(u){
+        let r = new Date(u.reg), mon = u.mon, e = new Date(u.reg);
+        user = {
+            "name" : u.name, "phone" : u.phone, "reg" : r, "mon" : mon,
+            "end" : new Date(e.setMonth(e.getMonth() + mon))
+        }
+    } else{user = null;}
+}
 /* Setting Data */
 function setData(d){
     var ok = getById("fileOk"), eNum = getById("numbDat"), num = "", t = "";
@@ -398,7 +406,9 @@ function openMenu(e){
 /* Show Change Log */
 function changeLog(){
     var cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Perbaikan pembacaan Data Pengguna."
+    cLog += "\n▫ Memperbaiki Report Masa Akhir Langganan."
+        + "\n\nVersion v3.4.15 (28 Mei 2020)."
+        + "\n▫ Perbaikan pembacaan Data Pengguna."
         + "\n▫ Reset Masa Trial untuk Pengguna Premium."
         + "\n\nVersion v3.4.14 (11 Mei 2020)."
         + "\n▫ Memperbaiki fitur pengiriman gambar."
@@ -451,10 +461,7 @@ function getingData(){
 /* Is Premium? */
 var isPremium = () => {
     let tDy = new Date();
-    if (user){
-        let e = new Date(user.reg); e.setMonth(e.getMonth() + user.mon);
-        if (tDy.getTime() <= e.getTime()){return true;}
-    }
+    if (user){if (tDy.getTime() <= user.end.getTime()){return true;}}
     return false;
 };
 /* Is Trial */
@@ -475,7 +482,7 @@ function getAlrt(){
     alrt = alrt ? (
         alert("Halo kak " + setName(user.name, 1) + "!"
               + "\nSelamat menggunakan fitur Pengguna Premium."
-              + "\nMasa aktif Kakak berakhir hari " + dateFormat(new Date(user.reg)) + " ya..."
+              + "\nMasa aktif Kakak berakhir hari " + dateFormat(user.end) + " ya..."
         ), false
     ) : alrt;
 }
