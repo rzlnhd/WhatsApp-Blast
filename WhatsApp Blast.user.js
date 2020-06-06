@@ -7,7 +7,7 @@
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
 // @version      3.5.0
-// @date         2020-6-5
+// @date         2020-6-6
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -142,7 +142,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.0", upDate = "5 Juni 2020", qACR = "._13opk",
+const version = "v3.5.0", upDate = "6 Juni 2020", qACR = "._13opk",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -501,7 +501,7 @@ function changeLog(){
 =====================================*/
 /** Get User Phone Number */
 function getUphone(){
-    return !user ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : setPhone(user.phone);
+    return getElm("header img") ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : 0;
 }
 /** Getting User Data */
 function getingData(){
@@ -510,7 +510,7 @@ function getingData(){
         method : "POST", url : url, headers: {'Content-Type': 'application/json'}, data: data,
         onload: res => {
             let usr = JSON.parse(res.responseText); setUser(usr ? usr : null);
-            if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 60000);
+            if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 20000);
         },
     };
     xmlReq(a);
