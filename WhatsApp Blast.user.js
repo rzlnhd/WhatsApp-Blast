@@ -6,11 +6,9 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.1
-// @date         2020-6-10
+// @version      3.5.2
+// @date         2020-6-11
 // @author       Rizal Nurhidayat
-// @include      http://*
-// @include      https://*
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
 // @grant        GM_xmlhttpRequest
@@ -113,7 +111,7 @@ class Report {
     success() {this.sukses++;}
     fail(i, err) {i--; (err === 1) ? this.a_error[this.error++] = i : this.a_gagal[this.gagal++] = i;}
     showReport() {
-        runL = !queue.now ? (getById('getFile').value = '', queue.reset(), 0) : runL;
+        runL = !queue.now ? (getById('getFile').value = '', queue.reset(), 0) : runL; setL = false;
         alert(
             this.auto ? "[REPORT] Kirim Pesan Otomatis Selesai."
                 + "\n    • SUKSES  = " + this.sukses
@@ -144,7 +142,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.1", upDate = "10 Juni 2020", qACR = "._13opk",
+const version = "v3.5.2", upDate = "11 Juni 2020", qACR = "._13opk",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -157,13 +155,13 @@ const getElmAll = q => {return document.querySelectorAll(q);},
     getById = q => {return document.getElementById(q);},
     getElm = q => {return document.querySelector(q);};
 /** Global Reusable Variable */
-var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true;
+var imgFile, uPh, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, setL = false;
 /** First Function */
 console.log("WhatsApp Blast " + version + " - Waiting for WhatsApp to load...");
 var timer = setInterval(general, 1000);
 function general(){
     if (getElm("div.two")){
-        let head = getElmAll("header"); if(head.length<2){
+        let head = getElmAll("header"); if(head.length < 2){
             let pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true);
             loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
             console.log("WhatsApp Blast " + version + " - Blast Your Follow Up NOW!");
@@ -232,19 +230,20 @@ function initListener(){
 /** Main Blast! Function */
 function blast(){
     if (doBlast.isRunning){if(confirm("Stop WhatsApp Blast?")){doBlast.stop(report);} return;}
-    if (runL !== 0 && !!queue.now){
+    if (runL !== 0 && !!queue.now && !setL){
         if (!confirm("Lanjutkan Blast dari data ke-" + (runL + 1) + "?")){
             if (confirm("Blast ulang dari awal?")){queue.reload(); runL = 0;} else{return;}
-        }
+        } setL = true;
     }
     let obj = getById("message").value, auto = getById("auto").checked, c_img = getById("s_mg").checked, lg, ig, ch,
         capt = getById("capt").value, l = runL, b = queue.size + l, no = l + 1, time = 10, clm = [], psn, err, snd;
     if (!obj){alert("Silahkan Masukkan Pesan terlebih dahulu..."); return;}
     if (b === 0){alert("Silahkan Masukkan File Penerima Pesan..."); return;}
-    if (!getElm(qInp)){alert("Silahkan Pilih Chatroom Terlebih dahulu"); return;}
+    if (!getElm(qInp)){room(); return setTimeout(blast, 1000);}
     if (auto){
         code = getCode(); pinned = getPinned(); time = 6000;
         if (!code){alert("Chatroom Tidak Memiliki Foto Profil!"); return;}
+        if (!code.includes(uPh + "%40c.us")){room(); return setTimeout(blast, 1000);}
         if (!pinned){alert("Chatroom Belum di PIN!"); return;}
         if (queue.size > 100){alert("Blast Auto tidak boleh lebih dari 100 Nama!"); return;}
     }
@@ -279,7 +278,7 @@ function blast(){
                     console.log(lg + ": [EKSEKUSI " + psn + "]", snd);
                     if (ig){console.log(lg + ": [GAMBAR SUKSES DIKIRIM]");}
                 }, 4000);
-                setTimeout(() => {back(code);}, 5000);
+                setTimeout(room, 5000);
             } else{report.success();}
             showProgress(no, b); no++; l++; runL = l;
         } else{
@@ -337,12 +336,17 @@ function setPhone(ph){
 /** Setting User */
 function setUser(u){
     if(u){
-        let r = new Date(u.reg), mon = u.mon, e = new Date(u.reg);
+        let r = new Date(u.reg), mon = parseInt(u.mon), e = new Date(u.reg);
         user = {
             "name" : u.name, "phone" : u.phone, "reg" : r, "mon" : mon,
             "end" : new Date(e.setMonth(e.getMonth() + mon))
         }
     } else{user = null;}
+}
+/** Setting Back Button */
+function setUph(phn){
+    let btn = getElm('#wbBody span.backLink a'); uPh = phn;
+    btn.setAttribute('href', 'https://api.whatsapp.com/send?phone=' + uPh);
 }
 /**=====================================
    Utilities Function
@@ -405,16 +409,7 @@ function mPos(d){
     return (b1 < c1) ? 1 : 0;
 }
 /** Back to the First Chatroom */
-function back(a){
-    let elm = getElm("#pane-side img[src='" + a + "']");
-    eventFire(elm, "mousedown");
-}
-/** EventFire Function */
-function eventFire(node, eventType){
-    let clickEvent = document.createEvent("MouseEvents");
-    clickEvent.initMouseEvent(eventType, true, false);
-    node.dispatchEvent(clickEvent);
-}
+function room(){getElm("#wbBody span.backLink a").click();}
 /** Dispatch Function */
 function dispatch(input, message){
     let evt = new InputEvent("input", {bubbles : true, composer : true});
@@ -483,7 +478,11 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Memperbaiki error duplikasi panel."
+    cLog += "\n▫ Algoritma baru fungsi kembali ke chatroom."
+        + "\n▫ Chatroom wajib menggunakan nomor pribadi."
+        + "\n▫ Memperbaiki pembacaan masa langganan."
+        + "\n\nVersion v3.5.1 (10 Juni 2020)."
+        + "\n▫ Memperbaiki error duplikasi panel."
         + "\n▫ Memperbaiki fungsi kembali ke chatroom."
         + "\n\nVersion v3.5.0 (5 Juni 2020)."
         + "\n▫ Memperbaiki Error akibat Update WhatsApp."
@@ -509,12 +508,13 @@ function getUphone(){
 }
 /** Getting User Data */
 function getingData(){
-    const url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(), data = JSON.stringify({phone : ph});
+    const url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(),
+          data = JSON.stringify({phone : ph}); if(!uPh || uPh == 0) setUph(ph);
     let a = {
         method : "POST", url : url, headers: {'Content-Type': 'application/json'}, data: data,
         onload: res => {
-            let usr = JSON.parse(res.responseText); setUser(usr ? usr : null);
-            if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 20000);
+            let usr = JSON.parse(res.responseText); setUser(usr ? usr : null); console.log(usr);
+            if(!user && !(isPremium() && isTrial())) setTimeout(getingData, 20000);
         },
     };
     xmlReq(a);
