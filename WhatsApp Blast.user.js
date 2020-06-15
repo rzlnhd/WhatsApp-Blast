@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.2
-// @date         2020-6-11
+// @version      3.5.3
+// @date         2020-6-15
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -55,16 +55,13 @@ class Queue {
 /** Declaring Message Class */
 class Message {
     constructor() {
-        this.name = this.phone = this.bp = this.date = this.msg = "";
+        this.name = ""; this.phone = ""; this.bp = ""; this.date = ""; this.msg = ""; this.invs = "";
     }
-    setMsg(msgs, args) {[this.name, this.phone, this.bp, this.date] = args; this.msg = msgs;};
+    setMsg(msgs, args) {[this.name, this.phone, this.bp, this.date, this.invs] = args; this.msg = msgs;};
     get message() {
-        let cBc = getById("s_bc").checked, sBp = getById("t_bp").value, kBp,
-            bC = 200, tBp = this.msg.includes("BC") ? (cBc ? sBp : bC) : 100;
+        let col = [this.bp, this.date, this.invs];
         this.msg = this.msg.replace(/F_NAMA/g, setName(this.name, 1)).replace(/NAMA/g, setName(this.name));
-        this.msg = this.bp ? ((this.bp.length <= 3) ? (kBp = tBp - Number(this.bp), kBp = (kBp < 0) ? 0 : kBp,
-            this.msg.replace(/P_BP/g, this.bp + " BP").replace(/K_BP/g, kBp + " BP")) : this.msg.replace(/L_DAY/g, this.lastDay(this.bp))) : this.msg;
-        this.msg = this.date ? this.msg.replace(/L_DAY/g, this.lastDay(this.date)) : this.msg;
+        col.forEach((e, i) => {this.msg = e ? this.setMessage(this.msg, i, e) : this.msg});
         return this.msg;
     };
     get link() {
@@ -72,6 +69,19 @@ class Message {
         enMsg = encodeURIComponent(this.message).replace(/'/g, "%27").replace(/"/g, "%22");
         return absLink + setPhone(this.phone) + "&text=" + enMsg;
     };
+    setMessage(msg, col, val) {
+        let i = col, cBc = getById("s_bc").checked, sBp = getById("t_bp").value,
+            kBp, bC = 200, tBp = msg.includes("BC") ? (cBc ? sBp : bC) : 100;
+        for(i; i < 3; i++){
+            if (i == 2 && val.length > 3 && !val.includes("/")) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
+            if (i == 1 && val.includes("/")) msg = msg.replace(/L_DAY/g, this.lastDay(val));
+            if (i == 0 && val.length <= 3) {
+                kBp = tBp - Number(val); kBp = (kBp < 0) ? 0 : kBp;
+                msg = msg.replace(/P_BP/g, val + " BP").replace(/K_BP/g, kBp + " BP");
+            };
+        }
+        return msg;
+    }
     lastDay(dateStr) {
         let str = (!isFormat && (mIdx != mIdx_)) ?
             (arrMove(dateStr.split("/"), mIdx_, mIdx).join("/")) : dateStr, d = new Date(str);
@@ -111,7 +121,7 @@ class Report {
     success() {this.sukses++;}
     fail(i, err) {i--; (err === 1) ? this.a_error[this.error++] = i : this.a_gagal[this.gagal++] = i;}
     showReport() {
-        runL = !queue.now ? (getById('getFile').value = '', queue.reset(), 0) : runL; setL = false;
+        runL = !queue.now ? (getById('getFile').value = '', queue.reset(), 0) : runL;
         alert(
             this.auto ? "[REPORT] Kirim Pesan Otomatis Selesai."
                 + "\n    • SUKSES  = " + this.sukses
@@ -134,15 +144,15 @@ class Interval {
         }
     };
     stop(report) {
-        clearInterval(this.timer); this.timer = false; this.time = this.fn = "";
-        setStatus(false); report.showReport();
+        clearInterval(this.timer); this.timer = false; this.time = "";
+        this.fn = ""; setStatus(false); report.showReport();
     };
 }
 /**=====================================
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.2", upDate = "11 Juni 2020", qACR = "._13opk",
+const version = "v3.5.3", upDate = "15 Juni 2020", qACR = "._13opk",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -154,8 +164,8 @@ const version = "v3.5.2", upDate = "11 Juni 2020", qACR = "._13opk",
 const getElmAll = q => {return document.querySelectorAll(q);},
     getById = q => {return document.getElementById(q);},
     getElm = q => {return document.querySelector(q);};
-/** Global Reusable Variable */
-var imgFile, uPh, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, setL = false;
+/** Global Reuseable Variable */
+var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true;
 /** First Function */
 console.log("WhatsApp Blast " + version + " - Waiting for WhatsApp to load...");
 var timer = setInterval(general, 1000);
@@ -230,20 +240,19 @@ function initListener(){
 /** Main Blast! Function */
 function blast(){
     if (doBlast.isRunning){if(confirm("Stop WhatsApp Blast?")){doBlast.stop(report);} return;}
-    if (runL !== 0 && !!queue.now && !setL){
+    if (runL !== 0 && !!queue.now){
         if (!confirm("Lanjutkan Blast dari data ke-" + (runL + 1) + "?")){
             if (confirm("Blast ulang dari awal?")){queue.reload(); runL = 0;} else{return;}
-        } setL = true;
+        }
     }
     let obj = getById("message").value, auto = getById("auto").checked, c_img = getById("s_mg").checked, lg, ig, ch,
         capt = getById("capt").value, l = runL, b = queue.size + l, no = l + 1, time = 10, clm = [], psn, err, snd;
     if (!obj){alert("Silahkan Masukkan Pesan terlebih dahulu..."); return;}
     if (b === 0){alert("Silahkan Masukkan File Penerima Pesan..."); return;}
-    if (!getElm(qInp)){room(); return setTimeout(blast, 1000);}
+    if (!getElm(qInp)){alert("Silahkan Pilih Chatroom Terlebih dahulu"); return;}
     if (auto){
         code = getCode(); pinned = getPinned(); time = 6000;
         if (!code){alert("Chatroom Tidak Memiliki Foto Profil!"); return;}
-        if (!code.includes(uPh + "%40c.us")){room(); return setTimeout(blast, 1000);}
         if (!pinned){alert("Chatroom Belum di PIN!"); return;}
         if (queue.size > 100){alert("Blast Auto tidak boleh lebih dari 100 Nama!"); return;}
     }
@@ -278,7 +287,7 @@ function blast(){
                     console.log(lg + ": [EKSEKUSI " + psn + "]", snd);
                     if (ig){console.log(lg + ": [GAMBAR SUKSES DIKIRIM]");}
                 }, 4000);
-                setTimeout(room, 5000);
+                setTimeout(() => {back(code);}, 5000);
             } else{report.success();}
             showProgress(no, b); no++; l++; runL = l;
         } else{
@@ -294,12 +303,13 @@ function loadData(arr){
     arr.forEach(e => {
         if (e && break_f(e)){
             let d = e.split(/,|;/), size = d.length; data[i] = e; i++;
-            if (size > 2 && (d[2].length > 3 || size === 4)){
+            if (size > 2 && (d[2].length > 3 || size >= 4)){
                 dt[j] = getSgDate(d.slice(2)); j++;
             }
         }
     });
     mIdx_ = (dt.length !== 0) ? mPos(dt) : mIdx;
+    console.table(dt); console.log(mIdx);
     return data;
 }
 /** Get Sign Up Date Data */
@@ -307,7 +317,7 @@ function getSgDate(d){
     let i = 0, l = d.length, e;
     for (i; i < l; i++){
         e = d[i];
-        if ((i == 0) ? e && e.length > 3 : e){
+        if (e && e.includes("/")){
             return e;
         }
     }
@@ -336,17 +346,12 @@ function setPhone(ph){
 /** Setting User */
 function setUser(u){
     if(u){
-        let r = new Date(u.reg), mon = parseInt(u.mon), e = new Date(u.reg);
+        let r = new Date(u.reg), mon = Number(u.mon), e = new Date(u.reg);
         user = {
             "name" : u.name, "phone" : u.phone, "reg" : r, "mon" : mon,
             "end" : new Date(e.setMonth(e.getMonth() + mon))
         }
-    } else{user = null;}
-}
-/** Setting Back Button */
-function setUph(phn){
-    let btn = getElm('#wbBody span.backLink a'); uPh = phn;
-    btn.setAttribute('href', 'https://api.whatsapp.com/send?phone=' + uPh);
+    } else {user = null;}
 }
 /**=====================================
    Utilities Function
@@ -362,8 +367,7 @@ function setStatus(stat){
 }
 /** Update UI */
 function updateUI(){
-    let ok = getById("fileOk"), eNum = getById("numbDat"),
-        num = queue.size, t = ("Data: Loaded, " + num + " Nama");
+    let ok = getById("fileOk"), eNum = getById("numbDat"), num = queue.size, t = ("Data: Loaded, " + num + " Nama");
     ok.style.display = !num ? (queue.reset(), t = "", "none") : "inline-block";
     ok.title = t; eNum.innerText = num;
 }
@@ -409,7 +413,16 @@ function mPos(d){
     return (b1 < c1) ? 1 : 0;
 }
 /** Back to the First Chatroom */
-function room(){getElm("#wbBody span.backLink a").click();}
+function back(a){
+    let elm = getElm("#pane-side img[src='" + a + "']");
+    eventFire(elm, "mousedown");
+}
+/** EventFire Function */
+function eventFire(node, eventType){
+    let clickEvent = document.createEvent("MouseEvents");
+    clickEvent.initMouseEvent(eventType, true, false);
+    node.dispatchEvent(clickEvent);
+}
 /** Dispatch Function */
 function dispatch(input, message){
     let evt = new InputEvent("input", {bubbles : true, composer : true});
@@ -478,8 +491,9 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Algoritma baru fungsi kembali ke chatroom."
-        + "\n▫ Chatroom wajib menggunakan nomor pribadi."
+    cLog += "\n▫ Menambah fitur untuk menyisipkan nama kedua."
+        + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS."
+        + "\n\nVersion v3.5.2 (11 Juni 2020)."
         + "\n▫ Memperbaiki pembacaan masa langganan."
         + "\n\nVersion v3.5.1 (10 Juni 2020)."
         + "\n▫ Memperbaiki error duplikasi panel."
@@ -493,10 +507,7 @@ function changeLog(){
         + "\n▫ Memperbaiki Report Masa Akhir Langganan."
         + "\n\nVersion v3.4.15 (28 Mei 2020)."
         + "\n▫ Perbaikan pembacaan Data Pengguna."
-        + "\n▫ Reset Masa Trial untuk Pengguna Premium."
-        + "\n\nVersion v3.4.14 (11 Mei 2020)."
-        + "\n▫ Memperbaiki fitur pengiriman gambar."
-        + "\n▫ Perbaikan Minor.";
+        + "\n▫ Reset Masa Trial untuk Pengguna Premium.";
     alert(cLog);
 }
 /**=====================================
@@ -508,13 +519,12 @@ function getUphone(){
 }
 /** Getting User Data */
 function getingData(){
-    const url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(),
-          data = JSON.stringify({phone : ph}); if(!uPh || uPh == 0) setUph(ph);
+    let url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(), data = JSON.stringify({phone : ph});
     let a = {
         method : "POST", url : url, headers: {'Content-Type': 'application/json'}, data: data,
         onload: res => {
-            let usr = JSON.parse(res.responseText); setUser(usr ? usr : null); console.log(usr);
-            if(!user && !(isPremium() && isTrial())) setTimeout(getingData, 20000);
+            let usr = JSON.parse(res.responseText); setUser(usr ? usr : null);
+            if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 20000);
         },
     };
     xmlReq(a);
@@ -530,7 +540,7 @@ function isTrial(){
     var d, tDy = new Date(), ret = (!getVal('wabTrial')) ? false :
         (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 7), ((tDy.getTime() <= d.getTime()) ? true : false));
     return ret;
-};
+}
 function trialPrompt(e){
     if(!getVal('wabTrial')) {
         return !e ? (confirm("Apakah Anda mau mencoba 7 hari Trial?") ? (setVal('wabTrial', new Date()), true) : false) : e;
