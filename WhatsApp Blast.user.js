@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.2
-// @date         2020-5-11
+// @version      3.5.3
+// @date         2020-6-15
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -37,7 +37,7 @@ class Queue {
     constructor() {
         this.queue = []; this.res = []; this.offset = 0;
     }
-    set data(data) {this.queue = this.res = data;};
+    set data(data) {this.queue = data; this.res = data;};
     get now() {return (this.queue.length > 0 ? this.queue[this.offset] : undefined);};
     get size() {return (this.queue.length - this.offset);};
     run() {
@@ -48,34 +48,44 @@ class Queue {
         }
         updateUI(); return item;
     };
-    reset() {this.queue = this.res = []; this.offset = 0;};
+    reset() {this.queue = []; this.res = []; this.offset = 0;};
     reload() {this.queue = this.res; this.offset = 0;};
 }
 /* Declaring Message Class */
 class Message {
     constructor() {
-        this.name = this.phone = this.bp = this.date = this.msg = "";
+        this.name = ""; this.phone = ""; this.bp = ""; this.date = ""; this.invs = ""; this.msg = "";
     }
-    setMsg(msgs, args) {[this.name, this.phone, this.bp, this.date] = args; this.msg = msgs;};
-    get lastDay() {
-        let str = (!isFormat && (mIdx != mIdx_)) ?
-            (arrMove(this.date.split("/"), mIdx_, mIdx).join("/")) : this.date, d = new Date(str);
-        d.setDate(d.getDate() + 30);
-        return dateFormat(d);
-    };
-    get message(){
-        let cBc = getById("s_bc").checked, sBp = getById("t_bp").value, kBp,
-            bC = 200, tBp = this.msg.includes("BC") ? (cBc ? sBp : bC) : 100;
+    setMsg(msgs, args) {[this.name, this.phone, this.bp, this.date, this.invs] = args; this.msg = msgs;};
+    get message() {
+        let col = [this.bp, this.date, this.invs];
         this.msg = this.msg.replace(/F_NAMA/g, setName(this.name, 1)).replace(/NAMA/g, setName(this.name));
-        this.msg = this.bp ? ((this.bp.length <= 3) ? (kBp = tBp - Number(this.bp), kBp = (kBp < 0) ? 0 : kBp,
-            this.msg.replace(/P_BP/g, this.bp + " BP").replace(/K_BP/g, kBp + " BP")) : this.msg.replace(/L_DAY/g, this.lastDay)) : this.msg;
-        this.msg = this.date ? this.msg.replace(/L_DAY/g, this.lastDay) : this.msg;
+        col.forEach((e, i) => {this.msg = e ? this.setMessage(this.msg, i, e) : this.msg});
         return this.msg;
     };
     get link() {
         let absLink = "api.whatsapp.com/send?phone=", enMsg;
         enMsg = encodeURIComponent(this.message).replace(/'/g, "%27").replace(/"/g, "%22");
         return absLink + setPhone(this.phone) + "&text=" + enMsg;
+    };
+    setMessage(msg, col, val) {
+        let i = col, cBc = getById("s_bc").checked, sBp = getById("t_bp").value,
+            kBp, bC = 200, tBp = msg.includes("BC") ? (cBc ? sBp : bC) : 100;
+        for(i; i < 3; i++){
+            if (i == 2 && val.length > 3 && !val.includes("/")) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
+            if (i == 1 && val.includes("/")) msg = msg.replace(/L_DAY/g, this.lastDay(val));
+            if (i == 0 && val.length <= 3) {
+                kBp = tBp - Number(val); kBp = (kBp < 0) ? 0 : kBp;
+                msg = msg.replace(/P_BP/g, val + " BP").replace(/K_BP/g, kBp + " BP");
+            };
+        }
+        return msg;
+    }
+    lastDay(dateStr) {
+        let str = (!isFormat && (mIdx != mIdx_)) ?
+            (arrMove(dateStr.split("/"), mIdx_, mIdx).join("/")) : dateStr, d = new Date(str);
+        d.setDate(d.getDate() + 30);
+        return dateFormat(d);
     };
     sendMsg() {
         let chat = window.Store.Chat.get(setPhone(this.phone) + "@c.us");
@@ -128,7 +138,7 @@ class Report {
 /* Interval Class */
 class Interval {
     constructor() {
-        this.timer = false; this.time = this.fn = "";
+        this.timer = false; this.time = ""; this.fn = "";
     }
     get isRunning() {return this.timer !== false;};
     loop(t, fn) {this.time = t; this.fn = fn;};
@@ -138,7 +148,7 @@ class Interval {
         }
     };
     stop(report) {
-        clearInterval(this.timer); this.timer = false; this.time = this.fn = "";
+        clearInterval(this.timer); this.timer = false; this.time = ""; this.fn = "";
         setStatus(false); report.showReport();
     };
 }
@@ -146,34 +156,38 @@ class Interval {
    Initial Function
 =====================================*/
 /** Global Variables */
-var version = "v3.5.2 BETA", upDate = "11 Mei 2020", tDy = new Date(), queue = new Queue(),
+const version = "v3.5.3 BETA", upDate = "15 Juni 2020", queue = new Queue(),
     mesej = new Message(), doBlast = new Interval(), report = new Report(),
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
-    imgFile, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true,
     regMnu = ("function" == typeof GM_registerMenuCommand) ? GM_registerMenuCommand : undefined,
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
     getRes = ("function" == typeof GM_getResourceText) ? GM_getResourceText : GM.getResourceText,
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Minify Function */
-var getElmAll = q => {return document.querySelectorAll(q);},
+const getElmAll = q => {return document.querySelectorAll(q);},
     getById = q => {return document.getElementById(q);},
     getElm = q => {return document.querySelector(q);};
+/** Global Reuseable Variable */
+var imgFile, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true;
 /** First Function */
 console.log("WhatsApp Blast " + version + " - Waiting for WhatsApp to load...");
 var timer = setInterval(general, 1000);
 function general(){
-    if (getElm("div.app")){
-        var pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true);
-        loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
-        console.log("WhatsApp Blast " + version + " - Blast Your Follow Up NOW!"); clearInterval(timer);
+    if (getElm("div.two")){
+        let head = getElmAll("header"); if(head.length < 2){
+            let pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true);
+            loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
+            console.log("WhatsApp Blast " + version + " - Blast Your Follow Up NOW!");
+        }
+        getingData(); clearInterval(timer);
     }
 }
 /** Load WAPI Module for Send Message & Image */
 function loadModule(){
     function getStore(modules) {
         const storeObjects = [
-            { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
+            { id: "Store", conditions: (module) => (module.default && module.default.Chat && module.default.Msg) ? module.default : null},
             { id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
             { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null }
         ];
@@ -219,10 +233,10 @@ function initListener(){
     clk.forEach(e => {getById(e.id).addEventListener("click", e.fn);});
     tab.forEach(e => {e.addEventListener("click", openMenu);});
     trg.forEach(e => {e.addEventListener("click", checking);});
-    wbH.addEventListener("click", toggleApp); getingData();
     getById("getFile").addEventListener("change", prevDat);
     getById("getImg").addEventListener("change", prevImg);
     getById("message").addEventListener("input", superBC);
+    wbH.addEventListener("click", toggleApp);
     tab[0].click(); if(opn)wbH.click();
 }
 /*=====================================
@@ -272,33 +286,33 @@ function blast(){
     if (!doBlast.isRunning) doBlast.start(); execute();
 }
 /** Create The Real Data */
-var loadData = arr => {
+function loadData(arr){
     let data = [], dt = [], i = 0, j = 0;
     arr.forEach(e => {
         if (e && break_f(e)){
             let d = e.split(/,|;/), size = d.length; data[i] = e; i++;
-            if (size > 2 && (d[2].length > 3 || size === 4)){
+            if (size > 2 && (d[2].length > 3 || size <= 4)){
                 dt[j] = getSgDate(d.slice(2)); j++;
             }
         }
     });
     mIdx_ = (dt.length !== 0) ? mPos(dt) : mIdx;
     return data;
-};
+}
 /** Get Sign Up Date Data */
-var getSgDate = d => {
+function getSgDate(d){
     let i = 0, l = d.length, e;
     for (i; i < l; i++){
         e = d[i];
-        if ((i == 0) ? e && e.length > 3 : e){
+        if (e && e.includes("/")){
             return e;
         }
     }
-};
+}
 /** Break When Name is Empty */
-var break_f = e => {return !!e.split(/,|;/)[0];};
+function break_f(e){return !!e.split(/,|;/)[0];}
 /** Set Name of the Recipient */
-var setName = (nama, opt = 0) => {
+function setName(nama, opt = 0){
     let fname = nama.split(' '), count = fname.length, new_name = titleCase(fname[0]), i;
     if (opt == 1){
         for (i = 1; i < count; i++){
@@ -306,20 +320,26 @@ var setName = (nama, opt = 0) => {
         }
     }
     return new_name;
-};
+}
 /** Title Case Text Transform */
-var titleCase = str => {str = str.toLowerCase(); return str.charAt(0).toUpperCase() + str.slice(1);};
+function titleCase(str){str = str.toLowerCase(); return str.charAt(0).toUpperCase() + str.slice(1);}
 /** Set the Recipient's Phone Number */
-var setPhone = phn => {
+function setPhone(phn){
     let ph = phn.match(/\d+/g).join('');
     return (!ph || ph.charAt(0) === "6") ? ph
         : (ph.charAt(0) === "0") ? "62" + ph.substr(1)
         : "62" + ph;
-};
-/** Getting User */
-var getUser = () => {return user;};
+}
 /** Setting User */
-function setUser(u){user = u;}
+function setUser(u){
+    if(u){
+        let r = new Date(u.reg), mon = Number(u.mon), e = new Date(u.reg);
+        user = {
+            "name" : u.name, "phone" : u.phone, "reg" : r, "mon" : mon,
+            "end" : new Date(e.setMonth(e.getMonth() + mon))
+        }
+    } else {user = null;}
+}
 /*=====================================
    Utilities Function
 =====================================*/
@@ -346,22 +366,22 @@ function showProgress(p = .5, t = 100){
     eBar.style.width = w + '%';
 }
 /** Formating Date Data */
-var dateFormat = e =>{
+function dateFormat(e){
     let d = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
         m = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     return d[e.getDay()] + ", " + e.getDate() + " " + m[e.getMonth()] + " " + e.getFullYear();
-};
+}
 /** Moving Array Elements */
-var arrMove = (arr, oIdx, nIdx) => {
+function arrMove(arr, oIdx, nIdx){
     if (nIdx >= arr.length){
         let k = nIdx - arr.length + 1;
         while (k--){arr.push(undefined);}
     }
     arr.splice(nIdx, 0, arr.splice(oIdx, 1)[0]);
     return arr;
-};
+}
 /** Getting Month Index */
-var mPos = d =>{
+function mPos(d){
     let b1 = 1, c1 = 1, b, c, size = d.length, i; isFormat = false;
     for (i = 0; i < size; i++){
         let a = d[i].split("/");
@@ -379,7 +399,7 @@ var mPos = d =>{
         }
     }
     return (b1 < c1) ? 1 : 0;
-};
+}
 /** Dispatch Function */
 function dispatch(input, message){
     let evt = new InputEvent("input", {bubbles : true, composer : true});
@@ -442,64 +462,64 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Memperbaiki fitur pengiriman gambar."
+    cLog += "\n▫ Memperbaiki panel yang menghilang."
+        + "\n▫ Menambah fitur untuk menyisipkan nama kedua."
+        + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS."
+        + "\n\nVersion v3.5.2 BETA (11 Mei 2020)."
+        + "\n▫ Memperbaiki fitur pengiriman gambar."
         + "\n\nVersion v3.5.1 BETA (28 Apr 2020)."
         + "\n▫ Mengaktifkan kembali Chatlist."
         + "\n\nVersion v3.5.0 BETA (28 Apr 2020)."
         + "\n▫ Kirim pesan otomatis langsung ke penerima."
         + "\n▫ Mengganti separator bar menjadi progress bar."
         + "\n▫ Memperbarui Logic & Engine."
-        + "\n▫ Menerapkan konsep Queue dan OOP."
-        + "\n\nVersion v3.4.13 (9 Apr 2020)."
-        + "\n▫ Menambah fitur Trial 7 Hari."
-        + "\n▫ Memperbaiki bug major."
-        + "\n▫ Refactoring Code."
-        + "\n\nVersion v3.4.11 - v3.4.12 (27 Mar 2020)."
-        + "\n▫ Memperbaiki tampilan yang tools hilang."
-        + "\n▫ Memperbaiki DOM yang kacau."
-        + "\n▫ Refactoring Code.";
+        + "\n▫ Menerapkan konsep Queue dan OOP.";
     alert(cLog);
 }
 /*=====================================
    For Credits Purpose
 =====================================*/
 /** Get User Phone Number */
-var getUphone = () => {
-    return !getUser() ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : setPhone(user.phone);
-};
+function getUphone(){
+    return getElm("header img") ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : 0;
+}
 /** Getting User Data */
 function getingData(){
+    let url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(), data = JSON.stringify({phone : ph});
     let a = {
-        overrideMimeType : "application/json", method : "GET", url : "https://pastebin.com/raw/XzqwSJ6h",
+        method : "POST", url : url, headers: {'Content-Type': 'application/json'}, data: data,
         onload: res => {
-            let usr = JSON.parse(res.responseText).users, u; setUser(null);
-            for (u of usr){if(setPhone(u.phone) === getUphone()){setUser(u); break;}}
+            let usr = JSON.parse(res.responseText); setUser(usr ? usr : null);
+            if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 20000);
         },
     };
-    xmlReq(a); setTimeout(getingData, 60000);
+    xmlReq(a);
 }
 /** Is Premium? */
-var isPremium = () => {
-    let u = getUser();
-    if (u){
-        let e = new Date(u.reg); e.setMonth(e.getMonth() + u.mon);
-        if (tDy.getTime() <= e.getTime()){getAlrt(e); return true;}
-    }
+function isPremium(){
+    let tDy = new Date();
+    if (user){if (tDy.getTime() <= user.end.getTime()){return true;}}
     return false;
-};
+}
 /** Is Trial */
-var isTrial = () => {
-    let d, ret = (!getVal('wabTrial')) ?
-        ((confirm("Apakah Anda mau mencoba 7 hari Trial?")) ? (setVal('wabTrial', new Date()), true) : false) :
+function isTrial(){
+    var d, tDy = new Date(), ret = (!getVal('wabTrial')) ? false :
         (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 7), ((tDy.getTime() <= d.getTime()) ? true : false));
     return ret;
-};
+}
+function trialPrompt(e){
+    if(!getVal('wabTrial')) {
+        return !e ? (confirm("Apakah Anda mau mencoba 7 hari Trial?") ? (setVal('wabTrial', new Date()), true) : false) : e;
+    }
+    return e;
+}
 /** Inform to the Subscriber */
-function getAlrt(e){
+function getAlrt(){
+    if(getVal('wabTrial')) delVal('wabTrial');
     alrt = alrt ? (
-        alert("Halo kak " + setName(getUser().name, 1) + "!"
+        alert("Halo kak " + setName(user.name, 1) + "!"
               + "\nSelamat menggunakan fitur Pengguna Premium."
-              + "\nMasa aktif Kakak berakhir hari " + dateFormat(e) + " ya..."
+              + "\nMasa aktif Kakak berakhir hari " + dateFormat(user.end) + " ya..."
         ), false
     ) : alrt;
 }
@@ -517,8 +537,8 @@ function trialAlrt(){
 function getPremium(e){
     let at = getById("auto").checked, ig = getById("s_mg").checked, id = e.currentTarget.id;
     if (e.currentTarget.checked){
-        e.currentTarget.checked = isPremium() ? true : (
-            isTrial() ? (trialAlrt(), true) : (
+        e.currentTarget.checked = isPremium() ? (getAlrt(), true) : (
+            (trialPrompt(isTrial())) ? (trialAlrt(), true) : (
                 alert("Maaf, fitur ini hanya untuk Pengguna Premium."
                   + "\nTampaknya Anda belum terdaftar sebagai Pengguna Premium,"
                   + "\nAtau masa berlangganan Anda mungkin telah habis."
