@@ -7,7 +7,7 @@
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
 // @version      3.5.3
-// @date         2020-6-15
+// @date         2020-6-16
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -152,7 +152,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.3", upDate = "15 Juni 2020", qACR = "._13opk",
+const version = "v3.5.3", upDate = "16 Juni 2020", qACR = "._13opk",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -303,13 +303,14 @@ function loadData(arr){
     arr.forEach(e => {
         if (e && break_f(e)){
             let d = e.split(/,|;/), size = d.length; data[i] = e; i++;
-            if (size > 2 && (d[2].length > 3 || size >= 4)){
+            let cond = size === 3 ? d[2].includes("/")
+                : size >= 4 ? (d[3].includes("/") || size === 5) : false;
+            if (size > 2 && cond){
                 dt[j] = getSgDate(d.slice(2)); j++;
             }
         }
     });
     mIdx_ = (dt.length !== 0) ? mPos(dt) : mIdx;
-    console.table(dt); console.log(mIdx);
     return data;
 }
 /** Get Sign Up Date Data */
