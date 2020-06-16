@@ -7,7 +7,7 @@
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
 // @version      3.5.3
-// @date         2020-6-15
+// @date         2020-6-16
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -156,7 +156,7 @@ class Interval {
    Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.3 BETA", upDate = "15 Juni 2020", queue = new Queue(),
+const version = "v3.5.3 BETA", upDate = "16 Juni 2020", queue = new Queue(),
     mesej = new Message(), doBlast = new Interval(), report = new Report(),
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     regMnu = ("function" == typeof GM_registerMenuCommand) ? GM_registerMenuCommand : undefined,
@@ -291,7 +291,9 @@ function loadData(arr){
     arr.forEach(e => {
         if (e && break_f(e)){
             let d = e.split(/,|;/), size = d.length; data[i] = e; i++;
-            if (size > 2 && (d[2].length > 3 || size <= 4)){
+            let cond = size === 3 ? d[2].includes("/")
+                : size >= 4 ? (d[3].includes("/") || size === 5) : false;
+            if (size > 2 && cond){
                 dt[j] = getSgDate(d.slice(2)); j++;
             }
         }
