@@ -7,7 +7,7 @@
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
 // @version      3.5.3
-// @date         2020-6-16
+// @date         2020-6-21
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -152,7 +152,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.3", upDate = "16 Juni 2020", qACR = "._13opk",
+const version = "v3.5.3", upDate = "21 Juni 2020", qACR = "._13opk",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -302,15 +302,14 @@ function loadData(arr){
     let data = [], dt = [], i = 0, j = 0;
     arr.forEach(e => {
         if (e && break_f(e)){
-            let d = e.split(/,|;/), size = d.length; data[i] = e; i++;
-            let cond = size === 3 ? d[2].includes("/")
-                : size >= 4 ? (d[3].includes("/") || size === 5) : false;
-            if (size > 2 && cond){
-                dt[j] = getSgDate(d.slice(2)); j++;
+            let d = e.split(/,|;/), size = d.length, s; data[i] = e; i++;
+            if (size > 2){
+                s = getSgDate(d.slice(2));
+                if(s) dt[j] = s; j++;
             }
         }
     });
-    mIdx_ = (dt.length !== 0) ? mPos(dt) : mIdx;
+    mIdx_ = dt.length > 0 ? mPos(dt) : mIdx;
     return data;
 }
 /** Get Sign Up Date Data */
@@ -492,7 +491,8 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Menambah fitur untuk menyisipkan nama kedua."
+    cLog += "\n▫ Perbaikan Pembacaan Data."
+        + "\n▫ Menambah fitur untuk menyisipkan nama kedua."
         + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS."
         + "\n\nVersion v3.5.2 (11 Juni 2020)."
         + "\n▫ Memperbaiki pembacaan masa langganan."
