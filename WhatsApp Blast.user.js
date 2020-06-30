@@ -7,19 +7,21 @@
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
 // @version      3.5.3
-// @date         2020-6-16
+// @date         2020-7-1
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
 // @grant        GM_xmlhttpRequest
+// @grant        GM_deleteValue
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_registerMenuCommand
 // @grant        GM.getResourceText
 // @grant        GM.xmlhttpRequest
+// @grant        GM.deleteValue
 // @grant        GM.setValue
 // @grant        GM.getValue
-// @connect      pastebin.com
+// @connect      wab.anggunsetya.com
 // @updateURL    https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/3.5-beta/WhatsApp%20Blast.user.js
 // @downloadURL  https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/3.5-beta/WhatsApp%20Blast.user.js
 // @resource pnl https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/panel.html
@@ -111,9 +113,9 @@ class Message {
 /* Declaring Report Class */
 class Report {
     constructor(){
-        this.sukses = this.gagal = 0; this.a_gagal = []; this.auto = false;
+        this.sukses = 0; this.gagal = 0; this.a_gagal = []; this.auto = false;
     }
-    reset(a) {this.sukses = this.gagal = 0; this.a_gagal = []; this.auto = a;};
+    reset(a) {this.sukses = 0; this.gagal = 0; this.a_gagal = []; this.auto = a;};
     createData(arr) {
         let size = arr.length, str = "", i = 0;
         for (i; i < size; i++) {
@@ -156,12 +158,13 @@ class Interval {
    Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.3 BETA", upDate = "16 Juni 2020", queue = new Queue(),
+const version = "v3.5.3 BETA", upDate = "1 Juli 2020", queue = new Queue(),
     mesej = new Message(), doBlast = new Interval(), report = new Report(),
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     regMnu = ("function" == typeof GM_registerMenuCommand) ? GM_registerMenuCommand : undefined,
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
     getRes = ("function" == typeof GM_getResourceText) ? GM_getResourceText : GM.getResourceText,
+    delVal = ("function" == typeof GM_deleteValue) ? GM_deleteValue : GM.deleteValue,
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Minify Function */
@@ -290,15 +293,14 @@ function loadData(arr){
     let data = [], dt = [], i = 0, j = 0;
     arr.forEach(e => {
         if (e && break_f(e)){
-            let d = e.split(/,|;/), size = d.length; data[i] = e; i++;
-            let cond = size === 3 ? d[2].includes("/")
-                : size >= 4 ? (d[3].includes("/") || size === 5) : false;
-            if (size > 2 && cond){
-                dt[j] = getSgDate(d.slice(2)); j++;
+            let d = e.split(/,|;/), size = d.length, s; data[i] = e; i++;
+            if (size > 2){
+                s = getSgDate(d.slice(2));
+                if(s) dt[j] = s; j++;
             }
         }
     });
-    mIdx_ = (dt.length !== 0) ? mPos(dt) : mIdx;
+    mIdx_ = dt.length > 0 ? mPos(dt) : mIdx;
     return data;
 }
 /** Get Sign Up Date Data */
@@ -464,7 +466,8 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Memperbaiki panel yang menghilang."
+    cLog += "\n▫ Memperbaiki pembacaan data penerima & user."
+        + "\n▫ Memperbaiki panel yang menghilang."
         + "\n▫ Menambah fitur untuk menyisipkan nama kedua."
         + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS."
         + "\n\nVersion v3.5.2 BETA (11 Mei 2020)."
@@ -487,7 +490,7 @@ function getUphone(){
 }
 /** Getting User Data */
 function getingData(){
-    let url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(), data = JSON.stringify({phone : ph});
+    let url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(), data = JSON.stringify({phone : ph}); console.log(data);
     let a = {
         method : "POST", url : url, headers: {'Content-Type': 'application/json'}, data: data,
         onload: res => {
