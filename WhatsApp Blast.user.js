@@ -7,7 +7,7 @@
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
 // @version      3.5.3
-// @date         2020-6-21
+// @date         2020-7-3
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -152,7 +152,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.3", upDate = "21 Juni 2020", qACR = "._13opk",
+const version = "v3.5.3", upDate = "3 Juli 2020", qACR = "._13opk",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -429,7 +429,7 @@ function dispatch(input, message){
     input.innerHTML = message; input.dispatchEvent(evt);
 }
 /** Getting code from Selected Chatroom */
-function getCode(){return getElm("div" + qACR + " img").src;}
+function getCode(){let elm = getElm("div" + qACR + " img"); return elm ? elm.src : elm;}
 /** Getting Pinned Status from Selected Chatroom*/
 function getPinned(){return !!getElm("div" + qACR + " span[data-icon='pinned']");}
 /** Get Read More Button */
@@ -491,7 +491,8 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Perbaikan Pembacaan Data."
+    cLog += "\n▫ Perbaikan pembacaan chatroom."
+        + "\n▫ Perbaikan pembacaan data."
         + "\n▫ Menambah fitur untuk menyisipkan nama kedua."
         + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS."
         + "\n\nVersion v3.5.2 (11 Juni 2020)."
