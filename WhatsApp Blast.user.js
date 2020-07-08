@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.3
-// @date         2020-7-3
+// @version      3.5.4
+// @date         2020-7-8
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -152,7 +152,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.3", upDate = "3 Juli 2020", qACR = "._13opk",
+const version = "v3.5.4", upDate = "8 Juli 2020", qACR = "._13opk",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -491,7 +491,10 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Perbaikan pembacaan chatroom."
+    cLog += "\n▫ Memangkas masa Trial menjadi 2 hari."
+        + "\n▫ Memberikan masa Trial pada setiap versi terbaru."
+        + "\n\nVersion v3.5.3 (4 Juli 2020)."
+        + "\n▫ Perbaikan pembacaan chatroom."
         + "\n▫ Perbaikan pembacaan data."
         + "\n▫ Menambah fitur untuk menyisipkan nama kedua."
         + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS."
@@ -504,12 +507,7 @@ function changeLog(){
         + "\n▫ Memperbaiki Error akibat Update WhatsApp."
         + "\n▫ Memperbarui Logic & Engine."
         + "\n▫ Menerapkan konsep Queue dan OOP."
-        + "\n▫ Mengganti Server Data Pengguna Premium."
-        + "\n\nVersion v3.4.16 (2 Juni 2020)."
-        + "\n▫ Memperbaiki Report Masa Akhir Langganan."
-        + "\n\nVersion v3.4.15 (28 Mei 2020)."
-        + "\n▫ Perbaikan pembacaan Data Pengguna."
-        + "\n▫ Reset Masa Trial untuk Pengguna Premium.";
+        + "\n▫ Mengganti Server Data Pengguna Premium.";
     alert(cLog);
 }
 /**=====================================
@@ -539,19 +537,19 @@ function isPremium(){
 }
 /** Is Trial */
 function isTrial(){
-    var d, tDy = new Date(), ret = (!getVal('wabTrial')) ? false :
-        (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 7), ((tDy.getTime() <= d.getTime()) ? true : false));
+    var d, tDy = new Date(), ret;
+    if(getVal('wabVers', '0') != version){delVal('wabTrial'); setVal('wabVers', version);}
+    ret = (!getVal('wabTrial')) ? false : (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 2), ((tDy.getTime() <= d.getTime()) ? true : false));
     return ret;
 }
 function trialPrompt(e){
     if(!getVal('wabTrial')) {
-        return !e ? (confirm("Apakah Anda mau mencoba 7 hari Trial?") ? (setVal('wabTrial', new Date()), true) : false) : e;
+        return !e ? (confirm("Apakah Anda mau mencoba 2 hari Trial?") ? (setVal('wabTrial', new Date()), true) : false) : e;
     }
     return e;
 }
 /** Inform to the Subscriber */
 function getAlrt(){
-    if(getVal('wabTrial')) delVal('wabTrial');
     alrt = alrt ? (
         alert("Halo kak " + setName(user.name, 1) + "!"
               + "\nSelamat menggunakan fitur Pengguna Premium."
