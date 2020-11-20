@@ -1,0 +1,419 @@
+/*!
+ * WhatsApp Blast v3.5.5 (https://wab.anggunsetya.com/)
+ * Copyright 2018-2020 The WhatsApp Blast Developer
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */
+
+/*--------------------------------------------------------------
+# Panel v1.1.14 Stye
+--------------------------------------------------------------*/
+#wbHead {
+  padding: 5px 16px;
+  background: var(--panel-header-background);
+  border-top: 1px solid var(--border-strong);
+}
+#wbHead > span {
+  display: inline-block;
+}
+#wbBody {
+  padding: 0px 16px;
+  height: 0;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--butterbar-connection-secondary);
+  transition: height 0.2s ease-in-out;
+  overflow: hidden;
+}
+img.appIco {
+  height: 32px;
+  padding: 5px;
+  vertical-align: middle;
+}
+span.active {
+  transform: rotate(-90deg);
+  opacity: 1 !important;
+}
+span.rightIco {
+  float: right;
+  vertical-align: middle;
+  padding: 7px;
+  border-radius: 50%;
+  color: rgb(0, 155, 76);
+  opacity: 0.5;
+  transition: transform 0.2s ease-in-out;
+}
+textarea {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+}
+textarea#message {
+  height: 145px;
+  background-color: var(--compose-input-background);
+  color: var(--primary);
+  font-size: 14px;
+}
+textarea#capt {
+  border-color: rgb(0, 0, 0, 0.1);
+  background: rgb(0, 0, 0, 0.05);
+  color: white;
+}
+textarea#capt::-webkit-input-placeholder {
+  font-size: 90%;
+  color: white;
+}
+textarea#capt:disabled {
+  background: rgb(0, 0, 0, 0.15);
+}
+textarea#capt:disabled::-webkit-input-placeholder {
+  color: #eee;
+}
+input.checks {
+  width: 1.5em;
+  height: 1.5em;
+  position: relative;
+  float: left;
+  display: block;
+  top: 1px;
+  margin-right: 2px;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 2.25em;
+  height: 1.5em;
+  vertical-align: middle;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.15);
+  transition: 0.4s;
+  border-radius: 1.5em;
+}
+.slider:before {
+  position: absolute;
+  content: "M";
+  left: 0.25em;
+  width: 1em;
+  height: 1em;
+  bottom: 0.25em;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+  font-size: 0.725em;
+  padding: 0.275em;
+  text-align: center;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.6);
+}
+input:checked + .slider {
+  background-color: rgb(51, 153, 204);
+}
+input:checked + .slider:before {
+  transform: translateX(1em);
+  content: "A";
+  color: rgb(51, 153, 204);
+}
+#c_bc,
+#i_mg {
+  margin-top: 2px;
+  background: rgb(0, 0, 0, 0.05);
+  padding: 5px;
+}
+#c_bc {
+  display: none;
+  animation: fadeEffect 0.3s;
+}
+#tabs {
+  display: block;
+  width: 100%;
+  height: 30px;
+  margin-top: 10px;
+}
+.tabcontent {
+  padding: 5px;
+  display: none;
+  animation: fadeEffect 0.5s;
+}
+#tabs button {
+  background-color: inherit;
+  float: left;
+  cursor: pointer;
+  padding: 6px;
+  transition: 0.3s;
+  width: 50%;
+  font-weight: 600;
+  border-radius: 10px 10px 0 0;
+}
+#tabs button:hover,
+#tabs button.active,
+.tabcontent {
+  background: rgb(255, 255, 255, 0.35);
+}
+body.dark #tabs button:hover,
+body.dark #tabs button.active,
+body.dark .tabcontent {
+  background: rgb(0, 0, 0, 0.05);
+}
+.immg {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  height: 87px;
+  overflow-y: scroll;
+  padding: 1px 0px;
+}
+.immg img {
+  max-width: 97%;
+  width: auto;
+  margin: auto;
+  display: block;
+}
+#fileOk {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0 5px 2.5px;
+  display: none;
+  border-radius: 10px;
+}
+#fileOk,
+#numbDat,
+.fileChecks {
+  vertical-align: middle;
+}
+#waProgress,
+#waBar {
+  height: 3px;
+  border-radius: 3px;
+}
+#waProgress {
+  width: 100%;
+  background-color: var(--compose-input-background);
+  margin: 4px 0;
+  display: block;
+}
+#waBar {
+  width: 0;
+  background-color: rgb(0, 155, 76);
+}
+body.dark #waBar {
+  background-color: white;
+}
+#numbDat {
+  margin-left: 2.5px;
+  font-weight: 600;
+}
+.fileChecks {
+  float: none;
+  display: inline-block;
+  color: rgb(0, 155, 76);
+}
+.credit-icon {
+  cursor: pointer;
+  display: inline-block;
+  width: 16px;
+  vertical-align: -0.125em;
+  padding: 0 1px;
+}
+.btn-sc {
+  float: right;
+}
+.btn-sc a {
+  color: #000;
+}
+.icon-facebook a:hover {
+  color: #4267b0;
+}
+.icon-twitter a:hover {
+  color: #20a0ef;
+}
+.icon-instagram a:hover {
+  color: #da524b;
+}
+.icon-whatsapp a:hover {
+  color: #02c046;
+}
+span.vInfo {
+  font-size: xx-small;
+  float: right;
+  margin-bottom: 5px;
+}
+.wb-cred {
+  margin: 5px auto;
+  text-align: left;
+  background: rgb(0, 0, 0, 0.07);
+  padding: 5px;
+}
+@keyframes fadeEffect {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*--------------------------------------------------------------
+# Setting Pop Up v1 Stye
+--------------------------------------------------------------*/
+.wab-options-body {
+  background-color: #e9eaf0;
+  font-family: sans-serif;
+  font-size: small;
+}
+.wab-options-body.loading > * {
+  visibility: hidden;
+}
+.wab-options-body .wab-options-container {
+  background-color: #f6f6f9;
+  border: 1px solid #cacdd9;
+  border-radius: 7px;
+  width: 560px;
+  margin: 12px auto;
+  padding: 15px;
+}
+.wab-options-body .wab-options-container h1 {
+  font-family: sans-serif;
+  font-size: 1.3em;
+  margin: 0 0 1.3em 0;
+}
+.wab-options-body .wab-options-container div {
+  display: block;
+}
+.wab-options-body .wab-options-container form {
+  margin: 0;
+  padding: 0;
+}
+.wab-options-body .wab-options-container label {
+  display: block;
+  margin: 0.2em 0;
+  padding: 0;
+}
+.wab-options-body .wab-options-container .wab-inline span {
+  line-height: 1rem;
+}
+.wab-options-body .wab-options-container .wab-media {
+  display: flex;
+  align-items: flex-start;
+  padding: 1.5em 1.5em 0 !important;
+}
+.wab-options-body .wab-options-container .wab-media img {
+  max-width: 92px;
+  margin-right: 1rem !important;
+  border-radius: 50% !important;
+}
+.wab-options-body .wab-options-container .wab-media .media-body {
+  flex: 1;
+  margin: auto 0 !important;
+}
+.wab-options-body .wab-options-container .wab-media .media-body h5 {
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  line-height: 1.2;
+  font-size: 1rem;
+}
+.wab-options-body .wab-options-container .wab-media .media-body p {
+  margin-top: 0px;
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+}
+.wab-options-body .wab-options-container .wab-clear {
+  clear: both;
+  height: 0;
+  font-size: 0;
+  line-height: 0;
+}
+.wab-options-body .wab-options-container .wab-block {
+  border-top: 1px solid #dfe1e8;
+  padding: 1.5em 0 0 0;
+  margin: 1.5em 0 0 0;
+  min-width: 160px;
+}
+.wab-options-body .wab-options-container .wab-browser {
+  display: none;
+}
+.wab-options-body .wab-options-container .wab-title {
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
+.wab-options-body .wab-options-container .wab-module {
+  font-weight: 700;
+  margin-top: 1em;
+}
+.wab-options-body .wab-options-container .wab-module:first-child {
+  margin-top: 0;
+}
+.wab-options-body .wab-options-container .wab-module span {
+  vertical-align: text-top;
+}
+.wab-options-body .wab-options-container .wab-module_options {
+  font-weight: 400;
+  margin-left: 1.8em;
+}
+.wab-options-popup {
+  max-width: 560px;
+  max-height: calc(100vh - 80px);
+  top: 40px;
+  left: calc((100vw - 560px) / 2) !important;
+}
+.wab-options-popup {
+  z-index: 9999;
+  display: block;
+  float: none;
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  visibility: hidden;
+  color: #000;
+  background: #fff;
+  border: 3px solid #c0cad5;
+  border-radius: 7px;
+  overflow: auto;
+}
+.wab-options-popup .wab-options-body {
+  display: block;
+  float: none;
+  position: relative;
+  overflow: auto;
+  margin: 0;
+  padding: 10px 15px;
+  background: #fff;
+}
+.wab-options-popup .wab-options-body .wab-options-container {
+  background-color: #fff;
+  border: none;
+  font: 13px/1 Arial, Helvetica, sans-serif;
+  width: 500px;
+  margin: 0;
+  padding: 9px;
+  text-align: left;
+}
+.wab-options-popup img.wab-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  opacity: 0.5;
+  cursor: pointer;
+}
+.wab-options-popup img.wab-close:hover {
+  opacity: 0.9;
+}
+.img-thumbnail {
+  padding: 0.25rem;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  max-width: 100%;
+  height: auto;
+}
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
