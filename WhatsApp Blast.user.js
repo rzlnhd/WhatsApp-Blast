@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.5
-// @date         2020-11-20
+// @version      3.5.6
+// @date         2020-12-7
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -57,13 +57,19 @@ class Queue {
 /** Declaring Message Class */
 class Message {
     constructor() {
-        this.name = ""; this.phone = ""; this.bp = ""; this.date = ""; this.msg = ""; this.invs = "";
+        this.kons = ''; this.name = ""; this.phone = ""; this.bp = "";
+        this.date = ""; this.msg = ""; this.invs = ""; this.other = [];
     }
-    setMsg(msgs, args) {[this.name, this.phone, this.bp, this.date, this.invs] = args; this.msg = msgs;};
+    setMsg(msgs, args) {
+        if(isNaN(args[0])) args.unshift('');
+        [this.kons, this.name, this.phone, this.bp, this.date, this.invs, ...this.other] = args;
+        this.msg = msgs;
+    };
     get message() {
-        let col = [this.bp, this.date, this.invs];
+        let col = [this.bp, this.date, this.invs, ...this.other];
         this.msg = this.msg.replace(/F_NAMA/g, setName(this.name, 1)).replace(/NAMA/g, setName(this.name));
-        col.forEach((e, i) => {this.msg = e ? this.setMessage(this.msg, i, e) : this.msg});
+        this.msg = this.kons != '' ? this.msg.replace(/NO_KONS/g, this.kons) : this.msg;
+        col.forEach((e, i) => {this.msg = e ? this.setMessage(this.msg, i, e, col.length) : this.msg});
         return this.msg;
     };
     get link() {
@@ -71,25 +77,26 @@ class Message {
         enMsg = encodeURIComponent(this.message).replace(/'/g, "%27").replace(/"/g, "%22");
         return absLink + setPhone(this.phone) + "&text=" + enMsg;
     };
-    setMessage(msg, col, val) {
+    setMessage(msg, col, val, size) {
         let i = col, cBc = getById("s_bc").checked, sBp = getById("t_bp").value,
-            kBp, bC = 200, tBp = msg.includes("BC") ? (cBc ? sBp : bC) : 100;
-        for(i; i < 3; i++){
+            rgx, kBp, bC = 200, tBp = msg.includes("BC") ? (cBc ? sBp : bC) : 100;
+        for(i; i < size - 2; i++){
             if (i == 2 && val.length > 3 && !val.includes("/")) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
-            if (i == 1 && val.includes("/")) msg = msg.replace(/L_DAY/g, this.lastDay(val));
+            if (i == 1 && val.includes("/")) msg = msg.replace(/L_DAY/g, this.lastDay(val)).replace(/S_DAY/g, this.lastDay(val, 1));
             if (i == 0 && val.length <= 3) {
                 kBp = tBp - Number(val); kBp = (kBp < 0) ? 0 : kBp;
                 msg = msg.replace(/P_BP/g, val + " BP").replace(/K_BP/g, kBp + " BP");
             };
         }
+        msg = col > 2 ? (rgx = new RegExp('DATA_'+ (col - 2), 'g'), msg.replace(rgx, val)) : msg;
         return msg;
     }
-    lastDay(dateStr) {
+    lastDay(dateStr, i = 0) {
         let str = (!isFormat && (mIdx != mIdx_)) ?
             (arrMove(dateStr.split("/"), mIdx_, mIdx).join("/")) : dateStr, d = new Date(str);
-        d.setDate(d.getDate() + 30);
-        return dateFormat(d);
-    };
+        if(i == 0){d.setDate(d.getDate() + 30);}
+        return dateFormat(d, i);
+    }
     sendImg(imgFile, caption, done = undefined) {
         return window.Store.Chat.find(setPhone(this.phone) + "@c.us").then(chat => {
             let mc = new window.Store.MediaCollection(chat);
@@ -154,7 +161,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.5", upDate = "20 November 2020", qACR = "._1GGbM",
+const version = "v3.5.6", upDate = "7 Desember 2020", qACR = "._1GGbM",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -389,8 +396,9 @@ function showProgress(p = .5, t = 100){
     eBar.style.width = w + '%';
 }
 /** Formating Date Data */
-function dateFormat(e) {
-    let opt = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+function dateFormat(e, i = 0) {
+    let opt = {year: 'numeric', month: 'long', day: 'numeric' };
+    opt.weekday = i == 0 ? 'long' : undefined;
     return e.toLocaleDateString('id-ID', opt);
 }
 /** Moving Array Elements */
@@ -404,23 +412,23 @@ function arrMove(arr, oIdx, nIdx){
 }
 /** Getting Month Index */
 function mPos(d){
-    let b1 = 1, c1 = 1, b, c, size = d.length, i; isFormat = false;
+    let bb = 1, cc = 1, x, y, size = d.length, i; isFormat = false;
     for (i = 0; i < size; i++){
-        let a = d[i].split("/");
+        let [a, b, c] = d[i].split("/");
         if (i === 0){
-            b = a[0]; c = a[1];
-            if (a[0].length > 3){
+            x = a; y = b;
+            if (a.length > 3){
                 isFormat = true; return 0;
             }
         }
-        if (Number(a[0]) > 12){return 1;}
-        else if (Number(a[1]) > 12){return 0;}
+        if (Number(a) > 12){return 1;}
+        else if (Number(b) > 12){return 0;}
         else{
-            b1 += (a[0] == b) ? 1 : 0;
-            c1 += (a[1] == c) ? 1 : 0;
+            bb += (a == x) ? 1 : 0;
+            cc += (b == y) ? 1 : 0;
         }
     }
-    return (b1 < c1) ? 1 : 0;
+    return (bb < cc) ? 1 : 0;
 }
 /** Back to the First Chatroom */
 function back(a){
@@ -501,7 +509,12 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Perbaikan pembacaan element Active Chatroom."
+    cLog += "\n▫ Menambah fitur untuk menyisipkan tanggal bergabung."
+        + "\n▫ Kata kunci untuk tanggal gabung S_DAY."
+        + "\n▫ Menambah fitur untuk menyisipkan nomor konsultan."
+        + "\n▫ Kata kunci untuk nomor konsultan NO_KONS."
+        + "\n\nVersion v3.5.5 (20 November 2020)."
+        + "\n▫ Perbaikan pembacaan element Active Chatroom."
         + "\n▫ Perbaikan pembacaan data pengguna."
         + "\n▫ Perbaikan pelaporan Report."
         + "\n▫ Perubahan pemformatan hari & tanggal."
@@ -512,17 +525,7 @@ function changeLog(){
         + "\n▫ Perbaikan pembacaan chatroom."
         + "\n▫ Perbaikan pembacaan data."
         + "\n▫ Menambah fitur untuk menyisipkan nama kedua."
-        + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS."
-        + "\n\nVersion v3.5.2 (11 Juni 2020)."
-        + "\n▫ Memperbaiki pembacaan masa langganan."
-        + "\n\nVersion v3.5.1 (10 Juni 2020)."
-        + "\n▫ Memperbaiki error duplikasi panel."
-        + "\n▫ Memperbaiki fungsi kembali ke chatroom."
-        + "\n\nVersion v3.5.0 (5 Juni 2020)."
-        + "\n▫ Memperbaiki Error akibat Update WhatsApp."
-        + "\n▫ Memperbarui Logic & Engine."
-        + "\n▫ Menerapkan konsep Queue dan OOP."
-        + "\n▫ Mengganti Server Data Pengguna Premium.";
+        + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS.";
     alert(cLog);
 }
 /**=====================================
