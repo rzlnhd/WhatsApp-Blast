@@ -80,7 +80,7 @@ class Message {
     setMessage(msg, col, val, size) {
         let i = col, cBc = getById("s_bc").checked, sBp = getById("t_bp").value,
             rgx, kBp, bC = 200, tBp = msg.includes("BC") ? (cBc ? sBp : bC) : 100;
-        for(i; i < size - 2; i++){
+        for(i; i < (size > 3 ? size - 2 : size); i++){
             if (i == 2 && val.length > 3 && !val.includes("/")) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
             if (i == 1 && val.includes("/")) msg = msg.replace(/L_DAY/g, this.lastDay(val)).replace(/S_DAY/g, this.lastDay(val, 1));
             if (i == 0 && val.length <= 3) {
