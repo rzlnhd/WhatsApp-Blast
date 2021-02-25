@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.6
-// @date         2020-12-7
+// @version      3.5.7
+// @date         2021-2-25
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -35,6 +35,18 @@
 /**=====================================
    Declaring Class Object
 =====================================*/
+/** Option Class*/
+class Options {
+    constructor(){
+        this.color = "var(--butterbar-connection-background)"; this.maxQueue = 100;
+    }
+    load(){
+
+    }
+    save(){
+
+    }
+}
 /** Queue Class By Kate Morley - http://code.iamkate.com/ */
 class Queue {
     constructor() {
@@ -66,10 +78,7 @@ class Message {
         this.msg = msgs;
     };
     get message() {
-        let col = [this.bp, this.date, this.invs, ...this.other];
-        this.msg = this.msg.replace(/F_NAMA/g, setName(this.name, 1)).replace(/NAMA/g, setName(this.name));
-        this.msg = this.kons != '' ? this.msg.replace(/NO_KONS/g, this.kons) : this.msg;
-        col.forEach((e, i) => {this.msg = e ? this.setMessage(this.msg, i, e, col.length) : this.msg});
+        this.msg = this.subtitute(this.msg);
         return this.msg;
     };
     get link() {
@@ -91,6 +100,13 @@ class Message {
         msg = col > 2 ? (rgx = new RegExp('DATA_'+ (col - 2), 'g'), msg.replace(rgx, val)) : msg;
         return msg;
     }
+    subtitute(str){
+        let col = [this.bp, this.date, this.invs, ...this.other];
+        str = str.replace(/F_NAMA/g, setName(this.name, 1)).replace(/NAMA/g, setName(this.name));
+        str = this.kons != '' ? str.replace(/NO_KONS/g, this.kons) : str;
+        col.forEach((e, i) => {str = e ? this.setMessage(str, i, e, col.length) : str});
+        return str;
+    }
     lastDay(dateStr, i = 0) {
         let str = (!isFormat && (mIdx != mIdx_)) ?
             (arrMove(dateStr.split("/"), mIdx_, mIdx).join("/")) : dateStr, d = new Date(str);
@@ -102,7 +118,7 @@ class Message {
             let mc = new window.Store.MediaCollection(chat);
             mc.processAttachments([{ file: imgFile }, 1], chat, 1).then(() => {
                 let media = mc.models[0];
-                media.sendToChat(chat, { caption: caption });
+                media.sendToChat(chat, { caption: this.subtitute(caption) });
                 if (done !== undefined) done(true);
             });
         });
@@ -161,7 +177,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** Global Variables */
-const version = "v3.5.6", upDate = "7 Desember 2020", qACR = "._1GGbM",
+const version = "v3.5.7", upDate = "25 Februari 2021", qACR = "._2GVnY",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
@@ -198,29 +214,34 @@ function loadModule(){
         let foundCount = 0;
         for (let idx in modules) {
             if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
-                let first = Object.values(modules[idx])[0];
-                if ((typeof first === "object") && (first.exports)) {
-                    for (let idx2 in modules[idx]) {
-                        let module = modules(idx2);
-                        if (!module) {continue;}
-                        storeObjects.forEach(needObj => {
-                            if (!needObj.conditions || needObj.foundedModule) return;
-                            let neededModule = needObj.conditions(module);
-                            if (neededModule !== null) {foundCount++; needObj.foundedModule = neededModule;}
-                        });
-                        if (foundCount == storeObjects.length) {break;}
+                storeObjects.forEach((needObj) => {
+                    if (!needObj.conditions || needObj.foundedModule) return;
+                    let neededModule = needObj.conditions(modules[idx]);
+                    if (neededModule !== null) { foundCount++; needObj.foundedModule = neededModule;
                     }
-                    let neededStore = storeObjects.find(needObj => needObj.id === "Store");
-                    window.Store = neededStore.foundedModule ? neededStore.foundedModule : window.Store;
-                    storeObjects.splice(storeObjects.indexOf(neededStore), 1);
-                    storeObjects.forEach(needObj => {if (needObj.foundedModule) window.Store[needObj.id] = needObj.foundedModule;});
-                    return window.Store;
-                }
+                });
+                if (foundCount == storeObjects.length) {break;}
             }
         }
+        let neededStore = storeObjects.find((needObj) => needObj.id === "Store");
+        window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
+        storeObjects.splice(storeObjects.indexOf(neededStore), 1);
+        storeObjects.forEach((needObj) => {
+            if (needObj.foundedModule) {window.Store[needObj.id] = needObj.foundedModule;}
+        });
+        return window.Store;
     }
-    (typeof webpackJsonp === 'function') ? webpackJsonp([], {'parasite': (x, y, z) => getStore(z)}, ['parasite'])
-        : webpackJsonp.push([['parasite'], {parasite: function (o, e, t) {getStore(t);}}, [['parasite']]]);
+    const parasite = `parasite${Date.now()}`;
+    if (typeof webpackJsonp === 'function') {
+        webpackJsonp([], { 'parasite': (x, y, z) => getStore(z) }, ['parasite']);
+    } else {
+        webpackChunkbuild.push([[parasite], {}, function (o, e, t) {
+            let modules = [];
+            for (let idx in o.m) {modules.push(o(idx));}
+            getStore(modules);}
+        ]);
+        console.log(webpackChunkbuild);
+    }
 }
 /** Load UI Component */
 function initComponents(e){
@@ -361,8 +382,16 @@ function setUser(u){
         user = {
             "name" : u.name, "phone" : u.phone, "reg" : r, "mon" : mon,
             "end" : new Date(e.setMonth(e.getMonth() + mon))
-        }
+        };
     } else {user = null;}
+    saveUser(user);
+}
+/** Get User from Local Storage*/
+function getUser(){return JSON.parse(getVal('user', null)) ?? null;}
+/** Saving User to Local Storage*/
+function saveUser(u){
+    let usr = getUser() ?? null;
+    if (!usr || (usr.end != u.end)) setVal('user', JSON.stringify(u));
 }
 /**=====================================
    Utilities Function
@@ -509,7 +538,11 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Menambah fitur untuk menyisipkan tanggal bergabung."
+    cLog += "\n▫ Update untuk WhatsApp Web: 2.2106.5."
+        + "\n▫ Caption gambar mendukung Kata kunci."
+        + "\n▫ Menyimpan data user di browser, Login lebih baik."
+        + "\n\nVersion v3.5.6 (7 Desember 2020)."
+        + "\n▫ Menambah fitur untuk menyisipkan tanggal bergabung."
         + "\n▫ Kata kunci untuk tanggal gabung S_DAY."
         + "\n▫ Menambah fitur untuk menyisipkan nomor konsultan."
         + "\n▫ Kata kunci untuk nomor konsultan NO_KONS."
@@ -543,11 +576,11 @@ function getingData(){
         ontimeout : rto => {console.log('Request Time Out', rto.status); setTimeout(getingData, 10000)},
         onerror : err => {console.log('Request Error', err.status); setTimeout(getingData, 10000)},
         onload : res => {
-            let usr = JSON.parse(res.responseText); setUser(usr ? usr : null);
+            let usr = JSON.parse(res.responseText); setUser(usr ?? null);
             if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 20000);
         },
     };
-    xmlReq(a);
+    setUser(getUser() ?? null); xmlReq(a);
 }
 /** Is Premium? */
 function isPremium(){
