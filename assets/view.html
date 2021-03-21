@@ -10,35 +10,95 @@
 </div>
 <div id='wbBody'>
     <div id='tabs'>
-        <button class='tablinks' value='_MSG'>Pesan</button>
-        <button class='tablinks' value='_IMG'>Gambar</button>
+        <button class='tablinks pnl' value='_MSG' title='Pesan'>Pesan</button>
+        <button class='tablinks pnl' value='_IMG' title='Lampiran Gambar'>Gambar</button>
+        <button class='tablinks set' value='_SET' title='Opsi'>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width='18' height='18'>
+                <path fill="currentColor" d="M487.4 315.7l-42.6-24.6c4.3-23.2 4.3-47 0-70.2l42.6-24.6c4.9-2.8 7.1-8.6 5.5-14-11.1-35.6-30-67.8-54.7-94.6-3.8-4.1-10-5.1-14.8-2.3L380.8 110c-17.9-15.4-38.5-27.3-60.8-35.1V25.8c0-5.6-3.9-10.5-9.4-11.7-36.7-8.2-74.3-7.8-109.2 0-5.5 1.2-9.4 6.1-9.4 11.7V75c-22.2 7.9-42.8 19.8-60.8 35.1L88.7 85.5c-4.9-2.8-11-1.9-14.8 2.3-24.7 26.7-43.6 58.9-54.7 94.6-1.7 5.4.6 11.2 5.5 14L67.3 221c-4.3 23.2-4.3 47 0 70.2l-42.6 24.6c-4.9 2.8-7.1 8.6-5.5 14 11.1 35.6 30 67.8 54.7 94.6 3.8 4.1 10 5.1 14.8 2.3l42.6-24.6c17.9 15.4 38.5 27.3 60.8 35.1v49.2c0 5.6 3.9 10.5 9.4 11.7 36.7 8.2 74.3 7.8 109.2 0 5.5-1.2 9.4-6.1 9.4-11.7v-49.2c22.2-7.9 42.8-19.8 60.8-35.1l42.6 24.6c4.9 2.8 11 1.9 14.8-2.3 24.7-26.7 43.6-58.9 54.7-94.6 1.5-5.5-.7-11.3-5.6-14.1zM256 336c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z"></path>
+            </svg>
+        </button>
     </div>
     <div id='_MSG' class='tabcontent'>
         <textarea rows='9' id='message' class='copyable-text selectable-text' placeholder='Message Here!'></textarea>
-        <div id='c_bc'>
-            <input type='checkbox' id='s_bc' class='checks trig' name='s_bc' value='t_bp' title='Super BC?'>
-            <span>Atur Target untuk Super BC? : </span>
-            <input type='number' id='t_bp' name='t_bp' min='100' max='300' step='5' value='200' style='width:50px;' disabled>
-            <span> BP</span>
-        </div>
     </div>
     <div id='_IMG' class='tabcontent'>
         <div id='i_mg'>
-            <input type='checkbox' id='s_mg' class='checks trig' name='s_mg' value='getImg' capt-id='capt' title='Attach Image?'>
+            <input type='checkbox' id='s_mg' class='checks trig premium' name='s_mg' value='getImg' capt-id='capt' title='Attach Image?'>
             <input type='file' accept='image/*' id='getImg' name='images' style='width:200px;cursor:pointer;' disabled>
             <div id='del' data-icon='close' class='img icon icon-del' data-value='getImg' title='Delete Image' style='float:right;cursor:pointer;display:none'>
                 <svg width='20' height='20' viewBox='0 0 1792 1792' xmlns='http://www.w3.org/2000/svg'>
-                <path opacity='.4' d='M1490 1322q0 40-28 68l-136 136q-28 28-68 28t-68-28l-294-294-294 294q-28 28-68 28t-68-28l-136-136q-28-28-28-68t28-68l294-294-294-294q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 294 294-294q28-28 68-28t68 28l136 136q28 28 28 68t-28 68l-294 294 294 294q28 28 28 68z'></path>
+                    <path opacity='.4' d='M1490 1322q0 40-28 68l-136 136q-28 28-68 28t-68-28l-294-294-294 294q-28 28-68 28t-68-28l-136-136q-28-28-28-68t28-68l294-294-294-294q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 294 294-294q28-28 68-28t68 28l136 136q28 28 28 68t-28 68l-294 294 294 294q28 28 28 68z'></path>
                 </svg>
             </div>
         </div>
         <div class='content immg'><img id='o_img'/></div>
         <textarea id='capt' rows='1' class='copyable-text selectable-text' placeholder='Caption Here!' disabled></textarea>
     </div>
+    <div id='_SET' class='tabcontent'>
+        <div class="wb-opts">
+            <div class="row">
+                <div class="lbl"><label for="wabColor">Warna Panel</label></div>
+                <div class="inp">
+                    <label class="select" for="wabColor">
+                        <select id="wabColor">
+                            <option value="var(--butterbar-connection-background)">Bawaan</option>
+                        </select>
+                        <svg viewBox="0 0 10 6" xmlns='http://www.w3.org/2000/svg'>
+                            <polyline points="1 1 5 5 9 1"></polyline>
+                        </svg>
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="lbl"><label for="wabTbp">Target BP</label></div>
+                <div class="inp">
+                    <input type='range' class='bpSlider' id='wabTbp' name='wabTbp' min='100' max='300' step='5' value='100'>
+                    <output for="wabTbp"></output>
+                </div>
+            </div>
+            <div class="row">
+                <div class="lbl"><label for="wabDate">Format Tanggal</label></div>
+                <div class="inp">
+                    <label class="select" for="wabDate">
+                        <select id="wabDate">
+                            <option value="auto">Deteksi Otomatis</option>
+                            <option value="0">MM/DD/YYYY</option>
+                            <option value="1">DD/MM/YYYY</option>
+                            <option value="2">YYYY/MM/DD</option>
+                        </select>
+                        <svg viewBox="0 0 10 6" xmlns='http://www.w3.org/2000/svg'>
+                            <polyline points="1 1 5 5 9 1"></polyline>
+                        </svg>
+                    </label>
+                </div>
+            </div>
+            <div class="row" style="display: none;">
+                <div class="lbl"><label for="wabCaption">Caption</label></div>
+                <div class="inp">
+                    <label class="select" for="wabCaption" disabled>
+                        <select id="wabCaption" >
+                            <option value="caption">Caption</option>
+                            <option value="pesan">Pesan</option>
+                        </select>
+                        <svg viewBox="0 0 10 6" xmlns='http://www.w3.org/2000/svg'>
+                            <polyline points="1 1 5 5 9 1"></polyline>
+                        </svg>
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="lbl"><label for="maxQueue">Jumlah Penerima</label></div>
+                <div class="inp">
+                    <input type='range' class='bpSlider' id='maxQueue' name='maxQueue' min='100' max='200' step='10' value='100'>
+                    <output for="maxQueue"></output>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="waProgress"><div id="waBar"></div></div>
     <div style='margin-top: 5px;'>
         <label class="switch">
-            <input type="checkbox" name="automatic" id="auto" value="Auto">
+            <input type="checkbox" name="automatic" id="auto" value="Auto" class="premium">
             <span class="slider" title="Blast Automatic?"></span>
         </label>
         <input type='file' accept='.csv,.txt' id='getFile' name='files' style='width:180px;cursor:pointer;'>
@@ -86,10 +146,17 @@
                 </svg>
                 </a>
             </span>
+            <span id='sc-telegram' data-icon='telegram' class='img icon credit-icon icon-telegram' title='Join Telegram Channel'>
+                <a href='https://t.me/joinchat/B-6eJcRKaLc1OTM1' target='_blank'>
+                <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512' width='16' height='16'>
+                    <path opacity='.4' fill='currentColor' d='M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z'></path>
+                </svg>
+                </a>
+            </span>
         </div>
     </div>
     <div>
         <span class="backLink"><a href="#"></a></span>
-        <span class="vInfo">Panel Version: <strong>1.1.15</strong></span>
+        <span class="vInfo">Panel Version: <strong>1.2.01</strong></span>
     </div>
 </div>

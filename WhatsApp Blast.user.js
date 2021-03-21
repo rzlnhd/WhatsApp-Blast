@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.5.7
-// @date         2021-2-25
+// @version      3.6.0
+// @date         2021-3-21
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -24,7 +24,7 @@
 // @updateURL    https://openuserjs.org/meta/rzlnhd/WhatsApp_Blast.meta.js
 // @downloadURL  https://openuserjs.org/install/rzlnhd/WhatsApp_Blast.user.js
 // @resource pnl https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/view.html
-// @resource opt https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/setting.html
+// @resource clr https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/colors.json
 // @resource css https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/style.min.css
 // ==/UserScript==
 
@@ -35,16 +35,76 @@
 /**=====================================
    Declaring Class Object
 =====================================*/
-/** Option Class*/
+/** Option Class */
 class Options {
     constructor(){
-        this.color = "var(--butterbar-connection-background)"; this.maxQueue = 100;
+        this.default = {
+            'wabColor':'var(--butterbar-connection-background)', 'wabTbp':100,
+            'maxQueue':100, 'wabDate':'auto', 'wabCaption':'caption', 'wabOpn':true, 'wabTab':0};
+        this.options = {};
+    };
+    load(opt){
+        let inp = getElmAll(".inp input[type='range']"), slc = getElmAll(".inp select");
+        this.options = opt ? Object.assign(this.default, JSON.parse(opt)) : this.default;
+        this.colorList(); this.fillList();
+        inp.forEach(e => {
+            let val = e.value, out = e.parentElement.querySelector('output');
+            out.innerText = val; e.addEventListener("input", this.sliderVal);
+        });
+        slc.forEach(e => {e.addEventListener("change", this.selectVal)});
+        getById('wabPanel').style.backgroundColor = this.options.wabColor;
+        setVal('options', JSON.stringify(this.options));
+        console.log('Options loaded Successfully');
     }
-    load(){
-
+    setOpt(key, val){
+        this.options[key] = val; setVal('options', JSON.stringify(this.options));
     }
-    save(){
-
+    sliderVal(e) {
+        let val = e.currentTarget.value, id = e.currentTarget.id,
+            out = (e.currentTarget.parentElement).querySelector('output');
+        out.innerText = val; options.setOpt(id, Number(val));
+    }
+    selectVal(e) {
+        let val = e.currentTarget.value, id = e.currentTarget.id;
+        switch(id){
+            case 'wabColor' : getById('wabPanel').style.backgroundColor = val; break;
+            case 'wabDate' : options.optDate(val); break;
+            case 'wabCaption' : options.optCapt(val); break;
+        }
+        options.setOpt(id, val);
+    }
+    optDate(val){
+        if(val != 'auto'){
+            val = Number(val);
+            isFormat = (val == 2);
+            mIdx_ = val != 2 ? val : null;
+        } else {
+            isFormat = false;
+            if(queue.size != 0 || getById('getFile').value != ''){
+                getById('getFile').value = ''; queue.reset(); updateUI();
+                alert(
+                    "Untuk opsi Deteksi Tanggal Otomatis, Silahkan masukkan ulang file penerima pesan."
+                );
+            }
+        }
+    }
+    optCapt(val){
+        let e = getById('capt'), c = val != 'caption';
+        e.disabled = c; e.readOnly = c;
+        e.title = c ? 'Caption menggunakan pesan' : '';
+    }
+    fillList(){
+        Object.entries(this.options).forEach(e => {
+            const [key, val] = e, elm = getById(key); if(elm) elm.value = val;
+        });
+    }
+    colorList(){
+        let bg = getElm('select#wabColor'), colors = JSON.parse(getRes('clr')).colors;
+        colors.forEach(e => {
+            let opt = document.createElement('option');
+            opt.value = e.key; opt.text = e.val;
+            bg.appendChild(opt);
+        });
     }
 }
 /** Queue Class By Kate Morley - http://code.iamkate.com/ */
@@ -82,13 +142,13 @@ class Message {
         return this.msg;
     };
     get link() {
-        let absLink = "api.whatsapp.com/send?phone=", enMsg;
+        let absLink = "api.whatsapp.com/send?phone=", enMsg, txt;
         enMsg = encodeURIComponent(this.message).replace(/'/g, "%27").replace(/"/g, "%22");
-        return absLink + setPhone(this.phone) + "&text=" + enMsg;
+        txt = enMsg ? "&text=" + enMsg : '';
+        return absLink + setPhone(this.phone) + txt;
     };
     setMessage(msg, col, val, size) {
-        let i = col, cBc = getById("s_bc").checked, sBp = getById("t_bp").value,
-            rgx, kBp, bC = 200, tBp = msg.includes("BC") ? (cBc ? sBp : bC) : 100;
+        let opt = options.options, i = col, rgx, kBp, tBp = opt.wabTbp;
         for(i; i < (size > 3 ? 3 : size); i++){
             if (i == 2 && val.length > 3 && !val.includes("/")) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
             if (i == 1 && val.includes("/")) msg = msg.replace(/L_DAY/g, this.lastDay(val)).replace(/S_DAY/g, this.lastDay(val, 1));
@@ -176,29 +236,29 @@ class Interval {
 /**=====================================
     Initial Function
 =====================================*/
-/** Global Variables */
-const version = "v3.5.7", upDate = "25 Februari 2021", qACR = "._2GVnY",
-    qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
-    queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(),
+/** Global Minify Function */
+const getElmAll = q => {return document.querySelectorAll(q);},
+    getById = q => {return document.getElementById(q);},
+    getElm = q => {return document.querySelector(q);},
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
     getRes = ("function" == typeof GM_getResourceText) ? GM_getResourceText : GM.getResourceText,
     delVal = ("function" == typeof GM_deleteValue) ? GM_deleteValue : GM.deleteValue,
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
-/** Global Minify Function */
-const getElmAll = q => {return document.querySelectorAll(q);},
-    getById = q => {return document.getElementById(q);},
-    getElm = q => {return document.querySelector(q);};
+/** Global Variables */
+const version = "v3.6.0", upDate = "21 Maret 2021", qACR = "._2GVnY",
+    qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
+    options = new Options(), queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report();
 /** Global Reuseable Variable */
-var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true;
+var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, spliter = /,/;
 /** First Function */
 console.log("WhatsApp Blast " + version + " - Waiting for WhatsApp to load...");
 var timer = setInterval(general, 1000);
 function general(){
     if (getElm("div.two")){
         let head = getElmAll("header"); if(head.length < 2){
-            let pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true);
-            loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); initListener();
+            let pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true), opt = getVal('options', null);
+            loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); options.load(opt); initListener();
             console.log("WhatsApp Blast " + version + " - Blast Your Follow Up NOW!");
         }
         getingData(); clearInterval(timer);
@@ -232,39 +292,36 @@ function loadModule(){
         return window.Store;
     }
     const parasite = `parasite${Date.now()}`;
-    if (typeof webpackJsonp === 'function') {
-        webpackJsonp([], { 'parasite': (x, y, z) => getStore(z) }, ['parasite']);
-    } else {
+    if (typeof webpackChunkbuild !== 'function') {
         webpackChunkbuild.push([[parasite], {}, function (o, e, t) {
             let modules = [];
-            for (let idx in o.m) {modules.push(o(idx));}
-            getStore(modules);}
-        ]);
-        console.log(webpackChunkbuild);
-    }
+            for (let idx in o.m) { modules.push(o(idx)); }
+            getStore(modules);
+        }]);
+        console.log('WAPI Module loaded Successfully');
+    } else { console.log('Failed to load WAPI Module!') }
 }
 /** Load UI Component */
 function initComponents(e){
     let pnl = getRes("pnl").replace(/VERSION/g, version), style = getRes('css');
     e.style.zIndex = 0; e.style.display = "block"; e.style["justify-content"] = "flex-start";
-    e.style["background-color"] = "var(--butterbar-connection-background)";
-    e.style.height = "auto"; e.style.padding = "0px"; e.innerHTML = pnl;
-    addStyle(style);
+    e.style["background-color"] = 'var(--butterbar-connection-background)'; e.style.height = "auto";
+    e.style.padding = "0px"; e.id = 'wabPanel'; e.innerHTML = pnl; addStyle(style);
+    console.log('Components loaded Successfully');
 }
 /** Set All Component Listeners */
 function initListener(){
-    let clk = [{"id" : "blast", "fn" : blast}, {"id" : "del", "fn" : prevImg}, {"id" : "changeLog", "fn" : changeLog}],
-        wbH = getById("toggleApp"), tab = getElmAll("#wbBody .tablinks"), trg = getElmAll("#wbBody .trig"),
-        chk = getElmAll("#wbBody input[type='checkbox']"), opn = getVal('opn', true);
-    chk.forEach((e, i) => {if(i > 0){e.addEventListener("click", getPremium);}});
-    clk.forEach(e => {getById(e.id).addEventListener("click", e.fn);});
-    tab.forEach(e => {e.addEventListener("click", openMenu);});
-    trg.forEach(e => {e.addEventListener("click", checking);});
+    let clk = [{ "id": "blast", "fn": blast }, { "id": "del", "fn": prevImg }, { "id": "changeLog", "fn": changeLog }],
+        tab = getElmAll("#wbBody .tablinks"), chk = getElmAll("input.premium"), opt = options.options;
+    clk.forEach(e => { getById(e.id).addEventListener("click", e.fn); });
+    chk.forEach(e => { e.addEventListener("click", getPremium); });
+    tab.forEach(e => { e.addEventListener("click", openMenu); });
+    getById("toggleApp").addEventListener("click", toggleApp);
     getById("getFile").addEventListener("change", prevDat);
     getById("getImg").addEventListener("change", prevImg);
-    getById("message").addEventListener("input", superBC);
-    wbH.addEventListener("click", toggleApp);
-    tab[0].click(); if(opn)wbH.click();
+    getById("s_mg").addEventListener("click", checking);
+    tab[opt.wabTab].click(); if (opt.wabOpn) getById("toggleApp").click();
+    console.log('EventListener setted Successfully');
 }
 /**=====================================
    Main Function
@@ -277,8 +334,8 @@ function blast(){
             if (confirm("Blast ulang dari awal?")){queue.reload(); runL = 0;} else{return;}
         }
     }
-    let obj = getById("message").value, auto = getById("auto").checked, c_img = getById("s_mg").checked, lg, ig, ch,
-        capt = getById("capt").value, l = runL, b = queue.size + l, no = l + 1, time = 10, clm = [], psn, err, snd;
+    let obj = getById("message").value, auto = getById("auto").checked, c_img = getById("s_mg").checked, opt = options.options,
+        capt = getById("capt").value, l = runL, b = queue.size + l, no = l + 1, time = 10, clm = [], lg, ig, ch, psn, err, snd, btn;
     if (!obj){alert("Silahkan Masukkan Pesan terlebih dahulu..."); return;}
     if (b === 0){alert("Silahkan Masukkan File Penerima Pesan..."); return;}
     if (!getElm(qInp)){alert("Silahkan Pilih Chatroom Terlebih dahulu"); return;}
@@ -286,7 +343,8 @@ function blast(){
         code = getCode(); pinned = getPinned(); time = 6000;
         if (!code){alert("Chatroom Tidak Memiliki Foto Profil!"); return;}
         if (!pinned){alert("Chatroom Belum di PIN!"); return;}
-        if (queue.size > 100){alert("Blast Auto tidak boleh lebih dari 100 Nama!"); return;}
+        if (queue.size > opt.maxQueue){alert("Blast Auto tidak boleh lebih dari "+opt.maxQueue+" Nama!"); return;}
+        if (opt.wabCaption != 'caption'){capt = obj; obj = '';}
     }
     report.reset(auto);
     console.log("Blast!: Ignite Engine");
@@ -295,7 +353,7 @@ function blast(){
             alert("Chatroom terdeteksi berbeda, Blast dihentikan!");
             doBlast.stop(report);
         } else if (doBlast.isRunning && !!queue.now){
-            clm = queue.run().split(/,|;/); mesej.setMsg(obj, clm); lg = "Link ke-" + no;
+            clm = queue.run().split(spliter); mesej.setMsg(obj, clm); lg = "Link ke-" + no;
             dispatch(getElm(qInp), (no + "). " + mesej.link));
             getElm(qSend).click();
             if (auto){
@@ -312,9 +370,9 @@ function blast(){
                         psn = (err.innerText.includes("OK")) ? (report.fail(no, 1), "ERROR"
                         ) : (report.fail(no, 0), "GAGAL"), err.click(), false
                     ) : (
-                        getElm(qSend).click(), ig = (c_img && imgFile) ? (
+                        (btn = obj ? getElm(qSend).click() : ''), ig = (c_img && imgFile) ? (
                             mesej.sendImg(imgFile, capt), true
-                        ) : (false), report.success(), psn = "SUKSES", true
+                        ) : false, report.success(), psn = "SUKSES", true
                     );
                     console.log(lg + ": [EKSEKUSI " + psn + "]", snd);
                     if (ig){console.log(lg + ": [GAMBAR SUKSES DIKIRIM]");}
@@ -331,17 +389,23 @@ function blast(){
 }
 /** Create The Real Data */
 function loadData(arr){
-    let data = [], dt = [], i = 0, j = 0;
+    let data = [], dt = [], i = 0, j = 0, opt = options.options;
+    spliter = arr[0].includes(';') ? /;/ : /,/;
     arr.forEach(e => {
-        if (e && break_f(e)){
-            let d = e.split(/,|;/), size = d.length, s; data[i] = e; i++;
-            if (size > 2){
+        if (e && break_f(e)) {
+            let d = e.split(spliter), size = d.length, s; data[i] = e; i++;
+            if (size > 2) {
                 s = getSgDate(d.slice(2));
-                if(s) dt[j] = s; j++;
+                if (s) dt[j] = s; j++;
             }
         }
     });
-    mIdx_ = dt.length > 0 ? mPos(dt) : mIdx;
+    isFormat = (opt.wabDate == 2);
+    if (opt.wabDate == 'auto') {
+        mIdx_ = dt.length > 0 ? mPos(dt) : mIdx
+    } else {
+        mIdx_ = opt.wabDate;
+    };
     return data;
 }
 /** Get Sign Up Date Data */
@@ -355,7 +419,7 @@ function getSgDate(d){
     }
 }
 /** Break When Name is Empty */
-function break_f(e){return !!e.split(/,|;/)[0];}
+function break_f(e){return !!e.split(spliter)[0];}
 /** Set Name of the Recipient */
 function setName(nama, opt = 0){
     let fname = nama.split(' '), count = fname.length, new_name = titleCase(fname[0]), i;
@@ -484,12 +548,6 @@ function getRM(e){return e[e.length - 1].querySelector("span[role='button']");}
 /**=====================================
    Listener Function Handler
 =====================================*/
-/** Open Super BC Menu */
-function superBC(e){
-    let obj = e.currentTarget.value, men = getById("c_bc");
-    men.style.display = obj.includes("BC") ? (e.currentTarget.style.height = "110px", "block")
-        : (e.currentTarget.style.height = null, "none");
-}
 /** Preview the Selected Image File */
 function prevImg(e){
     let output = getById("o_img"), btn = e.currentTarget.getAttributeNode("data-value"), b,
@@ -515,8 +573,9 @@ function prevDat(e){
 }
 /** Listeners for Checkbox */
 function checking(e){
-    let form = getById(e.currentTarget.value), attr = e.currentTarget.getAttributeNode("capt-id");
-    if (attr) getById(attr.value).disabled = !e.currentTarget.checked;
+    let form = getById(e.currentTarget.value), opt = options.options,
+        attr = e.currentTarget.getAttributeNode("capt-id");
+    getById(attr.value).disabled = opt.wabCaption == 'caption' ? !e.currentTarget.checked : true;
     form.disabled = !e.currentTarget.checked;
 }
 /** Toggle Apps Listener */
@@ -524,21 +583,28 @@ function toggleApp(e){
     let butn = e.currentTarget, id = butn.getAttribute("value"),
         acdBody = getById(id), a = butn.classList.toggle("active");
     acdBody.style.height = acdBody.style.height ? null : acdBody.scrollHeight + "px";
-    setVal("opn", a);
+    options.setOpt("wabOpn", a);
 }
 /** Tabview Event Listeners */
 function openMenu(e){
-    let menuName = e.currentTarget.value, tablinks = getElmAll("#wbBody .tablinks"),
-        tabcontent = getElmAll("#wbBody .tabcontent");
+    let elm = e.currentTarget, tablinks = getElmAll("#wbBody .tablinks"),
+        menuName = elm.value, no, tabcontent = getElmAll("#wbBody .tabcontent");
     tabcontent.forEach(i => {i.style.display = 'none';});
-    tablinks.forEach(i => {i.className = i.className.replace(" active", "");});
-    getById(menuName).style.display = "block";
-    e.currentTarget.className += " active";
+    tablinks.forEach((e, i) => {e.className = e.className.replace(" active", ""); if(elm == e) no = i;});
+    getById(menuName).style.display = "block"; elm.className += " active"; options.setOpt('wabTab', no);
 }
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Update untuk WhatsApp Web: 2.2106.5."
+    cLog += "\n▫ Update panel: 1.2.01 (Menambah panel pengaturan)."
+        + "\n▫ Opsi ubah warna panel."
+        + "\n▫ Opsi target BP dipindah ke panel pengaturan."
+        + "\n▫ Opsi ubah format tanggal."
+        + "\n▫ Opsi penerima pesan sampai 200 nomor."
+        + "\n▫ Menghapus kata kunci BC (tidak diperlukan lagi)."
+        + "\n▫ Dukungan untuk format CSV diperluas."
+        + "\n\nVersion v3.5.9 (25 Februari 2021)."
+        + "\n▫ Update untuk WhatsApp Web: 2.2106.5."
         + "\n▫ Caption gambar mendukung Kata kunci."
         + "\n▫ Menyimpan data user di browser, Login lebih baik."
         + "\n\nVersion v3.5.6 (7 Desember 2020)."
@@ -550,15 +616,7 @@ function changeLog(){
         + "\n▫ Perbaikan pembacaan element Active Chatroom."
         + "\n▫ Perbaikan pembacaan data pengguna."
         + "\n▫ Perbaikan pelaporan Report."
-        + "\n▫ Perubahan pemformatan hari & tanggal."
-        + "\n\nVersion v3.5.4 (8 Juli 2020)."
-        + "\n▫ Memangkas masa Trial menjadi 2 hari."
-        + "\n▫ Memberikan masa Trial pada setiap versi terbaru."
-        + "\n\nVersion v3.5.3 (4 Juli 2020)."
-        + "\n▫ Perbaikan pembacaan chatroom."
-        + "\n▫ Perbaikan pembacaan data."
-        + "\n▫ Menambah fitur untuk menyisipkan nama kedua."
-        + "\n▫ Kata kunci untuk nama kedua INVS atau F_INVS.";
+        + "\n▫ Perubahan pemformatan hari & tanggal.";
     alert(cLog);
 }
 /**=====================================

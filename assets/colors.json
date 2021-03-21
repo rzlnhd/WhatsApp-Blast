@@ -1,4 +1,4 @@
-colors = [
+{"colors" : [
   { "key": "red", "val": "Red" },
   { "key": "darkred", "val": "Dark Red" },
   { "key": "lightsalmon", "val": "Light Salmon" },
@@ -125,4 +125,4 @@ colors = [
   { "key": "sienna", "val": "Sienna" },
   { "key": "brown", "val": "Brown" },
   { "key": "maroon", "val": "Maroon" }
-]
+]}
