@@ -1,4 +1,4 @@
 // ==UserScript==
-// @version    3.5.7
+// @version    3.6.1
 // @name    WhatsApp Blast
 // ==/UserScript==

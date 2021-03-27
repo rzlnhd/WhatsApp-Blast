@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.6.0
-// @date         2021-3-21
+// @version      3.6.1
+// @date         2021-3-27
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -39,8 +39,8 @@
 class Options {
     constructor(){
         this.default = {
-            'wabColor':'var(--butterbar-connection-background)', 'wabTbp':100,
-            'maxQueue':100, 'wabDate':'auto', 'wabCaption':'caption', 'wabOpn':true, 'wabTab':0};
+            'wabColor':'var(--butterbar-connection-background)', 'wabTbp':100, 'maxQueue':100,
+            'wabDate':'auto', 'wabCaption':'caption', 'wabOpn':true, 'wabTab':0};
         this.options = {};
     };
     load(opt){
@@ -124,7 +124,7 @@ class Queue {
         updateUI(); return item;
     };
     reset() {this.queue = []; this.res = []; runL = 0; this.offset = 0;};
-    reload() {this.queue = this.res; this.offset = 0;};
+    reload() {this.queue = this.res; this.offset = 0; updateUI();};
 }
 /** Declaring Message Class */
 class Message {
@@ -228,9 +228,11 @@ class Interval {
             this.timer = setInterval(this.fn, this.time); setStatus(true);
         }
     };
+    break(){
+        clearInterval(this.timer); this.timer = false; setStatus(false);
+    }
     stop(report) {
-        clearInterval(this.timer); this.timer = false; this.time = "";
-        this.fn = ""; setStatus(false); report.showReport();
+        this.break(); this.time = ""; this.fn = ""; report.showReport();
     };
 }
 /**=====================================
@@ -246,7 +248,7 @@ const getElmAll = q => {return document.querySelectorAll(q);},
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Variables */
-const version = "v3.6.0", upDate = "21 Maret 2021", qACR = "._2GVnY",
+const version = "v3.6.1", upDate = "27 Maret 2021", qACR = "._2GVnY",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     options = new Options(), queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report();
 /** Global Reuseable Variable */
@@ -343,15 +345,15 @@ function blast(){
         code = getCode(); pinned = getPinned(); time = 6000;
         if (!code){alert("Chatroom Tidak Memiliki Foto Profil!"); return;}
         if (!pinned){alert("Chatroom Belum di PIN!"); return;}
-        if (queue.size > opt.maxQueue){alert("Blast Auto tidak boleh lebih dari "+opt.maxQueue+" Nama!"); return;}
+        if (queue.size > opt.maxQueue){alert("Blast Auto tidak boleh lebih dari "+opt.maxQueue+" Nomor!"); return;}
         if (opt.wabCaption != 'caption'){capt = obj; obj = '';}
     }
     report.reset(auto);
     console.log("Blast!: Ignite Engine");
-    function execute(){
-        if (auto && getCode() != code){
-            alert("Chatroom terdeteksi berbeda, Blast dihentikan!");
-            doBlast.stop(report);
+    function execute() {
+        if (!doBlast.isRunning){doBlast.start();}
+        if (auto && getCode() != code) {
+            doBlast.break(); back(code); setTimeout(execute, 50);
         } else if (doBlast.isRunning && !!queue.now){
             clm = queue.run().split(spliter); mesej.setMsg(obj, clm); lg = "Link ke-" + no;
             dispatch(getElm(qInp), (no + "). " + mesej.link));
@@ -363,7 +365,7 @@ function blast(){
                     while (getRM(ch)){getRM(ch).click();}
                     ch[ch.length-1].querySelector('a').click();
                     console.log(lg + ": [EKSEKUSI]");
-                }, 1000);
+                }, 500);
                 setTimeout(() => {
                     err = getElm(".overlay div[role='button']");
                     snd = err ? (
@@ -377,15 +379,14 @@ function blast(){
                     console.log(lg + ": [EKSEKUSI " + psn + "]", snd);
                     if (ig){console.log(lg + ": [GAMBAR SUKSES DIKIRIM]");}
                 }, 4000);
-                setTimeout(() => {back(code);}, 5000);
+                setTimeout(back, 5000, code);
             } else{report.success();}
             showProgress(no, b); no++; l++; runL = l;
         } else{
             doBlast.stop(report);
         }
     }
-    doBlast.loop(time, execute);
-    if (!doBlast.isRunning) doBlast.start(); execute();
+    doBlast.loop(time, execute); execute();
 }
 /** Create The Real Data */
 function loadData(arr){
@@ -478,7 +479,7 @@ function setStatus(stat){
 }
 /** Update UI */
 function updateUI(){
-    let ok = getById("fileOk"), eNum = getById("numbDat"), num = queue.size, t = ("Data: Loaded, " + num + " Nama");
+    let ok = getById("fileOk"), eNum = getById("numbDat"), num = queue.size, t = ("Data: Loaded, " + num + " Nomor");
     ok.style.display = !num ? (queue.reset(), t = "", "none") : "inline-block";
     ok.title = t; eNum.innerText = num;
 }
@@ -596,7 +597,10 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Update panel: 1.2.01 (Menambah panel pengaturan)."
+    cLog += "\n▫ Meningkatkan algoritma fungsi utama."
+        + "\n▫ Mengubah perlakuan pada fungsi keamanan."
+        + "\n\nVersion v3.6.0 (21 Maret 2021)."
+        + "\n▫ Update panel: 1.2.01 (Menambah panel pengaturan)."
         + "\n▫ Opsi ubah warna panel."
         + "\n▫ Opsi target BP dipindah ke panel pengaturan."
         + "\n▫ Opsi ubah format tanggal."
@@ -611,12 +615,7 @@ function changeLog(){
         + "\n▫ Menambah fitur untuk menyisipkan tanggal bergabung."
         + "\n▫ Kata kunci untuk tanggal gabung S_DAY."
         + "\n▫ Menambah fitur untuk menyisipkan nomor konsultan."
-        + "\n▫ Kata kunci untuk nomor konsultan NO_KONS."
-        + "\n\nVersion v3.5.5 (20 November 2020)."
-        + "\n▫ Perbaikan pembacaan element Active Chatroom."
-        + "\n▫ Perbaikan pembacaan data pengguna."
-        + "\n▫ Perbaikan pelaporan Report."
-        + "\n▫ Perubahan pemformatan hari & tanggal.";
+        + "\n▫ Kata kunci untuk nomor konsultan NO_KONS.";
     alert(cLog);
 }
 /**=====================================
