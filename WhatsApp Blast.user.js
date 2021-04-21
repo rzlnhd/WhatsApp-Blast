@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.6.1
-// @date         2021-3-27
+// @version      3.6.2
+// @date         2021-4-21
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -248,7 +248,7 @@ const getElmAll = q => {return document.querySelectorAll(q);},
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Variables */
-const version = "v3.6.1", upDate = "27 Maret 2021", qACR = "._2GVnY",
+const version = "v3.6.2", upDate = "21 April 2021", qACR = "._2GVnY",
     qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
     options = new Options(), queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report();
 /** Global Reuseable Variable */
@@ -410,11 +410,12 @@ function loadData(arr){
     return data;
 }
 /** Get Sign Up Date Data */
-function getSgDate(d){
-    let i = 0, l = d.length, e;
-    for (i; i < l; i++){
+function getSgDate(d) {
+    let regexp = /^\d{1,4}\/|-|:\d{1,2}\/|-|:\d{2,4}/,
+        i = 0, l = d.length, e;
+    for (i; i < l; i++) {
         e = d[i];
-        if (e && e.includes("/")){
+        if (e && regexp.test(e)) {
             return e;
         }
     }
@@ -597,7 +598,9 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Meningkatkan algoritma fungsi utama."
+    cLog += "\n▫ Meningkatkan algoritma pembacaan data Sign Up Date."
+        + "\n\nVersion v3.6.1 (27 Maret 2021)."
+        + "\n▫ Meningkatkan algoritma fungsi utama."
         + "\n▫ Mengubah perlakuan pada fungsi keamanan."
         + "\n\nVersion v3.6.0 (21 Maret 2021)."
         + "\n▫ Update panel: 1.2.01 (Menambah panel pengaturan)."
