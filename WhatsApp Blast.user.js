@@ -6,8 +6,8 @@
 // @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
 // @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
 // @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.6.2
-// @date         2021-4-21
+// @version      3.6.3
+// @date         2021-5-5
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -150,8 +150,8 @@ class Message {
     setMessage(msg, col, val, size) {
         let opt = options.options, i = col, rgx, kBp, tBp = opt.wabTbp;
         for(i; i < (size > 3 ? 3 : size); i++){
-            if (i == 2 && val.length > 3 && !val.includes("/")) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
-            if (i == 1 && val.includes("/")) msg = msg.replace(/L_DAY/g, this.lastDay(val)).replace(/S_DAY/g, this.lastDay(val, 1));
+            if (i == 2 && val.length > 3 && !datePattern.test(val)) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
+            if (i == 1 && datePattern.test(val)) msg = msg.replace(/L_DAY/g, this.lastDay(val)).replace(/S_DAY/g, this.lastDay(val, 1));
             if (i == 0 && val.length <= 3) {
                 kBp = tBp - Number(val); kBp = (kBp < 0) ? 0 : kBp;
                 msg = msg.replace(/P_BP/g, val + " BP").replace(/K_BP/g, kBp + " BP");
@@ -248,9 +248,9 @@ const getElmAll = q => {return document.querySelectorAll(q);},
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Variables */
-const version = "v3.6.2", upDate = "21 April 2021", qACR = "._2GVnY",
-    qInp = "#main div[contenteditable='true']", qSend = "#main span[data-icon='send']",
-    options = new Options(), queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report();
+const version = "v3.6.3", upDate = "5 Mei 2021", qACR = "._2GVnY", qSend = "#main span[data-icon='send']",
+    qInp = "#main div[contenteditable='true']", datePattern = /\d{1,4}[\/|-|:]\d{1,2}[\/|-|:]\d{2,4}/, options = new Options(),
+    queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report();
 /** Global Reuseable Variable */
 var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, spliter = /,/;
 /** First Function */
@@ -390,43 +390,31 @@ function blast(){
 }
 /** Create The Real Data */
 function loadData(arr){
-    let data = [], dt = [], i = 0, j = 0, opt = options.options;
+    let data = [], dt = [], i = 0, j = 0, opt = options.options, s;
     spliter = arr[0].includes(';') ? /;/ : /,/;
     arr.forEach(e => {
         if (e && break_f(e)) {
-            let d = e.split(spliter), size = d.length, s; data[i] = e; i++;
-            if (size > 2) {
-                s = getSgDate(d.slice(2));
-                if (s) dt[j] = s; j++;
-            }
+            data[i] = e; i++; s = getSgDate(e); if(s) {dt[j] = s; j++};
         }
     });
+    mIdx_ = opt.wabDate != 'auto' ? opt.wabDate : dt.length > 0 ? mPos(dt) : mIdx;
     isFormat = (opt.wabDate == 2);
-    if (opt.wabDate == 'auto') {
-        mIdx_ = dt.length > 0 ? mPos(dt) : mIdx
-    } else {
-        mIdx_ = opt.wabDate;
-    };
     return data;
 }
 /** Get Sign Up Date Data */
 function getSgDate(d) {
-    let regexp = /^\d{1,4}\/|-|:\d{1,2}\/|-|:\d{2,4}/,
-        i = 0, l = d.length, e;
-    for (i; i < l; i++) {
-        e = d[i];
-        if (e && regexp.test(e)) {
-            return e;
-        }
+    if (datePattern.exec(d)){
+        return datePattern.exec(d).toString();
     }
+    return null;
 }
 /** Break When Name is Empty */
 function break_f(e){return !!e.split(spliter)[0];}
 /** Set Name of the Recipient */
 function setName(nama, opt = 0){
-    let fname = nama.split(' '), count = fname.length, new_name = titleCase(fname[0]), i;
+    let fname = nama.split(' '), new_name = titleCase(fname[0]), i;
     if (opt != 0){
-        for (i = 1; i < count; i++){
+        for (i = 1; i < fname.length; i++){
             new_name += " " + titleCase(fname[i]);
         }
     }
@@ -442,14 +430,13 @@ function setPhone(ph){
         : "62" + ph;
 }
 /** Setting User */
-function setUser(u){
-    if(u){
-        let r = new Date(u.reg), mon = Number(u.mon), e = new Date(u.reg);
+function setUser(u) {
+    if (u) {
+        let e = new Date(u.reg); e.setMonth(e.getMonth() + Number(u.mon));
         user = {
-            "name" : u.name, "phone" : u.phone, "reg" : r, "mon" : mon,
-            "end" : new Date(e.setMonth(e.getMonth() + mon))
+            "name": u.name, "phone": u.phone, "end": e.getTime()
         };
-    } else {user = null;}
+    } else { user = null; }
     saveUser(user);
 }
 /** Get User from Local Storage*/
@@ -493,7 +480,7 @@ function showProgress(p = .5, t = 100){
 /** Formating Date Data */
 function dateFormat(e, i = 0) {
     let opt = {year: 'numeric', month: 'long', day: 'numeric' };
-    opt.weekday = i == 0 ? 'long' : undefined;
+    opt.weekday = i == 0 ? 'long' : undefined; e = new Date(e);
     return e.toLocaleDateString('id-ID', opt);
 }
 /** Moving Array Elements */
@@ -507,23 +494,22 @@ function arrMove(arr, oIdx, nIdx){
 }
 /** Getting Month Index */
 function mPos(d){
-    let bb = 1, cc = 1, x, y, size = d.length, i; isFormat = false;
-    for (i = 0; i < size; i++){
-        let [a, b, c] = d[i].split("/");
-        if (i === 0){
-            x = a; y = b;
-            if (a.length > 3){
-                isFormat = true; return 0;
+    let i, x, y, bb = 1, cc = 1, formatted = /\d{4}[\/|-|:]\d{1,2}[\/|-|:]\d{1,2}/;
+    if(formatted.test(d[0])){
+        isFormat = formatted.test(d[0]); return 2;
+    } else {
+        for (i = 0; i < d.length; i++){
+            let [a, b] = d[i].split(/\/|:|-/);
+            if (i === 0){x = a; y = b;}
+            if (Number(a) > 12){return 1;}
+            else if (Number(b) > 12){return 0;}
+            else{
+                bb += (a == x) ? 1 : 0;
+                cc += (b == y) ? 1 : 0;
             }
         }
-        if (Number(a) > 12){return 1;}
-        else if (Number(b) > 12){return 0;}
-        else{
-            bb += (a == x) ? 1 : 0;
-            cc += (b == y) ? 1 : 0;
-        }
-    }
-    return (bb < cc) ? 1 : 0;
+        return (bb < cc) ? 1 : 0
+    };
 }
 /** Back to the First Chatroom */
 function back(a){
@@ -598,7 +584,11 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Meningkatkan algoritma pembacaan data Sign Up Date."
+    cLog += "\n▫ Meningkatkan algoritma pemrosesan kata kunci pesan."
+        + "\n▫ Refactoring code."
+        + "\n▫ Bug Fixing."
+        + "\n\nVersion v3.6.2 (21 April 2021)."
+        + "\n▫ Meningkatkan algoritma pembacaan data Sign Up Date."
         + "\n\nVersion v3.6.1 (27 Maret 2021)."
         + "\n▫ Meningkatkan algoritma fungsi utama."
         + "\n▫ Mengubah perlakuan pada fungsi keamanan."
@@ -609,16 +599,7 @@ function changeLog(){
         + "\n▫ Opsi ubah format tanggal."
         + "\n▫ Opsi penerima pesan sampai 200 nomor."
         + "\n▫ Menghapus kata kunci BC (tidak diperlukan lagi)."
-        + "\n▫ Dukungan untuk format CSV diperluas."
-        + "\n\nVersion v3.5.9 (25 Februari 2021)."
-        + "\n▫ Update untuk WhatsApp Web: 2.2106.5."
-        + "\n▫ Caption gambar mendukung Kata kunci."
-        + "\n▫ Menyimpan data user di browser, Login lebih baik."
-        + "\n\nVersion v3.5.6 (7 Desember 2020)."
-        + "\n▫ Menambah fitur untuk menyisipkan tanggal bergabung."
-        + "\n▫ Kata kunci untuk tanggal gabung S_DAY."
-        + "\n▫ Menambah fitur untuk menyisipkan nomor konsultan."
-        + "\n▫ Kata kunci untuk nomor konsultan NO_KONS.";
+        + "\n▫ Dukungan untuk format CSV diperluas.";
     alert(cLog);
 }
 /**=====================================
@@ -643,17 +624,12 @@ function getingData(){
     setUser(getUser() ?? null); xmlReq(a);
 }
 /** Is Premium? */
-function isPremium(){
-    let tDy = new Date();
-    if (user){if (tDy.getTime() <= user.end.getTime()){return true;}}
-    return false;
-}
+function isPremium() { return user ? (new Date()).getTime() <= user.end : false; }
 /** Is Trial */
-function isTrial(){
-    var d, tDy = new Date(), ret;
-    if(getVal('wabVers', '0') != version){delVal('wabTrial'); setVal('wabVers', version);}
-    ret = (!getVal('wabTrial')) ? false : (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 2), ((tDy.getTime() <= d.getTime()) ? true : false));
-    return ret;
+function isTrial() {
+    var d, tDy = new Date();
+    if (getVal('wabVers', '0') != version) { delVal('wabTrial'); setVal('wabVers', version); }
+    return getVal('wabTrial') ? (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 2), (tDy.getTime() <= d.getTime())) : false;
 }
 function trialPrompt(e){
     if(!getVal('wabTrial')) {
