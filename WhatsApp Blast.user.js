@@ -3,11 +3,11 @@
 // @description  Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
 // @copyright    2018, rzlnhd (https://github.com/rzlnhd/)
 // @license      GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
-// @icon         https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/icon.png
-// @homepageURL  https://github.com/rzlnhd/WhatsApp-Blast
-// @supportURL   https://github.com/rzlnhd/WhatsApp-Blast/issues
-// @version      3.6.3
-// @date         2021-5-5
+// @icon         https://wab.anggunsetya.com/files/assets/icon.png
+// @homepageURL  https://wab.anggunsetya.com/
+// @supportURL   https://wab.anggunsetya.com/
+// @version      3.6.4
+// @date         2021-5-24
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -21,11 +21,11 @@
 // @grant        GM.setValue
 // @grant        GM.getValue
 // @connect      wab.anggunsetya.com
-// @updateURL    https://openuserjs.org/meta/rzlnhd/WhatsApp_Blast.meta.js
-// @downloadURL  https://openuserjs.org/install/rzlnhd/WhatsApp_Blast.user.js
-// @resource pnl https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/view.html
-// @resource clr https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/colors.json
-// @resource css https://raw.githubusercontent.com/rzlnhd/WhatsApp-Blast/master/assets/style.min.css
+// @updateURL    https://wab.anggunsetya.com/files/update.meta.js
+// @downloadURL  https://wab.anggunsetya.com/files/install.user.js
+// @resource pnl https://wab.anggunsetya.com/files/assets/view.html
+// @resource clr https://wab.anggunsetya.com/files/assets/colors.json
+// @resource css https://wab.anggunsetya.com/files/assets/style.min.css
 // ==/UserScript==
 
 // ==OpenUserJS==
@@ -35,6 +35,91 @@
 /**=====================================
    Declaring Class Object
 =====================================*/
+/** Users Class */
+class Users {
+    constructor() {
+        this.user = null; this.url = "https://wab.anggunsetya.com/user/api/";
+        this.setUser(); 
+    }
+    getUphone() {
+        return getElm("header img") ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : 0;
+    }
+    setUser(u = this.getUser()) {
+        if (u) {
+            let e = u.reg ? new Date(u.reg) : null,
+                exp = u.expires ? new Date(u.expires) : null;
+            if(e) {e.setMonth(e.getMonth() + Number(u.mon))};
+            this.user = {
+                "name": u.name || '', "phone": u.phone,
+                "attempt": u.attempt ? Number(u.attempt) : 0,
+                "expires": exp ? exp.getTime() : null,
+                "end": e ? e.getTime() : null
+            };
+        } else { this.user = null; }
+        this.saveUser(this.user);
+    }
+    getUser() {return JSON.parse(getVal('user', null))}
+    saveUser(user = this.user) {
+        setVal('user', JSON.stringify(user));
+    }
+    getingData(add = {}, loop = true){
+        let url = this.url, data = Object.assign({ phone: this.getUphone(), version: version }, add);
+        xmlReq({
+            method: "POST", url: url,
+            headers: { 'Content-Type': 'application/json' }, data: JSON.stringify(data),
+            ontimeout: rto => { users.errRes(rto, "rto", loop) },
+            onerror: err => { users.errRes(err, "err", loop) },
+            onload: res => { users.xhrRes(res, loop) },
+        });
+    }
+    errRes(data, type, loop){
+        let msg = type == "rto" ? 'Request Time Out' : 'Request Error';
+        console.log(msg, data.status);
+        if(loop) setTimeout(users.getingData, 10000);
+    }
+    xhrRes(data, loop){
+        let usr = JSON.parse(data.responseText); users.setUser(usr || null);
+        if (loop && (!users.user && !(users.isPremium() || users.isTrial()))) setTimeout(users.getingData, 20000);
+    }
+    push(type = "add"){
+        let attempt = Number(this.user.attempt), tDy = new Date(),
+            arr = { attempt: attempt += 1, action: type };
+        if(type == "add"){
+            let expires = tDy.setDate(tDy.getDate() + 2), end = new Date(expires).toLocaleString();
+            arr = { expires: end, action: type}; this.user.expires = expires; 
+        } else {
+            this.user.attempt = attempt;
+        }
+        this.saveUser(); this.getingData(arr, false);
+    }
+    isPremium(){
+        return this.user ? (new Date()).getTime() <= this.user.end : false;
+    }
+    isTrial() {
+        return this.user && this.user.expires ? (this.user.attempt < 5 && (new Date()).getTime() <= this.user.expires) : false;
+    }
+    trialPrompt(e) {
+        if(!this.user.expires){
+            return !e ? (confirm("Apakah Anda mau mencoba 2 hari Trial?") ? (this.push(), true) : false) : e;
+        }
+        return e;
+    }
+    getAlrt(i, on = false) {
+        let user = this.user, msg = [
+            "Halo kak " + setName(user.name, 1) + "!"
+            + "\nSelamat menggunakan fitur Pengguna Premium."
+            + "\nMasa aktif Kakak berakhir hari " + dateFormat(user.end) + " ya...",
+            "Saat ini Anda sedang menggunakan versi Trial."
+            + "\nAnda dapat menggunakan fitur premium sebanyak " + (5 - user.attempt) + " kali lagi,"
+            + "\nAtau masa Trial Anda berakhir hari " + dateFormat(user.expires) + " ya...",
+            "Saat ini Anda sedang menggunakan versi Trial."
+            + "\nAnda masih dapat menggunakan fitur premium sebanyak " + (5 - user.attempt) + " kali lagi.",
+            "Masa Trial Anda sudah berakhir."
+            + "\nSilahkan berlanganan untuk menggunakan fitur premium kembali."
+        ];
+        alrt = alrt || on ? (alert(msg[i]), false) : alrt;
+    }
+}
 /** Option Class */
 class Options {
     constructor(){
@@ -135,18 +220,16 @@ class Message {
     setMsg(msgs, args) {
         if(isNaN(args[0])) args.unshift('');
         [this.kons, this.name, this.phone, this.bp, this.date, this.invs, ...this.other] = args;
-        this.msg = msgs;
-    };
-    get message() {
-        this.msg = this.subtitute(this.msg);
-        return this.msg;
-    };
+        this.msg = msgs ? this.subtitute(msgs) : '';
+    }
+    get encodedMsg() {
+        return encodeURIComponent(this.msg).replace(/'/g, "%27").replace(/\(/g, "%28").replace(/\)/g, "%29");
+    }
     get link() {
-        let absLink = "api.whatsapp.com/send?phone=", enMsg, txt;
-        enMsg = encodeURIComponent(this.message).replace(/'/g, "%27").replace(/"/g, "%22");
-        txt = enMsg ? "&text=" + enMsg : '';
+        let absLink = "api.whatsapp.com/send?phone=", txt;
+        txt = this.msg ? "&text=" + this.encodedMsg : '';
         return absLink + setPhone(this.phone) + txt;
-    };
+    }
     setMessage(msg, col, val, size) {
         let opt = options.options, i = col, rgx, kBp, tBp = opt.wabTbp;
         for(i; i < (size > 3 ? 3 : size); i++){
@@ -214,6 +297,7 @@ class Report {
                 + "\n    • ERROR   = " + this.error + this.createData(this.a_error)
             : "[REPORT] Penulisan Link Selesai. " + this.sukses + " Link Berhasil Ditulis"
         );
+        if (this.auto) {users.getAlrt(!users.isTrial() ? (getById("auto").click(), 3) : 2, true);}
     }
 }
 /** Interval Class */
@@ -248,9 +332,9 @@ const getElmAll = q => {return document.querySelectorAll(q);},
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Variables */
-const version = "v3.6.3", upDate = "5 Mei 2021", qACR = "._2GVnY", qSend = "#main span[data-icon='send']",
+const version = "v3.6.4", upDate = "24 Mei 2021", qACR = "._2GVnY", qSend = "#main span[data-icon='send']",
     qInp = "#main div[contenteditable='true']", datePattern = /\d{1,4}[\/|-|:]\d{1,2}[\/|-|:]\d{2,4}/, options = new Options(),
-    queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report();
+    queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(), users = new Users();
 /** Global Reuseable Variable */
 var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, spliter = /,/;
 /** First Function */
@@ -263,7 +347,7 @@ function general(){
             loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); options.load(opt); initListener();
             console.log("WhatsApp Blast " + version + " - Blast Your Follow Up NOW!");
         }
-        getingData(); clearInterval(timer);
+        users.getingData(); clearInterval(timer);
     }
 }
 /** Load WAPI Module for Send Message & Image */
@@ -347,6 +431,7 @@ function blast(){
         if (!pinned){alert("Chatroom Belum di PIN!"); return;}
         if (queue.size > opt.maxQueue){alert("Blast Auto tidak boleh lebih dari "+opt.maxQueue+" Nomor!"); return;}
         if (opt.wabCaption != 'caption'){capt = obj; obj = '';}
+        if (users.isTrial()) {users.push('update');}
     }
     report.reset(auto);
     console.log("Blast!: Ignite Engine");
@@ -428,23 +513,6 @@ function setPhone(ph){
     return (!ph || ph.charAt(0) === "6") ? ph
         : (ph.charAt(0) === "0") ? "62" + ph.substr(1)
         : "62" + ph;
-}
-/** Setting User */
-function setUser(u) {
-    if (u) {
-        let e = new Date(u.reg); e.setMonth(e.getMonth() + Number(u.mon));
-        user = {
-            "name": u.name, "phone": u.phone, "end": e.getTime()
-        };
-    } else { user = null; }
-    saveUser(user);
-}
-/** Get User from Local Storage*/
-function getUser(){return JSON.parse(getVal('user', null)) ?? null;}
-/** Saving User to Local Storage*/
-function saveUser(u){
-    let usr = getUser() ?? null;
-    if (!usr || (usr.end != u.end)) setVal('user', JSON.stringify(u));
 }
 /**=====================================
    Utilities Function
@@ -584,7 +652,11 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Meningkatkan algoritma pemrosesan kata kunci pesan."
+    cLog += "\n▫ Pesan mendukung karakter kurung '()'."
+        + "\n▫ Perubahan aturan pada Mode Trial."
+        + "\n▫ Migrasi file aplikasi beserta asetnya."
+        + "\n\nVersion v3.6.3 (5 Mei 2021)."
+        + "\n▫ Meningkatkan algoritma pemrosesan kata kunci pesan."
         + "\n▫ Refactoring code."
         + "\n▫ Bug Fixing."
         + "\n\nVersion v3.6.2 (21 April 2021)."
@@ -605,67 +677,16 @@ function changeLog(){
 /**=====================================
    For Credits Purpose
 =====================================*/
-/** Get User Phone Number */
-function getUphone(){
-    return getElm("header img") ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : 0;
-}
-/** Getting User Data */
-function getingData(){
-    let url = "https://wab.anggunsetya.com/user/api/", ph = getUphone(), data = JSON.stringify({phone : ph});
-    let a = {
-        method : "POST", url : url, headers: {'Content-Type': 'application/json'}, data: data,
-        ontimeout : rto => {console.log('Request Time Out', rto.status); setTimeout(getingData, 10000)},
-        onerror : err => {console.log('Request Error', err.status); setTimeout(getingData, 10000)},
-        onload : res => {
-            let usr = JSON.parse(res.responseText); setUser(usr ?? null);
-            if(!user && !(isPremium() || isTrial())) setTimeout(getingData, 20000);
-        },
-    };
-    setUser(getUser() ?? null); xmlReq(a);
-}
-/** Is Premium? */
-function isPremium() { return user ? (new Date()).getTime() <= user.end : false; }
-/** Is Trial */
-function isTrial() {
-    var d, tDy = new Date();
-    if (getVal('wabVers', '0') != version) { delVal('wabTrial'); setVal('wabVers', version); }
-    return getVal('wabTrial') ? (d = new Date(getVal('wabTrial')), d.setDate(d.getDate() + 2), (tDy.getTime() <= d.getTime())) : false;
-}
-function trialPrompt(e){
-    if(!getVal('wabTrial')) {
-        return !e ? (confirm("Apakah Anda mau mencoba 2 hari Trial?") ? (setVal('wabTrial', new Date()), true) : false) : e;
-    }
-    return e;
-}
-/** Inform to the Subscriber */
-function getAlrt(){
-    delVal('wabTrial'); alrt = alrt ? (
-        alert("Halo kak " + setName(user.name, 1) + "!"
-              + "\nSelamat menggunakan fitur Pengguna Premium."
-              + "\nMasa aktif Kakak berakhir hari " + dateFormat(user.end) + " ya..."
-        ), false
-    ) : alrt;
-}
-/* Trial Alert */
-function trialAlrt(){
-    let e = new Date(getVal('wabTrial'));
-    alrt = alrt ? (
-        e.setDate(e.getDate() + 2),
-        alert("Saat ini Anda sedang menggunakan versi Trial.\n"
-            +"Masa Trial Anda berakhir hari " + dateFormat(e) + " ya..."
-        ), false
-    ) : alrt;
-}
 /** Get Premium User */
 function getPremium(e){
     let at = getById("auto").checked, ig = getById("s_mg").checked, id = e.currentTarget.id;
     if (e.currentTarget.checked){
-        e.currentTarget.checked = isPremium() ? (getAlrt(), true) : (
-            (trialPrompt(isTrial())) ? (trialAlrt(), true) : (
+        e.currentTarget.checked = users.isPremium() ? (users.getAlrt(0), true) : (
+            (users.trialPrompt(users.isTrial())) ? (users.getAlrt(1), true) : (
                 alert("Maaf, fitur ini hanya untuk Pengguna Premium."
-                  + "\nTampaknya Anda belum terdaftar sebagai Pengguna Premium,"
-                  + "\nAtau masa berlangganan Anda mungkin telah habis."
-                  + "\n\nInformasi lebih lanjut, silahkan hubungi saya."
+                    + "\nTampaknya Anda belum terdaftar sebagai Pengguna Premium,"
+                    + "\nAtau masa berlangganan Anda mungkin telah habis."
+                    + "\n\nInformasi lebih lanjut, silahkan hubungi saya."
                 ), alrt = true, false)
         );
         if (id == "s_mg")if(!at){getById("auto").checked = e.currentTarget.checked;}
