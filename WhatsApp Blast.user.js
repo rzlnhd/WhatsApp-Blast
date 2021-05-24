@@ -32,6 +32,8 @@
 // @author       rzlnhd
 // ==/OpenUserJS==
 
+/* jshint esversion: 6 */
+
 /**=====================================
    Declaring Class Object
 =====================================*/
@@ -297,7 +299,7 @@ class Report {
                 + "\n    • ERROR   = " + this.error + this.createData(this.a_error)
             : "[REPORT] Penulisan Link Selesai. " + this.sukses + " Link Berhasil Ditulis"
         );
-        if (this.auto) {users.getAlrt(!users.isTrial() ? (getById("auto").click(), 3) : 2, true);}
+        if (this.auto && !users.isPremium()) {users.getAlrt(!users.isTrial() ? (getById("auto").click(), 3) : 2, true);}
     }
 }
 /** Interval Class */
@@ -652,7 +654,8 @@ function openMenu(e){
 /** Show Change Log */
 function changeLog(){
     let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Pesan mendukung karakter kurung '()'."
+    cLog += "\n▫ Perbaikan logic alert."
+        + "\n▫ Pesan mendukung karakter kurung '()'."
         + "\n▫ Perubahan aturan pada Mode Trial."
         + "\n▫ Migrasi file aplikasi beserta asetnya."
         + "\n\nVersion v3.6.3 (5 Mei 2021)."
