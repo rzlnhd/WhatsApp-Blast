@@ -1,13 +1,13 @@
 // ==UserScript==
-// @name         WhatsApp Blast
-// @description  Tools yang digunakan untuk mengirim pesan WhatsApp Secara Otomatis.
+// @name         WayFu - Easy Follow Up
+// @description  WhatsApp Easy Follow Up.
 // @copyright    2018, rzlnhd (https://github.com/rzlnhd/)
 // @license      GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
-// @icon         https://wab.anggunsetya.com/files/assets/icon.png
+// @icon         https://wab.anggunsetya.com/files/assets/wayfu.png
 // @homepageURL  https://wab.anggunsetya.com/
 // @supportURL   https://wab.anggunsetya.com/
-// @version      3.6.4
-// @date         2021-5-24
+// @version      3.6.6
+// @date         2021-7-9
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -23,55 +23,54 @@
 // @connect      wab.anggunsetya.com
 // @updateURL    https://wab.anggunsetya.com/files/update.meta.js
 // @downloadURL  https://wab.anggunsetya.com/files/install.user.js
-// @resource pnl https://wab.anggunsetya.com/files/assets/view.html
+// @resource pnl https://wab.anggunsetya.com/files/assets/wayfu.html
 // @resource clr https://wab.anggunsetya.com/files/assets/colors.json
 // @resource css https://wab.anggunsetya.com/files/assets/style.min.css
 // ==/UserScript==
 
-// ==OpenUserJS==
-// @author       rzlnhd
-// ==/OpenUserJS==
-
-/* jshint esversion: 6 */
-
 /**=====================================
-   Declaring Class Object
+ Declaring Class Object
 =====================================*/
 /** Users Class */
 class Users {
     constructor() {
-        this.user = null; this.url = "https://wab.anggunsetya.com/user/api/";
-        this.setUser(); 
+        this.url = "https://wab.anggunsetya.com/user/api/";
+        this.user = null; this.phone = ''; this.name = '';
+    }
+    init(){
+        this.phone = window.Store.Me.__x_wid.user;
+        this.name = window.Store.Me.pushname;
+        this.setUser();
     }
     getUphone() {
-        return getElm("header img") ? (getElm("header img").src.split("&")[2].match(/\d+/).join('')) : 0;
+        return getElm("header img") ? getElm("header img").src.match(/u=\d+/g)[0].replace('u=','') : this.phone;
     }
     setUser(u = this.getUser()) {
         if (u) {
-            let e = u.reg ? new Date(u.reg) : null,
-                exp = u.expires ? new Date(u.expires) : null;
-            if(e) {e.setMonth(e.getMonth() + Number(u.mon))};
+            let e = u.reg || u.end ? new Date(u.reg || u.end) : null,
+                exp = u.expires ? new Date(u.expires) : null,
+                type = u.type || "oriflame";
+            if(u.mon) {e.setMonth(e.getMonth() + Number(u.mon));}
             this.user = {
-                "name": u.name || '', "phone": u.phone,
+                "name": u.name || this.name, "phone": u.phone || this.phone,
                 "attempt": u.attempt ? Number(u.attempt) : 0,
                 "expires": exp ? exp.getTime() : null,
-                "end": e ? e.getTime() : null
+                "end": e ? e.getTime() : null, "type": type
             };
-        } else { this.user = null; }
+            options.setOpt('uType', type);
+        } else {this.user = {"name" : this.name, "phone" : this.phone};}
         this.saveUser(this.user);
     }
-    getUser() {return JSON.parse(getVal('user', null))}
-    saveUser(user = this.user) {
-        setVal('user', JSON.stringify(user));
-    }
+    getUser() {return JSON.parse(getVal('user', null));}
+    saveUser(user = this.user) {setVal('user', JSON.stringify(user));}
     getingData(add = {}, loop = true){
         let url = this.url, data = Object.assign({ phone: this.getUphone(), version: version }, add);
         xmlReq({
             method: "POST", url: url,
             headers: { 'Content-Type': 'application/json' }, data: JSON.stringify(data),
-            ontimeout: rto => { users.errRes(rto, "rto", loop) },
-            onerror: err => { users.errRes(err, "err", loop) },
-            onload: res => { users.xhrRes(res, loop) },
+            ontimeout: rto => { users.errRes(rto, "rto", loop); },
+            onerror: err => { users.errRes(err, "err", loop); },
+            onload: res => { users.xhrRes(res, loop); },
         });
     }
     errRes(data, type, loop){
@@ -84,11 +83,11 @@ class Users {
         if (loop && (!users.user && !(users.isPremium() || users.isTrial()))) setTimeout(users.getingData, 20000);
     }
     push(type = "add"){
-        let attempt = Number(this.user.attempt), tDy = new Date(),
-            arr = { attempt: attempt += 1, action: type };
+        let attempt = Number(this.user.attempt), name = this.user.name || this.name,
+            tDy = new Date(), arr = {name: name, attempt: attempt += 1, action: type };
         if(type == "add"){
-            let expires = tDy.setDate(tDy.getDate() + 2), end = new Date(expires).toLocaleString();
-            arr = { expires: end, action: type}; this.user.expires = expires; 
+            let expires = tDy.setDate(tDy.getDate() + 2), end = new Date(expires).toLocaleString('id-ID');
+            arr = {name: name, expires: end, action: type}; this.user.expires = expires;
         } else {
             this.user.attempt = attempt;
         }
@@ -108,14 +107,14 @@ class Users {
     }
     getAlrt(i, on = false) {
         let user = this.user, msg = [
-            "Halo kak " + setName(user.name, 1) + "!"
+            `Halo kak ${setName(user.name, true)}!`
             + "\nSelamat menggunakan fitur Pengguna Premium."
-            + "\nMasa aktif Kakak berakhir hari " + dateFormat(user.end) + " ya...",
+            + `\nMasa aktif Kakak berakhir hari ${dateFormat(user.end)} ya...`,
             "Saat ini Anda sedang menggunakan versi Trial."
-            + "\nAnda dapat menggunakan fitur premium sebanyak " + (5 - user.attempt) + " kali lagi,"
-            + "\nAtau masa Trial Anda berakhir hari " + dateFormat(user.expires) + " ya...",
+            + `\nAnda dapat menggunakan fitur premium sebanyak ${(5 - user.attempt)} kali lagi,`
+            + `\nAtau masa Trial Anda berakhir hari ${dateFormat(user.expires)} ya...`,
             "Saat ini Anda sedang menggunakan versi Trial."
-            + "\nAnda masih dapat menggunakan fitur premium sebanyak " + (5 - user.attempt) + " kali lagi.",
+            + `\nAnda masih dapat menggunakan fitur premium sebanyak ${(5 - user.attempt)} kali lagi.`,
             "Masa Trial Anda sudah berakhir."
             + "\nSilahkan berlanganan untuk menggunakan fitur premium kembali."
         ];
@@ -126,23 +125,24 @@ class Users {
 class Options {
     constructor(){
         this.default = {
-            'wabColor':'var(--butterbar-connection-background)', 'wabTbp':100, 'maxQueue':100,
-            'wabDate':'auto', 'wabCaption':'caption', 'wabOpn':true, 'wabTab':0};
+            'wabColor':'var(--butterbar-connection-background)', 'wabTbp':100, 'maxQueue':100, 'wabDate':'auto',
+            'wabCaption':'caption', 'wabOpn':true, 'wabTab':0, 'uType':'oriflame','noLink':false};
         this.options = {};
-    };
-    load(opt){
-        let inp = getElmAll(".inp input[type='range']"), slc = getElmAll(".inp select");
-        this.options = opt ? Object.assign(this.default, JSON.parse(opt)) : this.default;
+    }
+    init(opt = this.getOptions()){
+        this.options = opt ? Object.assign(this.default, opt) : this.default;
         this.colorList(); this.fillList();
-        inp.forEach(e => {
+        getElmAll(".inp input[type='range']").forEach(e => {
             let val = e.value, out = e.parentElement.querySelector('output');
             out.innerText = val; e.addEventListener("input", this.sliderVal);
         });
-        slc.forEach(e => {e.addEventListener("change", this.selectVal)});
+        getElmAll(".inp input[type='checkbox']").forEach(e => {e.addEventListener("change", this.checkVal);});
+        getElmAll(".inp select").forEach(e => {e.addEventListener("change", this.selectVal);});
         getById('wabPanel').style.backgroundColor = this.options.wabColor;
         setVal('options', JSON.stringify(this.options));
         console.log('Options loaded Successfully');
     }
+    getOptions(){return JSON.parse(getVal('options', null));}
     setOpt(key, val){
         this.options[key] = val; setVal('options', JSON.stringify(this.options));
     }
@@ -160,6 +160,10 @@ class Options {
         }
         options.setOpt(id, val);
     }
+    checkVal(e) {
+        let val = e.currentTarget.checked, id = e.currentTarget.id;
+        options.setOpt(id, val);
+    }
     optDate(val){
         if(val != 'auto'){
             val = Number(val);
@@ -169,9 +173,7 @@ class Options {
             isFormat = false;
             if(queue.size != 0 || getById('getFile').value != ''){
                 getById('getFile').value = ''; queue.reset(); updateUI();
-                alert(
-                    "Untuk opsi Deteksi Tanggal Otomatis, Silahkan masukkan ulang file penerima pesan."
-                );
+                alert("Untuk opsi Deteksi Tanggal Otomatis, Silahkan masukkan ulang file penerima pesan.");
             }
         }
     }
@@ -182,7 +184,8 @@ class Options {
     }
     fillList(){
         Object.entries(this.options).forEach(e => {
-            const [key, val] = e, elm = getById(key); if(elm) elm.value = val;
+            const [key, val] = e, elm = getById(key); 
+            if(elm) {elm.type == 'checkbox' ? elm.checked = val : elm.value = val;}
         });
     }
     colorList(){
@@ -199,9 +202,9 @@ class Queue {
     constructor() {
         this.queue = []; this.res = []; this.offset = 0;
     }
-    set data(data) {this.queue = data; this.res = data;};
-    get now() {return (this.queue.length > 0 ? this.queue[this.offset] : undefined);};
-    get size() {return (this.queue.length - this.offset);};
+    get now() {return (this.queue.length > 0 ? this.queue[this.offset] : undefined);}
+    get size() {return (this.queue.length - this.offset);}
+    setData(data) {this.queue = data; this.res = data;}
     run() {
         if (this.queue.length == 0) return undefined;
         let item = this.queue[this.offset];
@@ -209,9 +212,9 @@ class Queue {
             this.queue = this.queue.slice(this.offset); this.offset = 0;
         }
         updateUI(); return item;
-    };
-    reset() {this.queue = []; this.res = []; runL = 0; this.offset = 0;};
-    reload() {this.queue = this.res; this.offset = 0; updateUI();};
+    }
+    reset() {this.queue = []; this.res = []; this.offset = 0; runL = 0;}
+    reload() {this.queue = this.res; this.offset = 0; updateUI();}
 }
 /** Declaring Message Class */
 class Message {
@@ -229,27 +232,29 @@ class Message {
     }
     get link() {
         let absLink = "api.whatsapp.com/send?phone=", txt;
-        txt = this.msg ? "&text=" + this.encodedMsg : '';
+        txt = this.msg ? `&text=${this.encodedMsg}` : '';
         return absLink + setPhone(this.phone) + txt;
     }
-    setMessage(msg, col, val, size) {
-        let opt = options.options, i = col, rgx, kBp, tBp = opt.wabTbp;
-        for(i; i < (size > 3 ? 3 : size); i++){
-            if (i == 2 && val.length > 3 && !datePattern.test(val)) msg = msg.replace(/F_INVS/g, setName(val, 1)).replace(/INVS/g, setName(val));
-            if (i == 1 && datePattern.test(val)) msg = msg.replace(/L_DAY/g, this.lastDay(val)).replace(/S_DAY/g, this.lastDay(val, 1));
-            if (i == 0 && val.length <= 3) {
-                kBp = tBp - Number(val); kBp = (kBp < 0) ? 0 : kBp;
-                msg = msg.replace(/P_BP/g, val + " BP").replace(/K_BP/g, kBp + " BP");
-            };
+    setMessage(msg, col, val, size, opt) {
+        if(opt.uType === 'oriflame'){
+            let i = col, kBp, tBp = opt.wabTbp;
+            for(i; i < (size > 3 ? 3 : size); i++){
+                if (i == 2 && val.length > 3 && !datePattern.test(val)) msg = msg.replace(/F_INVS/g, setName(val, true)).replace(/INVS/g, setName(val));
+                if (i == 1 && datePattern.test(val)) msg = msg.replace(/L_DAY/g, this.lastDay(val)).replace(/S_DAY/g, this.lastDay(val, 1));
+                if (i == 0 && val.length <= 3) {
+                    kBp = tBp - Number(val); kBp = (kBp < 0) ? 0 : kBp;
+                    msg = msg.replace(/P_BP/g, `${val} BP`).replace(/K_BP/g, `${kBp} BP`);
+                }
+            }
+            return col > 2 ? msg.replace(new RegExp(`DATA_${(col - 2)}`, 'g'), val) : msg;
         }
-        msg = col > 2 ? (rgx = new RegExp('DATA_'+ (col - 2), 'g'), msg.replace(rgx, val)) : msg;
-        return msg;
+        return msg.replace(new RegExp(`DATA_${(col + 1)}`, 'g'), val);
     }
     subtitute(str){
-        let col = [this.bp, this.date, this.invs, ...this.other];
-        str = str.replace(/F_NAMA/g, setName(this.name, 1)).replace(/NAMA/g, setName(this.name));
-        str = this.kons != '' ? str.replace(/NO_KONS/g, this.kons) : str;
-        col.forEach((e, i) => {str = e ? this.setMessage(str, i, e, col.length) : str});
+        let col = [this.bp, this.date, this.invs, ...this.other], opt = options.options;
+        str = str.replace(/F_NAMA/g, setName(this.name, true)).replace(/NAMA/g, setName(this.name));
+        str = this.kons != '' ? str.replace((opt.uType === 'oriflame' ? /NO_KONS/g : /DATA_0/g), this.kons) : str;
+        col.forEach((e, i) => {str = e ? this.setMessage(str, i, e, col.length, opt) : str;});
         return str;
     }
     lastDay(dateStr, i = 0) {
@@ -259,7 +264,7 @@ class Message {
         return dateFormat(d, i);
     }
     sendImg(imgFile, caption, done = undefined) {
-        return window.Store.Chat.find(setPhone(this.phone) + "@c.us").then(chat => {
+        return window.Store.Chat.find(`${setPhone(this.phone)}@c.us`).then(chat => {
             let mc = new window.Store.MediaCollection(chat);
             mc.processAttachments([{ file: imgFile }, 1], chat, 1).then(() => {
                 let media = mc.models[0];
@@ -267,37 +272,33 @@ class Message {
                 if (done !== undefined) done(true);
             });
         });
-    };
+    }
 }
 /** Declaring Report Class */
 class Report {
     constructor() {
-        this.sukses = 0; this.gagal = 0; this.error = 0;
-        this.a_gagal = []; this.a_error = []; this.auto = false;
+        this.sukses = 0; this.gagal = []; this.error = []; this.auto = false;
     }
     reset(a) {
-        this.sukses = 0; this.gagal = 0; this.error = 0;
-        this.a_gagal = []; this.a_error = []; this.auto = a;
-    };
+        this.sukses = 0; this.gagal = []; this.error = []; this.auto = a;
+    }
     createData(arr) {
-        let size = arr.length, str = "", i = 0;
+        let size = arr.length, str = size ? ` (` : '', i = 0;
         for (i; i < size; i++) {
-            str = (i === 0) ? (" (") : str;
-            str += (i != (size - 1)) ? (arr[i] + ", ")
-                : (arr[i] + ")");
+            str += (i != (size - 1)) ? `${arr[i]}, ` : `${arr[i]})`;
         }
-        return str;
+        return size + str;
     }
     success() {this.sukses++;}
-    fail(i, err) {i--; (err == 1) ? this.a_error[this.error++] = i : this.a_gagal[this.gagal++] = i;}
+    fail(i, err = 1) {i--; err ? this.error.push(i) : this.gagal.push(i);}
     showReport() {
         runL = !queue.now ? (getById('getFile').value = '', queue.reset(), 0) : runL;
         alert(
             this.auto ? "[REPORT] Kirim Pesan Otomatis Selesai."
-                + "\n    • SUKSES  = " + this.sukses
-                + "\n    • GAGAL   = " + this.gagal + this.createData(this.a_gagal)
-                + "\n    • ERROR   = " + this.error + this.createData(this.a_error)
-            : "[REPORT] Penulisan Link Selesai. " + this.sukses + " Link Berhasil Ditulis"
+                +   `\n    • SUKSES  = ${this.sukses}`
+                +   `\n    • GAGAL   = ${this.createData(this.gagal)}`
+                +   `\n    • ERROR   = ${this.createData(this.error)}`
+            : `[REPORT] Penulisan Link Selesai. ${this.sukses} Link Berhasil Ditulis`
         );
         if (this.auto && !users.isPremium()) {users.getAlrt(!users.isTrial() ? (getById("auto").click(), 3) : 2, true);}
     }
@@ -307,66 +308,70 @@ class Interval {
     constructor() {
         this.timer = false; this.time = ""; this.fn = "";
     }
-    get isRunning() {return this.timer !== false;};
-    loop(t, fn) {this.time = t; this.fn = fn;};
+    get isRunning() {return this.timer !== false;}
+    loop(t, fn) {this.time = t; this.fn = fn;}
     start() {
         if (!this.isRunning) {
             this.timer = setInterval(this.fn, this.time); setStatus(true);
         }
-    };
+    }
     break(){
         clearInterval(this.timer); this.timer = false; setStatus(false);
     }
-    stop(report) {
-        this.break(); this.time = ""; this.fn = ""; report.showReport();
-    };
+    stop(report = null) {
+        this.break(); this.time = ""; this.fn = "";
+        if(report) {report.showReport();}
+    }
 }
 /**=====================================
     Initial Function
 =====================================*/
+/** App Information */
+const app_name = "WayFu", app_tagline = "Easy Follow Up!", version = "v3.6.6", upDate = "9 Juli 2021";
 /** Global Minify Function */
-const getElmAll = q => {return document.querySelectorAll(q);},
-    getById = q => {return document.getElementById(q);},
-    getElm = q => {return document.querySelector(q);},
+const getElmAll = q => {return document.querySelectorAll(q.trim());},
+    getById = q => {return document.getElementById(q.trim());},
+    getElm = q => {return document.querySelector(q.trim());},
     xmlReq = ("function" == typeof GM_xmlhttpRequest) ? GM_xmlhttpRequest : GM.xmlhttpRequest,
     getRes = ("function" == typeof GM_getResourceText) ? GM_getResourceText : GM.getResourceText,
     delVal = ("function" == typeof GM_deleteValue) ? GM_deleteValue : GM.deleteValue,
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Variables */
-const version = "v3.6.4", upDate = "24 Mei 2021", qACR = "._2GVnY", qSend = "#main span[data-icon='send']",
-    qInp = "#main div[contenteditable='true']", datePattern = /\d{1,4}[\/|-|:]\d{1,2}[\/|-|:]\d{2,4}/, options = new Options(),
-    queue = new Queue(), mesej = new Message(), doBlast = new Interval(), report = new Report(), users = new Users();
+const qACR = "._2GVnY", qSend = "#main span[data-testid='send']", qInp = "#main div[contenteditable='true']",
+    datePattern = /\d{1,4}[\/|-|:]\d{1,2}[\/|-|:]\d{2,4}/, options = new Options(), queue = new Queue(),
+    mesej = new Message(), doBlast = new Interval(), report = new Report(), users = new Users();
 /** Global Reuseable Variable */
 var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, spliter = /,/;
 /** First Function */
-console.log("WhatsApp Blast " + version + " - Waiting for WhatsApp to load...");
+console.info(`${app_name} ${version} - Waiting for WhatsApp to load...`);
 var timer = setInterval(general, 1000);
 function general(){
     if (getElm("div.two")){
         let head = getElmAll("header"); if(head.length < 2){
-            let pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true), opt = getVal('options', null);
-            loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); options.load(opt); initListener();
-            console.log("WhatsApp Blast " + version + " - Blast Your Follow Up NOW!");
+            let pnl = getById("side"), itm = getElm("header"), e = itm.cloneNode(true);
+            loadModule(); initComponents(e); pnl.insertBefore(e, pnl.childNodes[1]); options.init(); initListener();
+            users.init(); getChangelog(); console.info(`${app_name} ${version} - ${app_tagline}`);
         }
         users.getingData(); clearInterval(timer);
     }
 }
 /** Load WAPI Module for Send Message & Image */
 function loadModule(){
-    function getStore(modules) {
+    function getStore(modules){
         const storeObjects = [
             { id: "Store", conditions: (module) => (module.default && module.default.Chat && module.default.Msg) ? module.default : null},
-            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null }
+            { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
+            { id: "Conn", conditions: (module) => (module.default && module.default.ref && module.default.refTTL) ? module.default : null },
+            { id: "Me", conditions: (module) => (module.PLATFORMS && module.Conn) ? module.default : null }
         ];
         let foundCount = 0;
-        for (let idx in modules) {
-            if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+        for (let idx in modules.m) {
+            if ((typeof modules(idx) === "object") && (modules(idx) !== null)) {
                 storeObjects.forEach((needObj) => {
                     if (!needObj.conditions || needObj.foundedModule) return;
-                    let neededModule = needObj.conditions(modules[idx]);
-                    if (neededModule !== null) { foundCount++; needObj.foundedModule = neededModule;
-                    }
+                    let neededModule = needObj.conditions(modules(idx));
+                    if (neededModule !== null) { foundCount++; needObj.foundedModule = neededModule; }
                 });
                 if (foundCount == storeObjects.length) {break;}
             }
@@ -380,22 +385,18 @@ function loadModule(){
         return window.Store;
     }
     const parasite = `parasite${Date.now()}`;
-    if (typeof webpackChunkbuild !== 'function') {
-        webpackChunkbuild.push([[parasite], {}, function (o, e, t) {
-            let modules = [];
-            for (let idx in o.m) { modules.push(o(idx)); }
-            getStore(modules);
-        }]);
-        console.log('WAPI Module loaded Successfully');
-    } else { console.log('Failed to load WAPI Module!') }
+    if (typeof webpackChunkwhatsapp_web_client === 'object') {
+        webpackChunkwhatsapp_web_client.push([[parasite], {}, function (o, e, t) {getStore(o);}]);
+        console.info('WAPI Module loaded Successfully');
+    } else { console.error('Failed to load WAPI Module!'); }
 }
 /** Load UI Component */
 function initComponents(e){
-    let pnl = getRes("pnl").replace(/VERSION/g, version), style = getRes('css');
+    let pnl = getRes("pnl").replace(/VERSION/g, version).replace(/APP_NAME/g, `${app_name} - ${app_tagline}`), style = getRes('css');
     e.style.zIndex = 0; e.style.display = "block"; e.style["justify-content"] = "flex-start";
     e.style["background-color"] = 'var(--butterbar-connection-background)'; e.style.height = "auto";
     e.style.padding = "0px"; e.id = 'wabPanel'; e.innerHTML = pnl; addStyle(style);
-    console.log('Components loaded Successfully');
+    console.info('Components loaded Successfully');
 }
 /** Set All Component Listeners */
 function initListener(){
@@ -409,120 +410,125 @@ function initListener(){
     getById("getImg").addEventListener("change", prevImg);
     getById("s_mg").addEventListener("click", checking);
     tab[opt.wabTab].click(); if (opt.wabOpn) getById("toggleApp").click();
-    console.log('EventListener setted Successfully');
+    console.info('EventListener setted Successfully');
 }
 /**=====================================
-   Main Function
+ Main Function
 =====================================*/
 /** Main Blast! Function */
 function blast(){
     if (doBlast.isRunning){if(confirm("Stop WhatsApp Blast?")){doBlast.stop(report);} return;}
     if (runL !== 0 && !!queue.now){
-        if (!confirm("Lanjutkan Blast dari data ke-" + (runL + 1) + "?")){
+        if (!confirm(`Lanjutkan Blast dari data ke-${(runL + 1)}?`)){
             if (confirm("Blast ulang dari awal?")){queue.reload(); runL = 0;} else{return;}
         }
     }
     let obj = getById("message").value, auto = getById("auto").checked, c_img = getById("s_mg").checked, opt = options.options,
-        capt = getById("capt").value, l = runL, b = queue.size + l, no = l + 1, time = 10, clm = [], lg, ig, ch, psn, err, snd, btn;
+        capt = getById("capt").value, l = runL, b = queue.size + l, no = l + 1, time = 10, clm = [], lg, ig, ch, err, snd;
     if (!obj){alert("Silahkan Masukkan Pesan terlebih dahulu..."); return;}
     if (b === 0){alert("Silahkan Masukkan File Penerima Pesan..."); return;}
-    if (!getElm(qInp)){alert("Silahkan Pilih Chatroom Terlebih dahulu"); return;}
+    if (!getElm(qInp) && !(auto && opt.noLink)){alert("Silahkan Pilih Chatroom Terlebih dahulu"); return;}
     if (auto){
-        code = getCode(); pinned = getPinned(); time = 6000;
-        if (!code){alert("Chatroom Tidak Memiliki Foto Profil!"); return;}
-        if (!pinned){alert("Chatroom Belum di PIN!"); return;}
-        if (queue.size > opt.maxQueue){alert("Blast Auto tidak boleh lebih dari "+opt.maxQueue+" Nomor!"); return;}
-        if (opt.wabCaption != 'caption'){capt = obj; obj = '';}
+        code = getCode(); pinned = getPinned(); time = opt.noLink ? 5000 : 6000;
+        if (!code && !opt.noLink){alert("Chatroom Tidak Memiliki Foto Profil!"); return;}
+        if (!pinned && !opt.noLink){alert("Chatroom Belum di PIN!"); return;}
+        if (queue.size > opt.maxQueue){alert(`Blast Auto tidak boleh lebih dari ${opt.maxQueue} Nomor!`); return;}
+        if (opt.wabCaption != 'caption' && c_img && imgFile){capt = obj; obj = '';}
         if (users.isTrial()) {users.push('update');}
     }
-    report.reset(auto);
     console.log("Blast!: Ignite Engine");
     function execute() {
         if (!doBlast.isRunning){doBlast.start();}
-        if (auto && getCode() != code) {
+        if (auto && getCode() != code && !opt.noLink) {
             doBlast.break(); back(code); setTimeout(execute, 50);
         } else if (doBlast.isRunning && !!queue.now){
-            clm = queue.run().split(spliter); mesej.setMsg(obj, clm); lg = "Link ke-" + no;
-            dispatch(getElm(qInp), (no + "). " + mesej.link));
-            getElm(qSend).click();
-            if (auto){
-                console.log(lg + ": [TULIS]");
+            clm = queue.run().split(spliter); mesej.setMsg(obj, clm); lg = `Link ke-${no}`;
+            if (!printLink(no, mesej.link, auto, opt.noLink)) {
+                alert("If You see this ERROR, Contact Developer!");
+                doBlast.stop(); queue.reload(); return;
+            }
+            if(auto){
+                console.log(`${lg}: [EXECUTING]`);
                 setTimeout(() => {
-                    ch = getElmAll("#main div.message-out");
-                    while (getRM(ch)){getRM(ch).click();}
-                    ch[ch.length-1].querySelector('a').click();
-                    console.log(lg + ": [EKSEKUSI]");
+                    if(opt.noLink) {
+                        getElm("div#wbBody span.backLink a").click();
+                    } else {
+                        ch = getElmAll("#main div.message-out");
+                        while (getRM(ch)){getRM(ch).click();}
+                        ch[ch.length-1].querySelector('a').click();
+                    }
                 }, 500);
                 setTimeout(() => {
                     err = getElm(".overlay div[role='button']");
                     snd = err ? (
-                        psn = (err.innerText.includes("OK")) ? (report.fail(no, 1), "ERROR"
-                        ) : (report.fail(no, 0), "GAGAL"), err.click(), false
+                        err.click(), err.innerText.includes("OK") ? (report.fail(no), "ERROR"
+                        ) : (report.fail(no, 0), "FAILED")
                     ) : (
-                        (btn = obj ? getElm(qSend).click() : ''), ig = (c_img && imgFile) ? (
-                            mesej.sendImg(imgFile, capt), true
-                        ) : false, report.success(), psn = "SUKSES", true
+                        (getElm(qSend) ? getElm(qSend).click() : ''), (ig = (c_img && imgFile) ? (
+                            mesej.sendImg(imgFile, capt), 'WITH'
+                        ) : 'WITHOUT'), report.success(), "SUCCESS"
                     );
-                    console.log(lg + ": [EKSEKUSI " + psn + "]", snd);
-                    if (ig){console.log(lg + ": [GAMBAR SUKSES DIKIRIM]");}
+                    ig = snd === 'SUCCESS' ? ` - ${ig} IMAGE` : '';
+                    console.log(`${lg}: [EXECUTE ${snd + ig}]`);
                 }, 4000);
-                setTimeout(back, 5000, code);
-            } else{report.success();}
+                if(!opt.noLink) setTimeout(back, 5000, code);
+            } else {report.success();}
             showProgress(no, b); no++; l++; runL = l;
-        } else{
-            doBlast.stop(report);
-        }
+        } else{doBlast.stop(report);}
     }
-    doBlast.loop(time, execute); execute();
+    report.reset(auto); doBlast.loop(time, execute); execute();
 }
 /** Create The Real Data */
 function loadData(arr){
-    let data = [], dt = [], i = 0, j = 0, opt = options.options, s;
-    spliter = arr[0].includes(';') ? /;/ : /,/;
+    let data = [], dt = [], opt = options.options, row, s;
+    spliter = /(\w;\w)|(\w;\+)|(;;)/g.test(arr[0]) ? ';' : ',';
     arr.forEach(e => {
-        if (e && break_f(e)) {
-            data[i] = e; i++; s = getSgDate(e); if(s) {dt[j] = s; j++};
+        if (row = break_f(e, spliter)) {
+            data.push(row); if(s = getSgDate(row)) {dt.push(s);}
         }
     });
     mIdx_ = opt.wabDate != 'auto' ? opt.wabDate : dt.length > 0 ? mPos(dt) : mIdx;
-    isFormat = (opt.wabDate == 2);
     return data;
 }
 /** Get Sign Up Date Data */
-function getSgDate(d) {
-    if (datePattern.exec(d)){
-        return datePattern.exec(d).toString();
-    }
-    return null;
-}
-/** Break When Name is Empty */
-function break_f(e){return !!e.split(spliter)[0];}
+function getSgDate(d) {return datePattern.exec(d) ? datePattern.exec(d).toString() : null;}
 /** Set Name of the Recipient */
-function setName(nama, opt = 0){
-    let fname = nama.split(' '), new_name = titleCase(fname[0]), i;
-    if (opt != 0){
-        for (i = 1; i < fname.length; i++){
-            new_name += " " + titleCase(fname[i]);
-        }
-    }
-    return new_name;
+function setName(nama, full = false){
+    let name = nama.split(' '), new_name = [];
+    name.forEach(e => {new_name.push(titleCase(e));});
+    return full ? new_name.join(' ') : new_name[0];
 }
 /** Title Case Text Transform */
 function titleCase(str){str = str.toLowerCase(); return str.charAt(0).toUpperCase() + str.slice(1);}
 /** Set the Recipient's Phone Number */
 function setPhone(ph){
-    ph = ph.match(/\d+/g).join('');
-    return (!ph || ph.charAt(0) === "6") ? ph
-        : (ph.charAt(0) === "0") ? "62" + ph.substr(1)
-        : "62" + ph;
+    if(ph && ph !== '' && /\d+/g.test(ph)){
+        ph = ph.match(/\d+/g).join('');
+        return ph.charAt(0) === "6" ? ph
+            : ph.charAt(0) === "0" ? `62${ph.substr(1)}`
+            : `62${ph}`;
+    } return ph;
+}
+/** Detect for NON Data row */
+function break_f(r, s){
+    let rgx = [/\d+/g, /^(0|6|8)\d{8,}/g], e = r.split(s);
+    if(r != '' && e.length >= 2){
+        let phoneIdx = rgx[0].test(e[0]) ? 2 : 1,
+            phn = e[phoneIdx].match(rgx[0]);
+        if(phn && rgx[1].test(phn.join(''))){
+            e[phoneIdx] = phn;
+            return e.join(s);
+        }
+        return false;
+    }
+    return false;
 }
 /**=====================================
-   Utilities Function
+ Utilities Function
 =====================================*/
 /** Setting "BLAST" Status */
 function addStyle(styles) {
-    var css = document.createElement("style");
-    css.type = "text/css";css.id = "wab-style";
+    var css = document.createElement("style"); css.id = "wab-style";
     css.appendChild(document.createTextNode(styles));
     getElm("head").appendChild(css);
 }
@@ -537,15 +543,15 @@ function setStatus(stat){
 }
 /** Update UI */
 function updateUI(){
-    let ok = getById("fileOk"), eNum = getById("numbDat"), num = queue.size, t = ("Data: Loaded, " + num + " Nomor");
+    let ok = getById("fileOk"), eNum = getById("numbDat"), num = queue.size, t = `Data: Loaded, ${num} Nomor`;
     ok.style.display = !num ? (queue.reset(), t = "", "none") : "inline-block";
     ok.title = t; eNum.innerText = num;
 }
 /** Show Progress Bar */
-function showProgress(p = .5, t = 100){
+function showProgress(p = 0.5, t = 100){
     let eBar = getById("waBar"), w = (p / t) * 100;
-    if(w > 1) eBar.setAttribute("title", p + '/' + t);
-    eBar.style.width = w + '%';
+    if(w > 1) eBar.setAttribute("title", `${p}/${t}`);
+    eBar.style.width = `${w}%`;
 }
 /** Formating Date Data */
 function dateFormat(e, i = 0) {
@@ -564,59 +570,57 @@ function arrMove(arr, oIdx, nIdx){
 }
 /** Getting Month Index */
 function mPos(d){
-    let i, x, y, bb = 1, cc = 1, formatted = /\d{4}[\/|-|:]\d{1,2}[\/|-|:]\d{1,2}/;
-    if(formatted.test(d[0])){
-        isFormat = formatted.test(d[0]); return 2;
-    } else {
-        for (i = 0; i < d.length; i++){
-            let [a, b] = d[i].split(/\/|:|-/);
-            if (i === 0){x = a; y = b;}
-            if (Number(a) > 12){return 1;}
-            else if (Number(b) > 12){return 0;}
-            else{
-                bb += (a == x) ? 1 : 0;
-                cc += (b == y) ? 1 : 0;
-            }
+    let i, x, y, bb = 1, cc = 1, formatted = /^\d{4}[\/|-|:]\d{1,2}[\/|-|:]\d{1,2}$/;
+    if(isFormat = formatted.test(d[0])) {return 2;}
+    for (i = 0; i < d.length; i++){
+        let [a, b] = d[i].split(/\/|:|-/);
+        if (i === 0){x = a; y = b;}
+        if (Number(a) > 12){return 1;}
+        else if (Number(b) > 12){return 0;}
+        else{
+            bb += (a == x) ? 1 : 0;
+            cc += (b == y) ? 1 : 0;
         }
-        return (bb < cc) ? 1 : 0
-    };
+    }
+    return (bb < cc) ? 1 : 0;
 }
 /** Back to the First Chatroom */
-function back(a){
-    let elm = getElm("#pane-side img[src='" + a + "']");
-    eventFire(elm, "mousedown");
-}
+function back(a){eventFire(getElm(`#pane-side img[src='${a}']`));}
 /** EventFire Function */
-function eventFire(node, eventType){
-    let clickEvent = document.createEvent("MouseEvents");
-    clickEvent.initMouseEvent(eventType, true, false);
-    node.dispatchEvent(clickEvent);
+function eventFire(elm, type = '', message = '', opt = {'bubbles':true, 'composed':true}){
+    let evt = type ? new InputEvent(type, opt) : new MouseEvent("mousedown", opt);
+    if(message) {elm.innerText = message;}
+    elm.dispatchEvent(evt);
 }
-/** Dispatch Function */
-function dispatch(input, message){
-    let evt = new InputEvent("input", {bubbles : true, composer : true});
-    input.innerHTML = message; input.dispatchEvent(evt);
+/** Print Link */
+function printLink(no, link, auto = false, noLink = false){
+    if(auto && noLink){
+        getElm("div#wbBody span.backLink a").href = `https://${link}`;
+        return true;
+    } 
+    eventFire(getElm(qInp), "input", `${no}). ${link}`);
+    return getElm(qSend) ? (getElm(qSend).click(), true) : false;
 }
 /** Getting code from Selected Chatroom */
-function getCode(){let elm = getElm("div" + qACR + " img"); return elm ? elm.src : elm;}
+function getCode(){return getElm(`div${qACR} img`) ? getElm(`div${qACR} img`).src : null;}
 /** Getting Pinned Status from Selected Chatroom*/
-function getPinned(){return !!getElm("div" + qACR + " span[data-icon='pinned']");}
+function getPinned(){return !!getElm(`div${qACR} span[data-icon='pinned']`);}
 /** Get Read More Button */
 function getRM(e){return e[e.length - 1].querySelector("span[role='button']");}
 /**=====================================
-   Listener Function Handler
+ Listener Function Handler
 =====================================*/
 /** Preview the Selected Image File */
 function prevImg(e){
-    let output = getById("o_img"), btn = e.currentTarget.getAttributeNode("data-value"), b,
-        res = null, del = getById("del"), mByte = Math.pow(1024, 2), maxSize = 4 * mByte;
-    b = btn ? (getById(btn.value).value = '', true) : (
-        res = e.currentTarget.files[0],
+    let output = getById("o_img"), btn = e.currentTarget.dataset.value, res = null,
+        del = getById("del"), mByte = Math.pow(1024, 2), maxSize = 4 * mByte;
+    if(!btn){
+        res = e.currentTarget.files[0];
         imgFile = (res.size <= maxSize) ? res : (
             alert("Ukuran gambar tidak boleh lebih dari 4MB"),
             e.currentTarget.value = '', res = null, null
-        ), false
-    );
+        );
+    } else {getById(btn).value = '';}
     del.style.display = res ? (output.src = URL.createObjectURL(res), "block")
         : (output.removeAttribute("src"), "none");
 }
@@ -624,8 +628,8 @@ function prevImg(e){
 function prevDat(e){
     let reader = new FileReader(); queue.reset(); updateUI(); showProgress();
     reader.onload = f => {
-        let lines = f.currentTarget.result.split(/\r\n|\r|\n/), d = loadData(lines); queue.data = d;
-        console.log("Blast!: Data Loaded,", !!queue.now, queue.size); updateUI(); showProgress();
+        let lines = f.currentTarget.result.split(/\r\n|\r|\n/), d = loadData(lines); queue.setData(d);
+        console.info("Blast!: Data Loaded,", queue.size, spliter); updateUI(); showProgress();
     };
     reader.readAsText(e.currentTarget.files[0]);
 }
@@ -640,7 +644,7 @@ function checking(e){
 function toggleApp(e){
     let butn = e.currentTarget, id = butn.getAttribute("value"),
         acdBody = getById(id), a = butn.classList.toggle("active");
-    acdBody.style.height = acdBody.style.height ? null : acdBody.scrollHeight + "px";
+    acdBody.style.height = acdBody.style.height ? null : `${acdBody.scrollHeight}px`;
     options.setOpt("wabOpn", a);
 }
 /** Tabview Event Listeners */
@@ -651,34 +655,29 @@ function openMenu(e){
     tablinks.forEach((e, i) => {e.className = e.className.replace(" active", ""); if(elm == e) no = i;});
     getById(menuName).style.display = "block"; elm.className += " active"; options.setOpt('wabTab', no);
 }
+/** Get ChangeLog */
+function getChangelog(){
+    xmlReq({
+        method: "GET", url: 'https://wab.anggunsetya.com/files/changelog.json',
+        onload: res => {
+            let changelog = JSON.parse(res.responseText).changelog;
+            setVal('changelog', JSON.stringify(changelog.slice(0, 4)));
+        },
+    });
+}
 /** Show Change Log */
 function changeLog(){
-    let cLog = "WhatsApp Blast " + version + " (Last Update: " + upDate + ").";
-    cLog += "\n▫ Perbaikan logic alert."
-        + "\n▫ Pesan mendukung karakter kurung '()'."
-        + "\n▫ Perubahan aturan pada Mode Trial."
-        + "\n▫ Migrasi file aplikasi beserta asetnya."
-        + "\n\nVersion v3.6.3 (5 Mei 2021)."
-        + "\n▫ Meningkatkan algoritma pemrosesan kata kunci pesan."
-        + "\n▫ Refactoring code."
-        + "\n▫ Bug Fixing."
-        + "\n\nVersion v3.6.2 (21 April 2021)."
-        + "\n▫ Meningkatkan algoritma pembacaan data Sign Up Date."
-        + "\n\nVersion v3.6.1 (27 Maret 2021)."
-        + "\n▫ Meningkatkan algoritma fungsi utama."
-        + "\n▫ Mengubah perlakuan pada fungsi keamanan."
-        + "\n\nVersion v3.6.0 (21 Maret 2021)."
-        + "\n▫ Update panel: 1.2.01 (Menambah panel pengaturan)."
-        + "\n▫ Opsi ubah warna panel."
-        + "\n▫ Opsi target BP dipindah ke panel pengaturan."
-        + "\n▫ Opsi ubah format tanggal."
-        + "\n▫ Opsi penerima pesan sampai 200 nomor."
-        + "\n▫ Menghapus kata kunci BC (tidak diperlukan lagi)."
-        + "\n▫ Dukungan untuk format CSV diperluas.";
-    alert(cLog);
+    let clog = JSON.parse(getVal('changelog', '')), alrt = '';
+    clog.forEach((e, i) => {
+        let date = dateFormat(new Date(e.date), 1);
+        alrt += i > 0 ? `\n\nVersion v${e.version} (${date})` 
+            : `${app_name} v${e.version} (Last Update: ${date})`;
+        e.content.forEach(c => {alrt += `\n▫ ${c}.`;});
+    });
+    alert(alrt);
 }
 /**=====================================
-   For Credits Purpose
+ For Credits Purpose
 =====================================*/
 /** Get Premium User */
 function getPremium(e){
@@ -695,4 +694,6 @@ function getPremium(e){
         if (id == "s_mg")if(!at){getById("auto").checked = e.currentTarget.checked;}
     }
     if (id == "auto"){if(ig){getById("s_mg").click();}}
+    getById('noLink').disabled = !getById("auto").checked;
+    getById('wabCaption').disabled = !getById("s_mg").checked;
 }

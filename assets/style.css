@@ -25,8 +25,11 @@
 }
 img.appIco {
   height: 32px;
+  width: 32px;
   padding: 5px;
   vertical-align: middle;
+  display: inline-block;
+  margin-right: 5px;
 }
 span.active {
   transform: rotate(-90deg);
@@ -169,6 +172,7 @@ input:checked + .slider:before {
 #_SET .lbl > *,
 #_SET .inp > *{
   vertical-align: middle;
+  text-transform: capitalize;
 }
 #_SET .bpSlider{
   -webkit-appearance: none;
@@ -199,12 +203,39 @@ input:checked + .slider:before {
   background-color: #009b4c;
   cursor: pointer;
 }
-#_SET .bpVal{
-  width: 20%;
-}
 #_SET .wab-module_options {
   font-weight: 400;
   margin-left: 1.8em;
+}
+#_SET .badge {
+  display: inline-block;
+  padding: .35em .65em;
+  font-size: .75em;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25rem;
+}
+#_SET .badge.beta{
+  padding: .25em .5em;
+  font-size: .5em;
+  background-color: #dc3545!important;
+  border-radius: 50rem!important;
+  vertical-align: top;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+#_SET input[type="checkbox"].checks{
+  width: 1.25em;
+  height: 1.5em;
+  top: 0 !important;
+  margin-right: 5px;
+}
+output.baseline{
+  vertical-align: baseline!important;
 }
 #tabs button {
   background-color: inherit;
