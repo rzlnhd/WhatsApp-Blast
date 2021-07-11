@@ -6,8 +6,8 @@
 // @icon         https://wab.anggunsetya.com/files/assets/wayfu.png
 // @homepageURL  https://wab.anggunsetya.com/
 // @supportURL   https://wab.anggunsetya.com/
-// @version      3.6.6
-// @date         2021-7-9
+// @version      3.6.7
+// @date         2021-7-12
 // @author       Rizal Nurhidayat
 // @match        https://web.whatsapp.com/
 // @grant        GM_getResourceText
@@ -184,7 +184,7 @@ class Options {
     }
     fillList(){
         Object.entries(this.options).forEach(e => {
-            const [key, val] = e, elm = getById(key); 
+            const [key, val] = e, elm = getById(key);
             if(elm) {elm.type == 'checkbox' ? elm.checked = val : elm.value = val;}
         });
     }
@@ -327,7 +327,7 @@ class Interval {
     Initial Function
 =====================================*/
 /** App Information */
-const app_name = "WayFu", app_tagline = "Easy Follow Up!", version = "v3.6.6", upDate = "9 Juli 2021";
+const app_name = "WayFu", app_tagline = "Easy Follow Up!", version = "v3.6.7", upDate = "12 Juli 2021";
 /** Global Minify Function */
 const getElmAll = q => {return document.querySelectorAll(q.trim());},
     getById = q => {return document.getElementById(q.trim());},
@@ -338,11 +338,11 @@ const getElmAll = q => {return document.querySelectorAll(q.trim());},
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Variables */
-const qACR = "._2GVnY", qSend = "#main span[data-testid='send']", qInp = "#main div[contenteditable='true']",
+const qSend = "#main span[data-testid='send']", qInp = "#main div[contenteditable='true']",
     datePattern = /\d{1,4}[\/|-|:]\d{1,2}[\/|-|:]\d{2,4}/, options = new Options(), queue = new Queue(),
     mesej = new Message(), doBlast = new Interval(), report = new Report(), users = new Users();
 /** Global Reuseable Variable */
-var imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, spliter = /,/;
+var qACR, imgFile, code, pinned, user, mIdx_, runL = 0, mIdx = 0, isFormat = false, doing = false, alrt = true, spliter = /,/;
 /** First Function */
 console.info(`${app_name} ${version} - Waiting for WhatsApp to load...`);
 var timer = setInterval(general, 1000);
@@ -405,6 +405,7 @@ function initListener(){
     clk.forEach(e => { getById(e.id).addEventListener("click", e.fn); });
     chk.forEach(e => { e.addEventListener("click", getPremium); });
     tab.forEach(e => { e.addEventListener("click", openMenu); });
+    getById("pane-side").addEventListener("click", detectActiveRoom);
     getById("toggleApp").addEventListener("click", toggleApp);
     getById("getFile").addEventListener("change", prevDat);
     getById("getImg").addEventListener("change", prevImg);
@@ -481,7 +482,7 @@ function blast(){
 /** Create The Real Data */
 function loadData(arr){
     let data = [], dt = [], opt = options.options, row, s;
-    spliter = /(\w;\w)|(\w;\+)|(;;)/g.test(arr[0]) ? ';' : ',';
+    spliter = /([\w|\d];[\w|\d])|(;[\w|\d])|(;;)/g.test(arr[0]) ? ';' : ',';
     arr.forEach(e => {
         if (row = break_f(e, spliter)) {
             data.push(row); if(s = getSgDate(row)) {dt.push(s);}
@@ -491,7 +492,7 @@ function loadData(arr){
     return data;
 }
 /** Get Sign Up Date Data */
-function getSgDate(d) {return datePattern.exec(d) ? datePattern.exec(d).toString() : null;}
+function getSgDate(d) {d = datePattern.exec(d); return d ? d.toString() : null;}
 /** Set Name of the Recipient */
 function setName(nama, full = false){
     let name = nama.split(' '), new_name = [];
@@ -513,10 +514,10 @@ function setPhone(ph){
 function break_f(r, s){
     let rgx = [/\d+/g, /^(0|6|8)\d{8,}/g], e = r.split(s);
     if(r != '' && e.length >= 2){
-        let phoneIdx = rgx[0].test(e[0]) ? 2 : 1,
-            phn = e[phoneIdx].match(rgx[0]);
-        if(phn && rgx[1].test(phn.join(''))){
-            e[phoneIdx] = phn;
+        let phoneIdx = /\d{5,}/g.test(e[0]) ? 2 : 1,
+            phn = rgx[0].exec(e[phoneIdx]);
+        if(phn && rgx[1].test(phn)){
+            e[phoneIdx] = phn.join('');
             return e.join(s);
         }
         return false;
@@ -597,7 +598,7 @@ function printLink(no, link, auto = false, noLink = false){
     if(auto && noLink){
         getElm("div#wbBody span.backLink a").href = `https://${link}`;
         return true;
-    } 
+    }
     eventFire(getElm(qInp), "input", `${no}). ${link}`);
     return getElm(qSend) ? (getElm(qSend).click(), true) : false;
 }
@@ -610,6 +611,8 @@ function getRM(e){return e[e.length - 1].querySelector("span[role='button']");}
 /**=====================================
  Listener Function Handler
 =====================================*/
+/** Detect Active Room */
+function detectActiveRoom(e){for(let el of e.path){if(!!el.dataset.testid && !qACR){qACR = `.${el.classList[2]}`;}};}
 /** Preview the Selected Image File */
 function prevImg(e){
     let output = getById("o_img"), btn = e.currentTarget.dataset.value, res = null,
@@ -628,7 +631,7 @@ function prevImg(e){
 function prevDat(e){
     let reader = new FileReader(); queue.reset(); updateUI(); showProgress();
     reader.onload = f => {
-        let lines = f.currentTarget.result.split(/\r\n|\r|\n/), d = loadData(lines); queue.setData(d);
+        let lines = f.currentTarget.result.split(/\r\n|\r|\n/); queue.setData(loadData(lines));
         console.info("Blast!: Data Loaded,", queue.size, spliter); updateUI(); showProgress();
     };
     reader.readAsText(e.currentTarget.files[0]);
@@ -670,7 +673,7 @@ function changeLog(){
     let clog = JSON.parse(getVal('changelog', '')), alrt = '';
     clog.forEach((e, i) => {
         let date = dateFormat(new Date(e.date), 1);
-        alrt += i > 0 ? `\n\nVersion v${e.version} (${date})` 
+        alrt += i > 0 ? `\n\nVersion v${e.version} (${date})`
             : `${app_name} v${e.version} (Last Update: ${date})`;
         e.content.forEach(c => {alrt += `\n▫ ${c}.`;});
     });
