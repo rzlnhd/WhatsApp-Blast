@@ -338,7 +338,11 @@ const getElmAll = q => {return document.querySelectorAll(q.trim());},
     getVal = ("function" == typeof GM_getValue) ? GM_getValue : GM.getValue,
     setVal = ("function" == typeof GM_setValue) ? GM_setValue : GM.setValue;
 /** Global Variables */
+<<<<<<< HEAD
 const qSend = "#main span[data-testid='send']", qInp = "#main div[contenteditable='true']",
+=======
+const qACR = "._2_TVt", qSend = "#main span[data-testid='send']", qInp = "#main div[contenteditable='true']",
+>>>>>>> b348a1d7d057fae171f970c82dd089477ff08aae
     datePattern = /\d{1,4}[\/|-|:]\d{1,2}[\/|-|:]\d{2,4}/, options = new Options(), queue = new Queue(),
     mesej = new Message(), doBlast = new Interval(), report = new Report(), users = new Users();
 /** Global Reuseable Variable */
